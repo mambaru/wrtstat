@@ -63,16 +63,22 @@ public:
     _max = std::max(_max, v);
   }
 
-  void add( const data_type& values)
+  void add( const data_type& values, size_t count)
   {
     for (value_type v : values)
       this->add(v);
+    
+    if ( values.size() != count )
+    {
+      auto diff = count - values.size();
+      _lossy_count += diff;
+      _total_count += diff;
+    }
   }
 
   void add( const data_type& values)
   {
-    for (value_type v : values)
-      this->add(v);
+    this->add( values, values.size() );
   }
 
   void add( std::initializer_list<value_type> values )
@@ -108,6 +114,25 @@ private:
   {
     if ( 0 == ( (_position + 1) % (_level+1) ) )
       this->set_in_cur_pos_<F>(v);
+    else if ( _position < _level )
+    {
+      if ( _level > 1 )
+      {
+        auto l = _level - 1;
+        //this->set_in_cur_pos_<F>(v);
+        auto a1 = (_data.size() / l ) * l;
+        auto a2 = _data.size() - a1;
+        if ( _position == a2 && _position!=0)
+        {
+          std::cout << "set " << v << " to " << _position << " for level " << (_level - 1) << std::endl;
+          this->set_in_cur_pos_<F>(v);
+        }
+        else
+          ++_lossy_count;
+      }
+      else
+        ++_lossy_count;
+    }
     else
       ++_lossy_count;
 
@@ -157,6 +182,82 @@ private:
   data_type _data;
 };
 
+
+template<typename C = collector<>, typename T = time_t >
+class seperator
+{
+public:
+  typedef T time_type;
+  typedef C collector_type;
+  typedef typename collector_type::data_type  data_type;
+  typedef typename collector_type::value_type value_type;
+  
+  seperator(time_type now, time_type step, size_t limit, size_t reserve=0)
+    : _collector(limit, reserve)
+    , _step_ts(step)
+    , _next_time(now + step)
+  {
+  }
+
+  void set_time(time_type now) 
+  {
+    _next_time = now + _step_ts;
+  }
+  
+  const collector_type& collector() const { return _collector;}
+
+  bool add(time_type now, value_type v)
+  {
+    bool ready = this->aggregate(now, false);
+    _collector.add(v);
+    return ready;
+  }
+
+  bool aggregate(time_type now, bool force)
+  {
+    if ( !force && now < _next_time )
+      return false;
+    this->aggregate_();
+    return true;
+  }
+private:
+  
+  collector_type _collector;
+  time_type _step_ts;
+  time_type _next_time;
+
+};
+
+/*
+ void aggregate_()
+  {
+    aggregated_data<data_type> ag;
+    ag.count = _collector.total_count();
+    ag.losses = _collector.lossy_count();
+    _collector.detach(ag.data);
+    value_type& d = ag.data;
+    this->init_perc_(ag, ag.data);
+  }
+  
+  void init_perc_(aggregated& ag, data_type& d)
+  {
+    size_t off = 0;
+    ag.perc50 = this->perc_next_(50, d, off);
+    ag.perc80 = this->perc_next_(80, d, off);
+    ag.perc95 = this->perc_next_(95, d, off);
+    ag.perc99 = this->perc_next_(99, d, off);
+  }
+  
+  value_type perc_next_(size_t perc, data_type& d, size_t& off)
+  {
+    size_t pos = (d.size()*perc)/100;
+    std::nth_element(d.begin() + off, d.begin() + pos, d.end());
+    off = pos;
+    return d[pos];
+  }
+  
+
+ */
 struct aggregated
 {
   size_t avg = 0;
@@ -186,79 +287,8 @@ struct aggregated
 template<typename T>
 struct aggregated_data: aggregated
 {
-  typedef T value_type;
-  std::vector<T> data;
-};
-
-template<typename C = collector<>, typename T = time_t >
-class aggregator
-{
-public:
-  typedef T time_type;
-  typedef C collector_type;
-  typedef typename collector_type::value_type value_type;
-  
-  aggregator(time_type now, time_type step, size_t limit, size_t reserve=0)
-    : _collector(limit, reserve)
-    , _step_ts(step)
-    , _aggregate_ts(now + step)
-  {
-  }
-
-  void set_time(time_type now) 
-  {
-    _aggregate_ts = now + _step_ts;
-  }
-  
-  const collector_type& collector() const { return _collector;}
-
-  bool add(time_type now, value_type v)
-  {
-    bool ready = this->aggregate(now, false);
-    _collector.add(v);
-    return ready;
-  }
-
-  bool aggregate(time_type now, bool force)
-  {
-    if ( !force && now < _aggregate_ts )
-      return false;
-    this->aggregate_();
-    return true;
-  }
-private:
-  
-  void aggregate_()
-  {
-    aggregated_data ag;
-    ag.count = _collector.total_count();
-    ag.losses = _collector.lossy_count();
-    _collector.detach(ag.data);
-    value_type& d = ag.data;
-    this->init_perc_(ag, ag.data);
-  }
-  
-  void init_perc_(aggregated& ag, data_type& d)
-  {
-    size_t off = 0;
-    ag.perc50 = this->perc_next_(50, d, off);
-    ag.perc80 = this->perc_next_(80, d, off);
-    ag.perc95 = this->perc_next_(95, d, off);
-    ag.perc99 = this->perc_next_(99, d, off);
-  }
-  
-  value_type perc_next_(size_t perc, data_type& d, size_t& off)
-  {
-    size_t pos = (d.size()*perc)/100;
-    std::nth_element(d.begin() + off, d.begin() + pos, d.end());
-    off = pos;
-    return d[pos];
-  }
-  
-  collector_type _collector;
-  time_type _step_ts;
-  time_type _aggregate_ts;
-  
+  typedef T data_type;
+  data_type data;
 };
 
 }

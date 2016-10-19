@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <wrtstat/aggregator.hpp>
 #define LEVEL1 100
-#define LEVEL2 100
+#define LEVEL2 50
 int main()
 {
   {
@@ -24,11 +24,12 @@ int main()
     for ( int i : values )
       std::cout << i << " ";
     std::cout << std::endl;
-    /*
+    
     for (int i = 1; i < LEVEL2+1; ++i)
       std::cout << i << " = " << std::count(values.begin(),values.end(), i) << std::endl;
-    */
+    
   }
+  std::cout << "-------------------------------------" << std::endl;
   {
     wrtstat::collector<> c(LEVEL1, LEVEL2);
 
@@ -40,6 +41,8 @@ int main()
     for ( int i : c.values() )
       std::cout << i << " ";
     std::cout << std::endl;
+    for (int i = 1; i < LEVEL2+1; ++i)
+      std::cout << i << " = " << std::count(c.values().begin(), c.values().end(), i) << std::endl;
   }
   return 0;
 }
