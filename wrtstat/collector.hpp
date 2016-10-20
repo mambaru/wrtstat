@@ -13,7 +13,24 @@ public:
   typedef std::vector<value_type> data_type;
   typedef std::unique_ptr<data_type> data_ptr;
   typedef std::vector<data_ptr> data_list;
+
+  // TODO: переименовать
+  struct result
+  {
+    // Общее количество
+    size_t count;
+    // Количество не учтенных
+    size_t lossy;
+    // min - это не 0% с потярми
+    value_type min;
+    // Ахтунг! Если есть потери, то max-это не 100%
+    value_type max;
+    // Среднее считаем здесь, для точности
+    value_type avg;
+    data_ptr data;
+  };
   
+  typedef result result_type;
 
 public:
 
@@ -91,29 +108,29 @@ public:
     this->add_(v);
   }
   
-  data_ptr detach()
+  result_type detach()
   {
+    result_type res;
     if (_data.empty() )
-      return nullptr;
+      return std::move(res);
     this->reduce();
-    auto res = std::move(_data.front());
+    res.data = std::move(_data.front());
+    res.avg = _average;
+    res.count = _total_count;
+    res.lossy = _lossy_count;
+    res.max = _max;
+    res.min = _min;
     _data.front()=std::unique_ptr<data_type>();
     return std::move(res);
-    /*
-    size_t ds = _data[0]->size();
-    for ( size_t i = 0, l = _data.size(); i < ds; ++i )
-    {
-      if ( l == _data.size() ) l=1;
-      else if ( i < _data[l]->size() )
-        _data[0]->at(i)=_data[l++]->at(i);
-      else if (_data.size() > 2 )
-        _data[0]->at(i) = _data[(l++)-1]->at(i);
-    }
-    auto res = std::move( _data[0] );
-    _data.clear();
-    std::sort( res->begin(), res->end() );
-    return res;
-    */
+  }
+  
+  void clear()
+  {
+    _average = 0;
+    _total_count = 0;
+    _lossy_count = 0;
+    _max = 0;
+    _min = 0;
   }
 
   void reduce()
@@ -172,7 +189,9 @@ private:
   size_t _limit = 0;
   // Текущий уровень фильтрации
   size_t _levels = 0;
+  // TODO: убрать и сделать аллкатор 
   size_t _reserve = 0;
+  value_type _average = 0;
   //
   size_t _position = 0;
   // Значения
