@@ -1,7 +1,8 @@
 #include <iostream>
 #include <array>
 #include <algorithm>
-#include <wrtstat/collector.hpp>
+#include <wrtstat/reducer.hpp>
+#include <wrtstat/separator.hpp>
 #define LEVEL1 10
 #define LEVEL2 1
 int main()
@@ -31,7 +32,7 @@ int main()
   }
   std::cout << "-------------------------------------" << std::endl;
   {
-    wrtstat::collector c(LEVEL1, LEVEL2);
+    wrtstat::reducer c(LEVEL1, LEVEL2);
     c.add(100);c.add(101);c.add(102);
     for (int i = 0; i < LEVEL2; ++i)
     {
@@ -41,11 +42,11 @@ int main()
     
     std::cout << "lossy_count: " << c.lossy_count() << std::endl;
     auto d = c.detach();
-    for ( int i : *d )
+    for ( int i : d->data )
       std::cout << i << " ";
     std::cout << std::endl;
     for (int i = 1; i < LEVEL2+1; ++i)
-      std::cout << i << " = " << std::count(d->begin(), d->end(), i) << std::endl;
+      std::cout << i << " = " << std::count(d->data.begin(), d->data.end(), i) << std::endl;
     
   }
   return 0;

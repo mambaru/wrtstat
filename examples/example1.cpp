@@ -29,20 +29,5 @@ int main()
       std::cout << i << " = " << std::count(values.begin(),values.end(), i) << std::endl;
     
   }
-  std::cout << "-------------------------------------" << std::endl;
-  {
-    wrtstat::collector<> c(LEVEL1, LEVEL2);
-
-    for (int i = 0; i < LEVEL2; ++i)
-    {
-      for (int j = 0; j < LEVEL1; ++j)
-        c.add(i+1);
-    }
-    for ( int i : c.values() )
-      std::cout << i << " ";
-    std::cout << std::endl;
-    for (int i = 1; i < LEVEL2+1; ++i)
-      std::cout << i << " = " << std::count(c.values().begin(), c.values().end(), i) << std::endl;
-  }
   return 0;
 }

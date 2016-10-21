@@ -1,4 +1,5 @@
 #pragma once
+#include <wrtstat/reduced_data.hpp>
 #include <vector>
 #include <limits>
 #include <memory>
@@ -6,35 +7,30 @@
 
 namespace wrtstat {
 
-class collector
+struct reducer_options
+{
+  size_t length = 0;
+  // Текущий уровень фильтрации
+  size_t withd = 0;
+  // TODO: убрать и сделать аллкатор 
+  size_t reserve = 0;
+};
+
+class reducer
 {
 public:
-  typedef long long int value_type;
-  typedef std::vector<value_type> data_type;
+  typedef reduced_data::value_type value_type;
+  typedef reduced_data::data_type data_type;
   typedef std::unique_ptr<data_type> data_ptr;
   typedef std::vector<data_ptr> data_list;
 
-  // TODO: переименовать
-  struct result
-  {
-    // Общее количество
-    size_t count;
-    // Количество не учтенных
-    size_t lossy;
-    // min - это не 0% с потярми
-    value_type min;
-    // Ахтунг! Если есть потери, то max-это не 100%
-    value_type max;
-    // Среднее считаем здесь, для точности
-    value_type avg;
-    data_ptr data;
-  };
   
-  typedef result result_type;
+  typedef reduced_data result_type;
+  typedef std::unique_ptr<result_type> result_ptr;
 
 public:
 
-  collector(size_t limit, size_t levels, size_t reserve=0)
+  reducer(size_t limit, size_t levels, size_t reserve=0)
     : _limit( limit )
     , _levels(levels)
     , _reserve( reserve )
@@ -66,7 +62,8 @@ public:
   void clear()
   {
     _min = std::numeric_limits<value_type>::max();
-    _max = std::numeric_limits<value_type>::max();
+    _max = std::numeric_limits<value_type>::min();
+    _average = 0;
     _lossy_count = 0;
     _total_count = 0;
     _position = 0;
@@ -108,29 +105,27 @@ public:
     this->add_(v);
   }
   
-  result_type detach()
+  result_ptr detach()
   {
-    result_type res;
-    if (_data.empty() )
-      return std::move(res);
+    if ( this->empty() )
+      return nullptr;
+
+    auto res = result_ptr(new result_type);
     this->reduce();
-    res.data = std::move(_data.front());
-    res.avg = _average;
-    res.count = _total_count;
-    res.lossy = _lossy_count;
-    res.max = _max;
-    res.min = _min;
-    _data.front()=std::unique_ptr<data_type>();
+    _data.front()->swap(res->data);
+    res->avg = _average;
+    res->count = _total_count;
+    res->lossy = _lossy_count;
+    res->max = _max;
+    res->min = _min;
+    this->clear();
     return std::move(res);
   }
   
-  void clear()
+
+  bool empty()
   {
-    _average = 0;
-    _total_count = 0;
-    _lossy_count = 0;
-    _max = 0;
-    _min = 0;
+    return _data.empty() && _total_count == 0;
   }
 
   void reduce()
@@ -138,9 +133,8 @@ public:
     if ( _data.empty() )
       return;
 
-    //if ( _data.back()->size() != _limit )
-      std::sort( _data.back()->begin(), _data.back()->end() );
-    
+    std::sort( _data.back()->begin(), _data.back()->end() );
+
     if ( _data.size() == 1 )
       return;
 
@@ -154,6 +148,7 @@ public:
         _data[0]->at(i) = _data[(l++)-1]->at(i);
     }
     _data.resize(1);
+    // TODO: не сортировать выходной массив (но оставить для reduce если заполнен)
     std::sort( _data.front()->begin(), _data.front()->end() );
   }
 private:
@@ -181,7 +176,7 @@ private:
 private:
   
   value_type _min = std::numeric_limits<value_type>::max();
-  value_type _max = std::numeric_limits<value_type>::max();
+  value_type _max = std::numeric_limits<value_type>::min();
   // Счетчик отброшенных после заполнения
   size_t _lossy_count = 0;
   size_t _total_count = 0;
