@@ -1,13 +1,14 @@
 #pragma once
 #include <cstddef>
 #include <vector>
+#include <wrtstat/types.hpp>
 
 namespace wrtstat {
 
 struct reduced_data
 {
-  typedef long long int value_type;
-  typedef std::vector<value_type> data_type;
+  typedef types::value_type value_type;
+  typedef types::data_type data_type;
  
   // Общее количество
   size_t count;

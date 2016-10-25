@@ -8,8 +8,9 @@
 int main()
 {
   ::srand( std::time(0) );
-  wrtstat::aggregator ag( 0, 5, 100000, 10, 1000000);
-  wrtstat::aggregator ag2( 0, 10, 1000, 1, 1000);
+  wrtstat::pool pool( 1000, 1000000 );
+  wrtstat::aggregator ag( 0, 5, 1000, 1000, pool.get_allocator() );
+  wrtstat::aggregator ag2( 0, 10, 1000, 1);
   auto start = std::chrono::high_resolution_clock::now();
   for (int t = 0 ; t < 100; ++t)
   {
@@ -44,6 +45,7 @@ int main()
     std::cout <<   "50%:"  << d->perc50  << "(" << long(100000.0/(d->perc50/1000000.0))
               << ") 80%:"  << d->perc80  << "(" << long(100000.0/(d->perc80/1000000.0))
               << ") 100%:" << d->perc100 << "(" << long(100000.0/(d->perc100/1000000.0))
+              << ") min:" << d->min << "(" << long(100000.0/(d->min/1000000.0))
               << ")" << std::endl; 
   }
 

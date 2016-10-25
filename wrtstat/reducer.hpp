@@ -1,5 +1,6 @@
 #pragma once
 #include <wrtstat/reduced_data.hpp>
+#include <wrtstat/pool.hpp>
 #include <vector>
 #include <limits>
 #include <memory>
@@ -7,36 +8,26 @@
 
 namespace wrtstat {
 
-struct reducer_options
-{
-  size_t length = 0;
-  // Текущий уровень фильтрации
-  size_t withd = 0;
-  // TODO: убрать и сделать аллкатор 
-  size_t reserve = 0;
-};
 
 class reducer
 {
 public:
+  typedef types::size_type size_type;
   typedef reduced_data::value_type value_type;
   typedef reduced_data::data_type data_type;
   typedef std::unique_ptr<data_type> data_ptr;
   typedef std::vector<data_ptr> data_list;
 
-  
-  typedef reduced_data result_type;
-  typedef std::unique_ptr<result_type> result_ptr;
+  typedef reduced_data reduced_type;
+  typedef std::unique_ptr<reduced_type> reduced_ptr;
 
 public:
 
-  reducer(size_t limit, size_t levels, size_t reserve=0)
+  reducer(size_t limit, size_t levels, pool::allocator allocator = pool::allocator() )
     : _limit( limit )
     , _levels(levels)
-    , _reserve( reserve )
+    , _allocator( allocator )
   {
-    if ( _reserve == 0 ) 
-      _reserve = _limit;
   }
 
   size_t lossy_count() const 
@@ -105,12 +96,12 @@ public:
     this->add_(v);
   }
   
-  result_ptr detach()
+  reduced_ptr detach()
   {
     if ( this->empty() )
       return nullptr;
 
-    auto res = result_ptr(new result_type);
+    auto res = reduced_ptr(new reduced_type);
     this->reduce();
     _data.front()->swap(res->data);
     res->avg = _average;
@@ -147,9 +138,11 @@ public:
       else if (_data.size() > 2 )
         _data[0]->at(i) = _data[(l++)-1]->at(i);
     }
+    for ( size_t i = 1; i < _data.size(); ++i)
+      _allocator.free( std::move(_data[i]) );
     _data.resize(1);
     // TODO: не сортировать выходной массив (но оставить для reduce если заполнен)
-    std::sort( _data.front()->begin(), _data.front()->end() );
+    //std::sort( _data.front()->begin(), _data.front()->end() );
   }
 private:
   
@@ -168,7 +161,7 @@ private:
       }
       if ( !_data.empty() )
         std::sort( _data.back()->begin(), _data.back()->end() );
-      _data.emplace_back( std::unique_ptr<data_type>(new data_type) );
+      _data.emplace_back( _allocator.create() );
     }
     _data.back()->push_back(v);
   }
@@ -185,7 +178,7 @@ private:
   // Текущий уровень фильтрации
   size_t _levels = 0;
   // TODO: убрать и сделать аллкатор 
-  size_t _reserve = 0;
+  pool::allocator _allocator;
   value_type _average = 0;
   //
   size_t _position = 0;
