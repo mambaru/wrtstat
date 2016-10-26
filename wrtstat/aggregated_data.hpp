@@ -3,7 +3,8 @@
 
 namespace wrtstat {
 
-struct aggregated_data: reduced_data
+struct aggregated_data
+  : reduced_data
 {
   typedef reduced_data::value_type value_type;
   value_type perc50;

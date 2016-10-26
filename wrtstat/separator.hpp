@@ -1,5 +1,6 @@
 #pragma once
 #include <wrtstat/reducer.hpp>
+#include <wrtstat/separator_options.hpp>
 #include <list>
 #include <ctime>
 
@@ -17,10 +18,10 @@ public:
   typedef reducer_type::reduced_type reduced_type;
   typedef reducer_type::reduced_ptr  reduced_ptr; 
   
-  separator(time_type now, time_type step, size_t limit, size_t levels, pool::allocator allocator = pool::allocator())
-    : _reducer(limit, levels, allocator)
-    , _step_ts(step)
-    , _next_time(now + step)
+  separator(time_type now, separator_options opt, pool::allocator allocator = pool::allocator())
+    : _reducer(opt, allocator)
+    , _step_ts(opt.step_ts)
+    , _next_time(now + opt.step_ts)
   {
   }
 
@@ -78,7 +79,7 @@ public:
   
 private:
   reducer_type _reducer;
-  time_type _step_ts;
+  const time_type _step_ts;
   time_type _next_time;
   std::list<reduced_ptr> _sep_list;
 };

@@ -32,7 +32,9 @@ int main()
   }
   std::cout << "-------------------------------------" << std::endl;
   {
-    wrtstat::reducer c(LEVEL1, LEVEL2);
+    wrtstat::reducer_options opt;
+    opt.limit = LEVEL1; opt.levels = LEVEL2;
+    wrtstat::reducer c(opt);
     c.add(100);c.add(101);c.add(102);
     for (int i = 0; i < LEVEL2; ++i)
     {

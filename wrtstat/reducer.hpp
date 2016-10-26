@@ -1,5 +1,6 @@
 #pragma once
 #include <wrtstat/reduced_data.hpp>
+#include <wrtstat/reducer_options.hpp>
 #include <wrtstat/pool.hpp>
 #include <vector>
 #include <limits>
@@ -23,9 +24,8 @@ public:
 
 public:
 
-  reducer(size_t limit, size_t levels, pool::allocator allocator = pool::allocator() )
-    : _limit( limit )
-    , _levels(levels)
+  reducer(reducer_options opt, pool::allocator allocator = pool::allocator() )
+    : _opt( opt )
     , _allocator( allocator )
   {
   }
@@ -38,17 +38,17 @@ public:
     if ( _data.size() == 1 )
       return _lossy_count;
 
-    return _lossy_count + _limit * (_data.size() - 2) + _data.back()->size();  
+    return _lossy_count + _opt.limit * (_data.size() - 2) + _data.back()->size();  
 
   }
   size_t total_count() const { return _total_count; }
-  size_t levels() const { return _levels; }
+  size_t levels() const { return _opt.levels; }
   size_t max() const { return _max; }
   size_t min() const { return _min; }
   size_t position() const { return _position; }
   size_t size() const { return _data.size(); }
 
-  bool filled() const { return _data.size()==_levels && _data.back()->size()==_limit;}
+  bool filled() const { return _data.size()==_opt.levels && _data.back()->size()==_opt.limit;}
   
   void clear()
   {
@@ -129,7 +129,7 @@ public:
     if ( _data.size() == 1 )
       return;
 
-    for ( size_t i = 1, l = 1; i < _limit; ++i )
+    for ( size_t i = 1, l = 1; i < _opt.limit; ++i )
     {
       if ( l == _data.size() ) // первую строку не трогаем 
         l=1;
@@ -141,8 +141,6 @@ public:
     for ( size_t i = 1; i < _data.size(); ++i)
       _allocator.free( std::move(_data[i]) );
     _data.resize(1);
-    // TODO: не сортировать выходной массив (но оставить для reduce если заполнен)
-    //std::sort( _data.front()->begin(), _data.front()->end() );
   }
 private:
   
@@ -152,9 +150,9 @@ private:
     ++_total_count;
     this->minmax(v);
     
-    if ( _data.empty() || _data.back()->size() == _limit  )
+    if ( _data.empty() || _data.back()->size() == _opt.limit  )
     {
-      if ( _data.size() == _levels )
+      if ( _data.size() == _opt.levels )
       {
         ++_lossy_count;
         return;
@@ -167,16 +165,12 @@ private:
   }
 
 private:
-  
+  const reducer_options _opt;
   value_type _min = std::numeric_limits<value_type>::max();
   value_type _max = std::numeric_limits<value_type>::min();
   // Счетчик отброшенных после заполнения
   size_t _lossy_count = 0;
   size_t _total_count = 0;
-  // Ограничение на размер данных
-  size_t _limit = 0;
-  // Текущий уровень фильтрации
-  size_t _levels = 0;
   // TODO: убрать и сделать аллкатор 
   pool::allocator _allocator;
   value_type _average = 0;

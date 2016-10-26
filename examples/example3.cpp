@@ -9,8 +9,16 @@ int main()
 {
   ::srand( std::time(0) );
   wrtstat::pool pool( 1000, 1000000 );
-  wrtstat::aggregator ag( 0, 5, 1000, 1000, pool.get_allocator() );
-  wrtstat::aggregator ag2( 0, 10, 1000, 1);
+  wrtstat::aggregator_options opt;
+  opt.step_ts = 5;
+  opt.reduced_size = 100;
+  opt.limit = 1000;
+  opt.levels = 1000;
+  wrtstat::aggregator ag( 0, opt, pool.get_allocator() );
+  opt.step_ts = 10;
+  opt.limit = 100;
+  opt.levels = 1;
+  wrtstat::aggregator ag2( 0, opt);
   auto start = std::chrono::high_resolution_clock::now();
   for (int t = 0 ; t < 100; ++t)
   {
@@ -28,7 +36,7 @@ int main()
     auto f = std::chrono::system_clock::now();
     ag2.add( t, std::chrono::duration_cast<std::chrono::microseconds>(f - s).count() );
   }
-  ag.set_limit(100);
+  
   auto finish = std::chrono::high_resolution_clock::now();
   auto span = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
   auto count = 100000*1001;

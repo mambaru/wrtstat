@@ -1,5 +1,6 @@
 #pragma once
 #include <wrtstat/aggregated_data.hpp>
+#include <wrtstat/aggregator_options.hpp>
 #include <wrtstat/separator.hpp>
 
 namespace wrtstat {
@@ -18,17 +19,12 @@ public:
   typedef std::unique_ptr<aggregated_type> aggregated_ptr;
   typedef std::list< aggregated_ptr > aggregated_list;
   
-  aggregator(time_type now, time_type step, size_t limit, size_t levels, pool::allocator allocator = pool::allocator())
-    : _sep(now, step, limit, levels, allocator)
+  aggregator(time_type now, aggregator_options opt, pool::allocator allocator = pool::allocator())
+    : _sep(now, opt, allocator)
+    , _reduced_size(opt.reduced_size)
   {
   }
 
-  void set_limit(size_t reduced_size)
-  {
-    _reduced_size = reduced_size;
-  }
-
-  
   bool add(time_type now, value_type v)
   {
     if ( !_sep.add(now, v) )
@@ -99,7 +95,7 @@ private:
   {
     if ( d==nullptr )
       return nullptr;
-    
+
     aggregated_ptr res = aggregated_ptr(new aggregated_type);
     static_cast<reduced_data&>(*res) = std::move(*d);
     size_t size = res->data.size();
@@ -112,14 +108,13 @@ private:
       res->perc99 = this->nth_(99, off, res->data);
       res->perc100 = res->data[ size - 1 ];
     }
-    
+
     return res;
   }
-  
 
 public:
-  size_t _reduced_size = 0;
   separator _sep;
+  size_t _reduced_size = 0;
   aggregated_list _ag_list;
 };
 
