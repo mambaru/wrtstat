@@ -21,9 +21,7 @@ public:
   aggregator_map(aggregator_options opt)
     : _opt(opt)
     , _pool(opt.limit, 100000 /*todo*/)
-  {
-  }
-
+  { }
 
   bool add(std::string name, time_type now, value_type v)
   {
@@ -33,13 +31,9 @@ public:
 
   bool add(int id, time_type now, value_type v)
   {
-    if ( id < 0 || static_cast<size_type>(id) >= _agarr.size() )
-      return false;
-
-    if ( _agarr[id]==nullptr )
-      return false;
-
-    return _agarr[id]->add(now, v);
+    if ( auto p = this->get_(id) )
+      return p->add(now, v);
+    return false;
   }
   
   aggregated_ptr pop()
@@ -61,8 +55,32 @@ public:
     return this->aggregate_(_sep.add_and_pop(now, v));
     */
   }
+
+  int reg_name(const std::string& name, time_type now)
+  {
+    return this->findorcre_(name, now);
+  }
+
+  int create_aggregator(std::string name, time_type now)
+  {
+    return this->findorcre_( std::move(name), now );
+  }
+  
+  aggregator_ptr get_aggregator(int id)
+  {
+    return this->get_(id);
+  }
   
 private:
+  
+
+  aggregator_ptr get_(int id)
+  {
+    if ( id < 0 || static_cast<size_type>(id) >= _agarr.size() )
+      return nullptr;
+    return _agarr[id];
+  }
+  
   int findorcre_(std::string name, time_type now)
   {
     int id = _dict.get( std::move(name) );
