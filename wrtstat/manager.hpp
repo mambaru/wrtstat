@@ -52,25 +52,27 @@ public:
   typedef std::function< void(time_type now, time_type v) > timer_fun_t;
 
   template<typename D>
-  struct timer
+  struct time_meter
   {
     typedef D duration_type;
 
-    timer(timer_fun fun)
+    time_meter(time_type now, timer_fun fun)
+      : now(now)
+      , timer_fun(fun)
     {
-      timer_fun = fun;
       start = clock_type::now();
     }
 
-    ~timer()
+    ~time_meter()
     {
       if (timer_fun==nullptr)
         return;
       clock_type finish = clock_type::now();
       time_type span = std::chrono::duration_cast<D>( finish - start ).count;
-      timer_fun( span );
+      timer_fun( now, span );
     };
 
+    time_type now;
     timer_fun_t timer_fun;
     clock_type start;
   };
@@ -80,6 +82,7 @@ public:
   {
     return nullptr;
   }
+  
 private:
   aggregator_ptr get_(int id)
   {
