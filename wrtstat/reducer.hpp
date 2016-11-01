@@ -93,14 +93,20 @@ public:
 
   void add( value_type v) 
   {
+    std::cout << "reduce::add!!! = " << v << std::endl;
     this->add_(v);
+    std::cout << "reduce::add _total_count = " << _total_count << std::endl;
+    std::cout << "reduce::add _lossy_count = " << _lossy_count << std::endl;
+    std::cout << "? reduce::detach _data.size() = " << _data.back()->size() << std::endl;
   }
   
   reduced_ptr detach()
   {
+    std::cout << "? reduce::detach _data.size() = " << _data.size() << std::endl;
     if ( this->empty() )
       return nullptr;
 
+    std::cout << "reduce::detach _total_count = " << _total_count << std::endl;
     auto res = reduced_ptr(new reduced_type);
     this->reduce();
     _data.front()->swap(res->data);

@@ -38,6 +38,12 @@ public:
     _reducer.add(v);
     return ready;
   }
+  
+  reduced_ptr force_pop()
+  {
+    _reducer.reduce();
+    return _reducer.detach();
+  }
 
   reduced_ptr add_and_pop(time_type now, value_type v)
   {

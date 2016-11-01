@@ -4,6 +4,9 @@
 #include <wrtstat/aggregator_map.hpp>
 #include <wrtstat/dict.hpp>
 #include <mutex>
+#include <chrono>
+#include <deque>
+#include <memory>
 
 namespace wrtstat {
 
@@ -19,8 +22,8 @@ public:
 
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::mutex mutex_type;
-  typedef std::shared_ptr<mutex_type> mutex_ptr;
-  typedef std::vector<mutex_ptr> mutex_ptr;
+  typedef std::shared_ptr<std::mutex> mutex_ptr;
+  typedef std::deque<mutex_ptr> mutex_list;
 
   manager() { 
 
@@ -30,7 +33,6 @@ public:
   {
     std::lock_guard<mutex_type> lk(_mutex);
     _ag = std::make_shared<aggregator_type>(opt);
-    _mutex_list.clear();
   }
 
   bool add(std::string name, time_type now, value_type v)
@@ -42,6 +44,12 @@ public:
   {
     return _ag->add(id, now, v);
   }
+
+  aggregated_ptr force_pop(int id)
+  {
+     return _ag->force_pop(id);
+  }
+
 
   int reg_name(const std::string& name, time_type now)
   {
@@ -56,9 +64,10 @@ public:
   {
     typedef D duration_type;
 
-    time_meter(time_type now, timer_fun fun)
+    time_meter(time_type now, timer_fun_t fun, mutex_ptr pmutex)
       : now(now)
       , timer_fun(fun)
+      , wmutex(pmutex)
     {
       start = clock_type::now();
     }
@@ -67,48 +76,44 @@ public:
     {
       if (timer_fun==nullptr)
         return;
-      clock_type finish = clock_type::now();
-      time_type span = std::chrono::duration_cast<D>( finish - start ).count;
-      timer_fun( now, span );
+      if ( auto pmutex = wmutex.lock() ) 
+      {
+        clock_type::time_point finish = clock_type::now();
+        time_type span = std::chrono::template duration_cast<D>( finish - start ).count();
+        std::lock_guard<mutex_type> lk(*pmutex);
+        timer_fun( now, span );
+      }
     };
 
     time_type now;
     timer_fun_t timer_fun;
-    clock_type start;
+    std::weak_ptr<mutex_type> wmutex;
+    clock_type::time_point start;
   };
-  typedef std::shared_ptr<timer> timer_ptr;
+  //typedef std::shared_ptr<time_meter> time_meter_ptr;
 
-  handler_t create_handler()
+  template<typename D>
+  std::shared_ptr< time_meter<D> > create_handler(int id, time_type now)
   {
-    return nullptr;
+    return std::make_shared< time_meter<D> >(now, _ag->create_handler(id), this->get_mutex_(id) );
   }
   
 private:
-  aggregator_ptr get_(int id)
+  
+  mutex_ptr get_mutex_(int id ) const
   {
-    if ( id < 0 || static_cast<size_type>(id) >= _agarr.size() )
-      return nullptr;
-    return _agarr[id];
+    if ( id < 0 ) return nullptr;
+    if (  static_cast< mutex_list::size_type >(id) >= _mutex_list.size() ) 
+      _mutex_list.resize(id);
+    if ( _mutex_list[id] ==nullptr )
+      _mutex_list[id] = std::make_shared<mutex_type>();
+    return _mutex_list[id];
   }
   
-  int findorcre_(std::string name, time_type now)
-  {
-    int id = _dict.get( std::move(name) );
-    if ( id < 0 )
-      return id;
-    
-    if ( _agarr.size() <= static_cast<size_type>(id) )
-      _agarr.resize(id + 1);
-
-    if ( _agarr[id] == nullptr )
-      _agarr[id] = std::make_shared<aggregator>(now, _opt, _pool.get_allocator() );
-    return id;
-  }
-
 public:
   aggregator_ptr _ag;
-  mutex_list _mutex_list;
   mutable mutex_type _mutex;
+  mutable mutex_list _mutex_list;
 };
 
 }

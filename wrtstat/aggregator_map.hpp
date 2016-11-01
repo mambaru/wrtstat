@@ -14,11 +14,13 @@ public:
   typedef aggregator_type::value_type value_type;
   typedef aggregator_type::size_type size_type;
   typedef aggregator_type::aggregated_ptr aggregated_ptr;
+  typedef aggregator_type::options_type options_type;
+  typedef aggregator_type::timer_fun_t timer_fun_t;
   
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::vector<aggregator_ptr> aggregator_list;
 
-  aggregator_map(aggregator_options opt)
+  aggregator_map(options_type opt)
     : _opt(opt)
     , _pool(opt.limit, 100000 /*todo*/)
   { }
@@ -36,16 +38,18 @@ public:
     return false;
   }
   
-  aggregated_ptr pop()
+  aggregated_ptr force_pop(int id)
   {
+    if ( auto p = this->get_(id) )
+      return p->force_pop();
     return nullptr;
-    /*
-    if ( _ag_list.empty() ) 
-      return nullptr;
-    auto res = std::move(_ag_list.front() );
-    _ag_list.pop_front();
-    return res;
-    */
+  }
+  
+  aggregated_ptr pop(int id)
+  {
+    if ( auto p = this->get_(id) )
+      return p->pop();
+    return nullptr;
   }
   
   aggregated_ptr add_and_pop(time_type /*now*/, value_type /*v*/)
@@ -71,6 +75,12 @@ public:
     return this->get_(id);
   }
   
+  timer_fun_t create_handler( int id )
+  {
+    auto ag = this->get_(id);
+    return ag->create_handler();
+  }
+
 private:
   
 

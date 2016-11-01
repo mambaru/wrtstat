@@ -6,6 +6,7 @@
 namespace wrtstat {
 
 class aggregator
+  : public std::enable_shared_from_this<aggregator>
 {
 public:
   typedef separator::time_type time_type;
@@ -14,7 +15,9 @@ public:
   typedef separator::size_type size_type;
   typedef separator::reduced_type reduced_type;
   typedef separator::reduced_ptr reduced_ptr;
+  typedef std::function< void(time_type now, time_type v) > timer_fun_t;
 
+  typedef aggregator_options options_type;
   typedef aggregated_data aggregated_type;
   typedef std::unique_ptr<aggregated_type> aggregated_ptr;
   typedef std::list< aggregated_ptr > aggregated_list;
@@ -23,6 +26,7 @@ public:
     : _sep(now, opt, allocator)
     , _reduced_size(opt.reduced_size)
   {
+    _id = std::make_shared<int>(1);
   }
 
   bool add(time_type now, value_type v)
@@ -45,12 +49,34 @@ public:
     _ag_list.pop_front();
     return res;
   }
+
+  aggregated_ptr force_pop()
+  {
+    return this->aggregate_(_sep.force_pop());
+  }
   
   aggregated_ptr add_and_pop(time_type now, value_type v)
   {
     return this->aggregate_(_sep.add_and_pop(now, v));
   }
+  
+  
+  timer_fun_t create_handler( )
+  {
+    std::weak_ptr<aggregator> wthis = this->shared_from_this();
+    std::weak_ptr<int> wid = this->_id;
+    return [wid, wthis](time_type now, time_type v){
+      if ( auto pthis = wthis.lock() )
+      {
+        if (auto id = wid.lock() )
+        {
+          pthis->add(now, v);
+        }
+      }
+    };
+  }
 
+  
 private:
   
   value_type nth_(size_type perc, size_type& off, data_type& d) const
@@ -116,6 +142,7 @@ public:
   separator _sep;
   size_t _reduced_size = 0;
   aggregated_list _ag_list;
+  std::shared_ptr<int> _id;
 };
 
 }

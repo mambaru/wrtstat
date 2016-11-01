@@ -11,7 +11,7 @@ class dict
   typedef std::shared_ptr<std::string> string_ptr;
   struct less_ptr
   {
-    bool operator()(string_ptr first, string_ptr second) const
+    bool operator()(const string_ptr& first, const string_ptr& second) const
     {
       return *first < *second;
     }
@@ -24,15 +24,16 @@ public:
     if ( itr != _dict.end() )
       return itr->second;
 
-    int value = 0;
-    if ( _free.empty() ) value = _counter++;
+    int id = 0;
+    if ( _free.empty() ) id = _counter++;
     else
     {
-      value = *(_free.begin());
+      id = *(_free.begin());
       _free.erase(_free.begin());
     }
-    _dict.insert( std::make_pair(pname, value) );
-    _index.insert( std::make_pair(value, pname) );
+    _dict.insert( std::make_pair(pname, id) );
+    _index.insert( std::make_pair(id, pname) );
+    return id;
   }
 
   void free(int index) 
