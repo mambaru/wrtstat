@@ -1,8 +1,9 @@
 #pragma once
 
-#include <wrtstat/aggregator_options.hpp>
-#include <wrtstat/aggregator_map.hpp>
+#include <wrtstat/wrtstat_options.hpp>
+#include <wrtstat/map_aggregators.hpp>
 #include <wrtstat/dict.hpp>
+#include <wrtstat/time_meter.hpp>
 #include <mutex>
 #include <chrono>
 #include <deque>
@@ -10,23 +11,24 @@
 
 namespace wrtstat {
 
-class manager
+class wrtstat
 {
 public:
-  typedef aggregator_map aggregator_type;
+  typedef map_aggregators aggregator_type;
   typedef aggregator_type::time_type time_type;
   typedef aggregator_type::value_type value_type;
   typedef aggregator_type::size_type size_type;
   typedef aggregator_type::aggregated_ptr aggregated_ptr;
-  typedef aggregator_type::options_type options_type;
+  typedef wrtstat_options options_type;
 
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::mutex mutex_type;
   typedef std::shared_ptr<std::mutex> mutex_ptr;
   typedef std::deque<mutex_ptr> mutex_list;
 
-  manager() { 
-
+  wrtstat(options_type opt = options_type() ) 
+  { 
+    _ag = std::make_shared<aggregator_type>(opt);
   }
   
   void reconfigure(options_type opt)
@@ -56,7 +58,9 @@ public:
     return _ag->reg_name(name, now);
   }
 
-  typedef std::chrono::high_resolution_clock clock_type;
+  
+  //typedef std::chrono::high_resolution_clock clock_type;
+  /*
   typedef std::function< void(time_type now, time_type v) > timer_fun_t;
 
   template<typename D>
@@ -90,6 +94,7 @@ public:
     std::weak_ptr<mutex_type> wmutex;
     clock_type::time_point start;
   };
+  */
   //typedef std::shared_ptr<time_meter> time_meter_ptr;
 
   template<typename D>

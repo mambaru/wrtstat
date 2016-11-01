@@ -1,5 +1,5 @@
 #include <iostream>
-#include <wrtstat/manager.hpp>
+#include <wrtstat/wrtstat.hpp>
 #include <unistd.h>
 #include <iostream>
 
@@ -11,8 +11,7 @@ void test(std::function<void()>)
 
 int main()
 {
-  wrtstat::manager mng;
-  mng.reconfigure( wrtstat::manager::options_type() );
+  wrtstat::wrtstat mng;
   int id = mng.reg_name("my_name", 100000);
   for (int i = 0; i < 5; ++i)
   {

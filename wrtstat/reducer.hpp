@@ -9,7 +9,6 @@
 
 namespace wrtstat {
 
-
 class reducer
 {
 public:

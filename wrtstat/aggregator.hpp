@@ -15,7 +15,7 @@ public:
   typedef separator::size_type size_type;
   typedef separator::reduced_type reduced_type;
   typedef separator::reduced_ptr reduced_ptr;
-  typedef std::function< void(time_type now, time_type v) > timer_fun_t;
+  typedef types::set_span_fun_t set_span_fun_t;
 
   typedef aggregator_options options_type;
   typedef aggregated_data aggregated_type;
@@ -61,7 +61,7 @@ public:
   }
   
   
-  timer_fun_t create_handler( )
+  set_span_fun_t create_handler( )
   {
     std::weak_ptr<aggregator> wthis = this->shared_from_this();
     std::weak_ptr<int> wid = this->_id;

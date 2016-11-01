@@ -1,12 +1,12 @@
 #pragma once
 
-#include <wrtstat/aggregator_options.hpp>
+#include <wrtstat/map_aggregators_options.hpp>
 #include <wrtstat/aggregator.hpp>
 #include <wrtstat/dict.hpp>
 
 namespace wrtstat {
 
-class aggregator_map
+class map_aggregators
 {
 public:
   typedef aggregator aggregator_type;
@@ -14,13 +14,13 @@ public:
   typedef aggregator_type::value_type value_type;
   typedef aggregator_type::size_type size_type;
   typedef aggregator_type::aggregated_ptr aggregated_ptr;
-  typedef aggregator_type::options_type options_type;
-  typedef aggregator_type::timer_fun_t timer_fun_t;
+  typedef map_aggregators_options options_type;
+  typedef aggregator_type::set_span_fun_t set_span_fun_t;
   
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::vector<aggregator_ptr> aggregator_list;
 
-  aggregator_map(options_type opt)
+  map_aggregators(options_type opt)
     : _opt(opt)
     , _pool(opt.limit, 100000 /*todo*/)
   { }
@@ -75,7 +75,7 @@ public:
     return this->get_(id);
   }
   
-  timer_fun_t create_handler( int id )
+  set_span_fun_t create_handler( int id )
   {
     auto ag = this->get_(id);
     return ag->create_handler();
