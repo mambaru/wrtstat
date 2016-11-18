@@ -58,7 +58,7 @@ public:
     return _ag->reg_name(name, now);
   }
 
-  template<typename D>
+  template<typename D >
   std::shared_ptr< time_meter<D> > create_handler(int id, time_type now)
   {
     return std::make_shared< time_meter<D> >(now, _ag->create_handler(id), this->get_mutex_(id) );
