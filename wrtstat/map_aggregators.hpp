@@ -13,6 +13,7 @@ public:
   typedef aggregator_type::time_type time_type;
   typedef aggregator_type::value_type value_type;
   typedef aggregator_type::size_type size_type;
+  typedef aggregator_type::aggregated_type aggregated_type;
   typedef aggregator_type::aggregated_ptr aggregated_ptr;
   typedef map_aggregators_options options_type;
   typedef aggregator_type::set_span_fun_t set_span_fun_t;
@@ -82,7 +83,6 @@ public:
   }
 
 private:
-  
 
   aggregator_ptr get_(int id)
   {

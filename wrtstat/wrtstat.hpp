@@ -15,9 +15,11 @@ class wrtstat
 {
 public:
   typedef map_aggregators aggregator_type;
+  
   typedef aggregator_type::time_type time_type;
   typedef aggregator_type::value_type value_type;
   typedef aggregator_type::size_type size_type;
+  typedef aggregator_type::aggregated_type aggregated_type;
   typedef aggregator_type::aggregated_ptr aggregated_ptr;
   typedef wrtstat_options options_type;
 
@@ -47,6 +49,11 @@ public:
     return _ag->add(id, now, v);
   }
 
+  aggregated_ptr pop(int id)
+  {
+     return _ag->pop(id);
+  }
+
   aggregated_ptr force_pop(int id)
   {
      return _ag->force_pop(id);
@@ -70,7 +77,7 @@ private:
   {
     if ( id < 0 ) return nullptr;
     if (  static_cast< mutex_list::size_type >(id) >= _mutex_list.size() ) 
-      _mutex_list.resize(id);
+      _mutex_list.resize(id+1);
     if ( _mutex_list[id] ==nullptr )
       _mutex_list[id] = std::make_shared<mutex_type>();
     return _mutex_list[id];
