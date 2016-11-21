@@ -21,6 +21,7 @@ public:
   typedef aggregator_type::size_type size_type;
   typedef aggregator_type::aggregated_type aggregated_type;
   typedef aggregator_type::aggregated_ptr aggregated_ptr;
+  
   typedef wrtstat_options options_type;
 
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
@@ -41,33 +42,43 @@ public:
 
   bool add(std::string name, time_type now, value_type v)
   {
+    std::lock_guard<mutex_type> lk(_mutex);
     return _ag->add(name, now, v);
   }
 
   bool add(int id, time_type now, value_type v)
   {
+    std::lock_guard<mutex_type> lk(_mutex);
     return _ag->add(id, now, v);
   }
 
   aggregated_ptr pop(int id)
   {
-     return _ag->pop(id);
+    std::lock_guard<mutex_type> lk(_mutex);
+    return _ag->pop(id);
   }
 
   aggregated_ptr force_pop(int id)
   {
-     return _ag->force_pop(id);
+    std::lock_guard<mutex_type> lk(_mutex);
+    return _ag->force_pop(id);
   }
 
-
+  int count() const 
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return static_cast<int>(_mutex_list.size() );
+  }
   int reg_name(const std::string& name, time_type now)
   {
+    std::lock_guard<mutex_type> lk(_mutex);
     return _ag->reg_name(name, now);
   }
 
   template<typename D >
   std::shared_ptr< time_meter<D> > create_handler(int id, time_type now)
   {
+    std::lock_guard<mutex_type> lk(_mutex);
     return std::make_shared< time_meter<D> >(now, _ag->create_handler(id), this->get_mutex_(id) );
   }
   
@@ -75,11 +86,14 @@ private:
   
   mutex_ptr get_mutex_(int id ) const
   {
-    if ( id < 0 ) return nullptr;
+    if ( id < 0 ) 
+      return nullptr;
+
     if (  static_cast< mutex_list::size_type >(id) >= _mutex_list.size() ) 
       _mutex_list.resize(id+1);
     if ( _mutex_list[id] ==nullptr )
       _mutex_list[id] = std::make_shared<mutex_type>();
+
     return _mutex_list[id];
   }
   

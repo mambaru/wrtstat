@@ -52,7 +52,7 @@ public:
       return p->pop();
     return nullptr;
   }
-  
+
   aggregated_ptr add_and_pop(time_type /*now*/, value_type /*v*/)
   {
     return nullptr;
@@ -78,8 +78,9 @@ public:
   
   set_span_fun_t create_handler( int id )
   {
-    auto ag = this->get_(id);
-    return ag->create_handler();
+    if ( auto ag = this->get_(id) )
+      return ag->create_handler();
+    return nullptr;
   }
 
 private:
