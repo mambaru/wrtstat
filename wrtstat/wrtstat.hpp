@@ -40,16 +40,16 @@ public:
     _ag = std::make_shared<aggregator_type>(opt);
   }
 
-  bool add(std::string name, time_type now, value_type v)
+  bool add(std::string name, time_type now, value_type v, size_type count)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return _ag->add(name, now, v);
+    return _ag->add(name, now, v, count);
   }
 
-  bool add(int id, time_type now, value_type v)
+  bool add(int id, time_type now, value_type v, size_type count)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return _ag->add(id, now, v);
+    return _ag->add(id, now, v, count);
   }
 
   aggregated_ptr pop(int id)
@@ -69,17 +69,25 @@ public:
     std::lock_guard<mutex_type> lk(_mutex);
     return static_cast<int>(_mutex_list.size() );
   }
+
   int reg_name(const std::string& name, time_type now)
   {
     std::lock_guard<mutex_type> lk(_mutex);
     return _ag->reg_name(name, now);
   }
 
-  template<typename D >
-  std::shared_ptr< time_meter<D> > create_handler(int id, time_type now)
+  std::string get_name(int id) const 
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return std::make_shared< time_meter<D> >(now, _ag->create_handler(id), this->get_mutex_(id) );
+    return _ag->get_name(id);
+  }
+
+
+  template<typename D >
+  std::shared_ptr< time_meter<D> > create_meter(int id, time_type now, size_type count)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return std::make_shared< time_meter<D> >(now, count, _ag->create_meter(id/*, count*/), this->get_mutex_(id) );
   }
   
 private:

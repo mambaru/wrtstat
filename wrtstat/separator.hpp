@@ -32,10 +32,10 @@ public:
   
   const reducer_type& get_reducer() const { return this->_reducer;}
 
-  bool add(time_type now, value_type v)
+  bool add(time_type now, value_type v, size_type count)
   {
     auto ready = this->separate(now, false);
-    _reducer.add(v);
+    _reducer.add(v, count);
     return ready;
   }
   
@@ -45,12 +45,14 @@ public:
     return _reducer.detach();
   }
 
+  /*
   reduced_ptr add_and_pop(time_type now, value_type v)
   {
     auto res = this->separate_and_pop(now, v);
     _reducer.add(v);
     return res;
   }
+  */
 
   bool separate(time_type now, bool force)
   {
@@ -64,6 +66,7 @@ public:
     return true;
   }
   
+  /*
   reduced_ptr separate_and_pop(time_type now, bool force)
   {
     if ( !force && now < _next_time )
@@ -71,6 +74,7 @@ public:
     _next_time += _step_ts;
     return _reducer.detach();
   }
+  */
 
   bool ready() { return !_sep_list.empty();}
   bool empty() { return _sep_list.empty();}

@@ -70,7 +70,7 @@ public:
   void add( const data_type& values, size_t count)
   {
     for (value_type v : values)
-      this->add(v);
+      this->add_(v);
     
     if ( values.size() != count )
     {
@@ -88,16 +88,18 @@ public:
   void add( std::initializer_list<value_type> values )
   {
     for (value_type v : values)
-      this->add(v);
+      this->add_(v);
   }
 
-  void add( value_type v) 
+  void add( value_type v, size_t count) 
   {
-    std::cout << "reduce::add!!! = " << v << std::endl;
     this->add_(v);
-    std::cout << "reduce::add _total_count = " << _total_count << std::endl;
-    std::cout << "reduce::add _lossy_count = " << _lossy_count << std::endl;
-    std::cout << "? reduce::detach _data.size() = " << _data.back()->size() << std::endl;
+    if ( count != 1 )
+    {
+      --count;
+      _lossy_count += count;
+      _total_count += count;
+    }
   }
   
   reduced_ptr detach()

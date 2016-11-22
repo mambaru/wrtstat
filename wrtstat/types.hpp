@@ -18,7 +18,7 @@ struct types
   typedef std::mutex mutex_type;
   typedef std::shared_ptr<mutex_type> mutex_ptr;
   typedef std::weak_ptr<mutex_type> mutex_wptr;
-  typedef std::function< void(time_type now, span_type v) > set_span_fun_t;
+  typedef std::function< void(time_type now, span_type value, size_type count) > set_span_fun_t;
 
 };
 

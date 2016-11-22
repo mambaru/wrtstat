@@ -9,11 +9,12 @@ struct reduced_data
 {
   typedef types::value_type value_type;
   typedef types::data_type data_type;
+  typedef types::size_type size_type; 
  
   // Общее количество
-  size_t count;
+  size_type count;
   // Количество не учтенных
-  size_t lossy;
+  size_type lossy;
   // min - это не 0% с потярми
   value_type min;
   // Ахтунг! Если есть потери, то max-это не 100%

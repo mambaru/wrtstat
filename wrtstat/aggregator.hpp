@@ -29,9 +29,9 @@ public:
     _id = std::make_shared<int>(1);
   }
 
-  bool add(time_type now, value_type v)
+  bool add(time_type now, value_type v, size_type count)
   {
-    if ( !_sep.add(now, v) )
+    if ( !_sep.add(now, v, count) )
       return false;
     while (auto sep = _sep.pop() )
     {
@@ -55,22 +55,24 @@ public:
     return this->aggregate_(_sep.force_pop());
   }
   
+  /*
   aggregated_ptr add_and_pop(time_type now, value_type v)
   {
     return this->aggregate_(_sep.add_and_pop(now, v));
   }
+  */
   
   
-  set_span_fun_t create_handler( )
+  set_span_fun_t create_meter(/*size_type count  = 1 */ )
   {
     std::weak_ptr<aggregator> wthis = this->shared_from_this();
     std::weak_ptr<int> wid = this->_id;
-    return [wid, wthis](time_type now, time_type v){
+    return [wid, /*count,*/ wthis](time_type now, time_type v, size_type count){
       if ( auto pthis = wthis.lock() )
       {
         if (auto id = wid.lock() )
         {
-          pthis->add(now, v);
+          pthis->add(now, v, count);
         }
       }
     };

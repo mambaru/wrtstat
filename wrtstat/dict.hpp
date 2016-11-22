@@ -16,8 +16,9 @@ class dict
       return *first < *second;
     }
   };
+
 public:
-  int get(std::string name)
+  int create_id(std::string name)
   {
     auto pname = std::make_shared<std::string>( std::move(name) ); 
     auto itr = _dict.find(pname);
@@ -34,6 +35,14 @@ public:
     _dict.insert( std::make_pair(pname, id) );
     _index.insert( std::make_pair(id, pname) );
     return id;
+  }
+
+  std::string get_name(int id) const
+  {
+    auto itr = _index.find(id);
+    if ( itr == _index.end() )
+      return std::string();
+    return *(itr->second);
   }
 
   void free(int index) 

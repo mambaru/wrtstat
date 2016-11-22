@@ -26,16 +26,16 @@ public:
     , _pool(opt.limit, 100000 /*todo*/)
   { }
 
-  bool add(std::string name, time_type now, value_type v)
+  bool add(std::string name, time_type now, value_type v, size_type count)
   {
     int id = this->findorcre_(std::move(name), now);
-    return this->add(id , now, v );
+    return this->add(id , now, v, count );
   }
 
-  bool add(int id, time_type now, value_type v)
+  bool add(int id, time_type now, value_type v, size_type count)
   {
     if ( auto p = this->get_(id) )
-      return p->add(now, v);
+      return p->add(now, v, count);
     return false;
   }
   
@@ -66,6 +66,12 @@ public:
     return this->findorcre_(name, now);
   }
 
+  std::string get_name(int id) const 
+  {
+    return _dict.get_name(id);
+  }
+
+
   int create_aggregator(std::string name, time_type now)
   {
     return this->findorcre_( std::move(name), now );
@@ -76,10 +82,10 @@ public:
     return this->get_(id);
   }
   
-  set_span_fun_t create_handler( int id )
+  set_span_fun_t create_meter( int id/*, size_type count*/ )
   {
     if ( auto ag = this->get_(id) )
-      return ag->create_handler();
+      return ag->create_meter(/*count*/);
     return nullptr;
   }
 
@@ -94,7 +100,7 @@ private:
   
   int findorcre_(std::string name, time_type now)
   {
-    int id = _dict.get( std::move(name) );
+    int id = _dict.create_id( std::move(name) );
     if ( id < 0 )
       return id;
     
