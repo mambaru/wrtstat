@@ -34,7 +34,7 @@ struct time_meter
 
   ~time_meter()
   {
-    if (timer_fun==nullptr)
+    if ( timer_fun == nullptr || now == 0)
       return;
     if ( auto pmutex = wmutex.lock() ) 
     {
