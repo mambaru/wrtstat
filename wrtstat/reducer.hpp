@@ -6,7 +6,7 @@
 #include <limits>
 #include <memory>
 #include <algorithm>
-#include <iostream>
+
 
 namespace wrtstat {
 
@@ -104,11 +104,9 @@ public:
   
   reduced_ptr detach()
   {
-    std::cout << "? reduce::detach _data.size() = " << _data.size() << std::endl;
     if ( this->empty() )
       return nullptr;
 
-    std::cout << "reduce::detach _total_count = " << _total_count << std::endl;
     auto res = reduced_ptr(new reduced_type);
     this->reduce();
     _data.front()->swap(res->data);

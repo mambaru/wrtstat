@@ -2,7 +2,7 @@
 #include <wrtstat/aggregated_data.hpp>
 #include <wrtstat/aggregator_options.hpp>
 #include <wrtstat/separator.hpp>
-
+#include <iostream>
 namespace wrtstat {
 
 class aggregator
@@ -31,6 +31,11 @@ public:
 
   bool add(time_type now, value_type v, size_type count)
   {
+    if ( !_enabled )
+      return false;
+
+    //std::cout << "aggregator add " << std::endl;
+    
     if ( !_sep.add(now, v, count) )
       return false;
     while (auto sep = _sep.pop() )
@@ -55,19 +60,11 @@ public:
     return this->aggregate_(_sep.force_pop());
   }
   
-  /*
-  aggregated_ptr add_and_pop(time_type now, value_type v)
-  {
-    return this->aggregate_(_sep.add_and_pop(now, v));
-  }
-  */
-  
-  
-  set_span_fun_t create_meter(/*size_type count  = 1 */ )
+  set_span_fun_t create_meter( )
   {
     std::weak_ptr<aggregator> wthis = this->shared_from_this();
     std::weak_ptr<int> wid = this->_id;
-    return [wid, /*count,*/ wthis](time_type now, time_type v, size_type count){
+    return [wid, wthis](time_type now, time_type v, size_type count){
       if ( auto pthis = wthis.lock() )
       {
         if (auto id = wid.lock() )
@@ -78,7 +75,10 @@ public:
     };
   }
 
-  
+  void enable(bool value)
+  {
+    _enabled = value;
+  }
 private:
   
   value_type nth_(size_type perc, size_type& off, data_type& d) const
@@ -143,6 +143,7 @@ private:
 public:
   separator _sep;
   size_t _reduced_size = 0;
+  bool _enabled = true;
   aggregated_list _ag_list;
   std::shared_ptr<int> _id;
 };

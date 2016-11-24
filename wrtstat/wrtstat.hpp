@@ -87,9 +87,14 @@ public:
   std::shared_ptr< time_meter<D> > create_meter(int id, time_type now, size_type count)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return std::make_shared< time_meter<D> >(now, count, _ag->create_meter(id/*, count*/), this->get_mutex_(id) );
+    return std::make_shared< time_meter<D> >(now, count, _ag->create_meter(id), this->get_mutex_(id) );
   }
-  
+
+  void enable(bool value)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    _ag->enable(value);
+  };
 private:
   
   mutex_ptr get_mutex_(int id ) const

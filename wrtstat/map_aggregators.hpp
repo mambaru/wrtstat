@@ -82,13 +82,20 @@ public:
     return this->get_(id);
   }
   
-  set_span_fun_t create_meter( int id/*, size_type count*/ )
+  set_span_fun_t create_meter( int id )
   {
     if ( auto ag = this->get_(id) )
-      return ag->create_meter(/*count*/);
+      return ag->create_meter();
     return nullptr;
   }
 
+  void enable(bool value)
+  {
+    _enabled = value;
+    for (auto a : _agarr)
+      if ( a!=nullptr )
+        a->enable(value);
+  }
 private:
 
   aggregator_ptr get_(int id)
@@ -108,7 +115,11 @@ private:
       _agarr.resize(id + 1);
 
     if ( _agarr[id] == nullptr )
+    {
       _agarr[id] = std::make_shared<aggregator>(now, _opt, _pool.get_allocator() );
+      if ( !_enabled )
+        _agarr[id]->enable(false);
+    }
     return id;
   }
 
@@ -117,6 +128,7 @@ public:
   aggregator_list _agarr;
   dict _dict;
   pool _pool;
+  bool _enabled = true;
 };
 
 }

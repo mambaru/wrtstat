@@ -58,10 +58,11 @@ public:
   {
     if ( !force && now < _next_time )
       return false;
-    _next_time += _step_ts;
-    if ( auto res = _reducer.detach() )
+    while ( _next_time < now )
     {
-      _sep_list.push_back( std::move(res) );
+      if ( auto res = _reducer.detach() )
+        _sep_list.push_back( std::move(res) );
+      _next_time += _step_ts;
     }
     return true;
   }
