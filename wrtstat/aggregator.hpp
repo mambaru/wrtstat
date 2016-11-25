@@ -34,23 +34,23 @@ public:
     if ( !_enabled )
       return false;
 
-    //std::cout << "aggregator add " << std::endl;
-    
     if ( !_sep.add(now, v, count) )
       return false;
     while (auto sep = _sep.pop() )
     {
       aggregated_ptr ag = this->aggregate_(std::move(sep) );
+      this->reduce_(ag->data);
       _ag_list.push_back( std::move(ag) );
     }
     return true;
   }
-  
+
   aggregated_ptr pop()
   {
     if ( _ag_list.empty() ) 
       return nullptr;
     auto res = std::move(_ag_list.front() );
+
     _ag_list.pop_front();
     return res;
   }
@@ -79,8 +79,9 @@ public:
   {
     _enabled = value;
   }
+
 private:
-  
+
   value_type nth_(size_type perc, size_type& off, data_type& d) const
   {
     auto beg = d.begin() + off;
@@ -89,12 +90,12 @@ private:
     std::nth_element(beg, nth, d.end());
     return *nth;
   }
-  
+
   void reduce_(data_type& d) const
   {
     if ( _reduced_size==0 || d.size() <= _reduced_size)
       return;
-    
+
     size_type i = 0;
     auto beg = d.begin();
     auto end = d.end();

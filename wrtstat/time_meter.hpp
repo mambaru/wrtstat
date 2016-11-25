@@ -60,4 +60,53 @@ struct time_meter
   clock_type::time_point start;
 };
 
+
+struct size_meter
+{
+  typedef size_meter self;
+  typedef std::shared_ptr<self> self_ptr;
+
+  typedef types::set_span_fun_t set_span_fun_t;
+  typedef types::time_type time_type;
+  typedef types::span_type span_type;
+  typedef types::size_type size_type;
+  
+  typedef types::mutex_type mutex_type;
+  typedef types::mutex_ptr mutex_ptr;
+  typedef types::mutex_wptr mutex_wptr;
+
+  size_meter(time_type now, size_type count, set_span_fun_t fun, mutex_ptr pmutex)
+    : now(now)
+    , count(count)
+    , timer_fun(fun)
+    , wmutex(pmutex)
+  {
+  }
+
+  ~size_meter()
+  {
+    if ( timer_fun == nullptr || now == 0)
+      return;
+    
+    if ( auto pmutex = wmutex.lock() ) 
+    {
+      std::lock_guard<mutex_type> lk(*pmutex);
+#warning костыль для btp
+      timer_fun( now, count*1000, count );
+    }
+  };
+
+  self_ptr clone(time_type now, size_type count) const
+  {
+    if ( auto pmutex = wmutex.lock() )
+      return std::make_shared<self>(now, count, timer_fun, pmutex );
+    return nullptr;
+  }
+  
+  time_type now;
+  size_type count;
+  set_span_fun_t timer_fun;
+  mutex_wptr wmutex;
+};
+
 }

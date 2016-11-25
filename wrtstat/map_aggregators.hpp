@@ -26,6 +26,11 @@ public:
     , _pool(opt.limit, 100000 /*todo*/)
   { }
 
+  size_t size() const 
+  {
+    return _agarr.size();
+  }
+
   bool add(std::string name, time_type now, value_type v, size_type count)
   {
     int id = this->findorcre_(std::move(name), now);

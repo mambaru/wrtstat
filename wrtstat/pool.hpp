@@ -52,13 +52,19 @@ public:
       d = std::move(_pool.back());
       _pool.pop_back();
     }
+    if ( d == nullptr )
+      abort();
     return std::move(d);
   }
   
   data_ptr free( data_ptr d )
   {
+    if ( d == nullptr )
+      return nullptr;
+
     if ( _pool.size() == _pool_size )
       return std::move(d);
+
     if ( d->capacity() > _item_size )
     {
       d->resize(_item_size);
