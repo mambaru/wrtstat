@@ -25,6 +25,12 @@ public:
     , _size_meter(sm)
   {
   }
+  
+  void reset()
+  {
+    _rate_meter.reset();
+    _size_meter.reset();
+  }
 
   self_ptr clone(time_type now, size_t size) const
   {

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <wrtstat/map_aggregators_options.hpp>
+#include <wrtstat/manager_options.hpp>
 #include <wrtstat/aggregator.hpp>
 #include <wrtstat/dict.hpp>
 
 namespace wrtstat {
 
-class map_aggregators
+class manager
 {
 public:
   typedef aggregator aggregator_type;
@@ -15,13 +15,13 @@ public:
   typedef aggregator_type::size_type size_type;
   typedef aggregator_type::aggregated_type aggregated_type;
   typedef aggregator_type::aggregated_ptr aggregated_ptr;
-  typedef map_aggregators_options options_type;
+  typedef manager_options options_type;
   typedef aggregator_type::set_span_fun_t set_span_fun_t;
   
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::vector<aggregator_ptr> aggregator_list;
 
-  map_aggregators(options_type opt)
+  manager(options_type opt)
     : _opt(opt)
     , _pool(opt.limit, 100000 /*todo*/)
   { }
@@ -43,27 +43,19 @@ public:
       return p->add(now, v, count);
     return false;
   }
-  
+
   aggregated_ptr force_pop(int id)
   {
     if ( auto p = this->get_(id) )
       return p->force_pop();
     return nullptr;
   }
-  
+
   aggregated_ptr pop(int id)
   {
     if ( auto p = this->get_(id) )
       return p->pop();
     return nullptr;
-  }
-
-  aggregated_ptr add_and_pop(time_type /*now*/, value_type /*v*/)
-  {
-    return nullptr;
-    /*
-    return this->aggregate_(_sep.add_and_pop(now, v));
-    */
   }
 
   int reg_name(const std::string& name, time_type now)
@@ -75,7 +67,6 @@ public:
   {
     return _dict.get_name(id);
   }
-
 
   int create_aggregator(std::string name, time_type now)
   {

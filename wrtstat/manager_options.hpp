@@ -4,7 +4,7 @@
 
 namespace wrtstat {
 
-struct map_aggregators_options
+struct manager_options
   : aggregator_options
 {
 };

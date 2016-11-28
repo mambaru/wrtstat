@@ -26,7 +26,13 @@ public:
   {
     _meters.push_back(p);
   }
-  
+
+  void reset()
+  {
+    for (auto p : _meters )
+      p->reset();
+  }
+
   self_ptr clone(time_type now, size_type size) const
   {
     auto m = std::make_shared<self_type>();

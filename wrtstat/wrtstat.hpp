@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wrtstat/wrtstat_options.hpp>
-#include <wrtstat/map_aggregators.hpp>
+#include <wrtstat/manager.hpp>
 #include <wrtstat/dict.hpp>
 #include <wrtstat/time_meter.hpp>
 #include <mutex>
@@ -14,7 +14,7 @@ namespace wrtstat {
 class wrtstat
 {
 public:
-  typedef map_aggregators aggregator_type;
+  typedef manager aggregator_type;
   
   typedef aggregator_type::time_type time_type;
   typedef aggregator_type::value_type value_type;
@@ -93,14 +93,14 @@ public:
   std::shared_ptr< time_meter<D> > create_time_meter(int id, time_type now, size_type count)
   {
     std::lock_guard<mutex_type> lk( *_mutex);
-    return std::make_shared< time_meter<D> >(now, count, _ag->create_meter(id), _mutex/*this->get_mutex_(id)*/ );
+    return std::make_shared< time_meter<D> >(now, count, _ag->create_meter(id), _mutex );
   }
 
   
-  std::shared_ptr< size_meter > create_size_meter(int id, time_type now, size_type count)
+  std::shared_ptr< size_meter > create_size_meter(int id, time_type now, size_type count, size_type multiple)
   {
     std::lock_guard<mutex_type> lk( *_mutex);
-    return std::make_shared< size_meter >(now, count, _ag->create_meter(id), _mutex /*this->get_mutex_(id)*/ );
+    return std::make_shared< size_meter >(now, count, multiple, _ag->create_meter(id), _mutex );
   }
 
   void enable(bool value)
