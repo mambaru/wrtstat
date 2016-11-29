@@ -7,6 +7,7 @@ namespace wrtstat {
 struct wrtstat_options
   : manager_options
 {
+  std::vector<std::string> prefixes;
 };
 
 }
