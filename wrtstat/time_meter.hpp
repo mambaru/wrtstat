@@ -3,6 +3,7 @@
 #include <wrtstat/types.hpp>
 #include <chrono>
 #include <memory>
+#include <iostream>
 
 namespace wrtstat {
 
@@ -23,6 +24,9 @@ struct time_meter
   typedef types::mutex_ptr mutex_ptr;
   typedef types::mutex_wptr mutex_wptr;
 
+  time_meter( const time_meter& ) = delete;
+  time_meter& operator=( const time_meter& ) = delete;
+
   time_meter(time_type now, size_type count, set_span_fun_t fun, mutex_ptr pmutex)
     : now(now)
     , count(count)
@@ -34,7 +38,6 @@ struct time_meter
 
   ~time_meter()
   {
-
     if ( timer_fun == nullptr || now == 0 )
       return;
     if ( auto pmutex = wmutex.lock() ) 
@@ -49,7 +52,7 @@ struct time_meter
   void reset() 
   {
     now = 0;
-    timer_fun = 0;
+    count = 0;
   }
 
   self_ptr clone(time_type now, size_type count) const

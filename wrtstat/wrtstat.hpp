@@ -72,10 +72,10 @@ public:
     return _ag->size();
   }
 
-  int reg_name(const std::string& name, time_type now)
+  int reg_name(std::string name, time_type now)
   {
     std::lock_guard<mutex_type> lk( *_mutex);
-    return this->reg_name_(name, now);
+    return this->reg_name_( std::move(name), now);
   }
 
   std::string get_name(int id) const 
@@ -105,11 +105,11 @@ public:
   }
 
   template<typename D >
-  std::shared_ptr< pair_meter<D> > create_pair_meter(std::string rate_name, std::string size_name, time_type now, size_type count, size_type multiple)
+  std::shared_ptr< pair_meter<D> > create_pair_meter(std::string time_name, std::string size_name, time_type now, size_type count, size_type multiple)
   {
     std::lock_guard<mutex_type> lk( *_mutex);
     return this->create_pair_meter_<D>( 
-      this->reg_name_( std::move(rate_name), now), 
+      this->reg_name_( std::move(time_name), now), 
       this->reg_name_( std::move(size_name), now), 
       now, count, multiple);
   }
@@ -129,11 +129,11 @@ public:
   
 private:
 
-  int reg_name_(const std::string& name, time_type now)
+  int reg_name_(std::string name, time_type now)
   {
     if ( name.empty() )
       return -1;
-    return _ag->reg_name(name, now);
+    return _ag->reg_name( std::move(name), now);
   }
 
   template<typename D >
@@ -162,9 +162,6 @@ private:
     auto meter = std::make_shared< multi_meter<D> >();
     for ( auto prefix : _prefixes )
     {
-      if ( _size_suffix.empty() )
-        size_name.clear(); 
-
       int rate_id = -1;
       int size_id = -1;
       if ( !time_name.empty() )
@@ -180,8 +177,6 @@ private:
 public:
   aggregator_ptr _ag;
   mutex_ptr _mutex;
-  std::string _time_suffix;
-  std::string _size_suffix;
   std::vector<std::string> _prefixes;
 
 };

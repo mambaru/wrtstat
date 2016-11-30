@@ -50,7 +50,6 @@ public:
     if ( _ag_list.empty() ) 
       return nullptr;
     auto res = std::move(_ag_list.front() );
-
     _ag_list.pop_front();
     return res;
   }
@@ -64,7 +63,8 @@ public:
   {
     std::weak_ptr<aggregator> wthis = this->shared_from_this();
     std::weak_ptr<int> wid = this->_id;
-    return [wid, wthis](time_type now, time_type v, size_type count){
+    return [wid, wthis](time_type now, time_type v, size_type count)
+    {
       if ( auto pthis = wthis.lock() )
       {
         if (auto id = wid.lock() )

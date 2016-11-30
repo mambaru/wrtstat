@@ -175,8 +175,6 @@ private:
       if ( !_data.empty() )
         std::sort( _data.back()->begin(), _data.back()->end() );
       _data.push_back( _allocator.create() );
-      if ( _data.back() == nullptr )
-        abort();
     }
 
     _data.back()->push_back(v);

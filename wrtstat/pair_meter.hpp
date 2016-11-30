@@ -22,31 +22,33 @@ public:
   typedef std::shared_ptr<size_meter_type> size_meter_ptr;
 
   pair_meter(time_meter_ptr rm, size_meter_ptr sm)
-    : _rate_meter(rm)
+    : _time_meter(rm)
     , _size_meter(sm)
   {
   }
   
   void reset()
   {
-    _rate_meter.reset();
-    _size_meter.reset();
+    if ( _time_meter!=nullptr )
+      _time_meter->reset();
+    if ( _size_meter!=nullptr )
+      _size_meter->reset();
   }
 
   self_ptr clone(time_type now, size_t size) const
   {
-    time_meter_ptr rate_meter;
+    time_meter_ptr time_meter;
     size_meter_ptr size_meter;
-    if ( _rate_meter!=nullptr )
-      rate_meter = _rate_meter->clone(now, 1);
+    if ( _time_meter!=nullptr )
+      time_meter = _time_meter->clone(now, 1);
     if ( _size_meter!=nullptr )
       size_meter = _size_meter->clone(now, size);
 
-    return std::make_shared<pair_meter>(rate_meter, size_meter);
+    return std::make_shared<pair_meter>(time_meter, size_meter);
   }
 
 private:
-  time_meter_ptr _rate_meter;
+  time_meter_ptr _time_meter;
   size_meter_ptr _size_meter;
 };
 

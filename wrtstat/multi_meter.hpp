@@ -21,6 +21,13 @@ public:
 
   typedef typename meter_type::time_type time_type;
   typedef typename meter_type::size_type size_type;
+  
+  ~multi_meter()
+  {
+    for (auto& p : _meters )
+      p.reset();
+    _meters.clear();
+  }
 
   void push_back(meter_ptr p)
   {

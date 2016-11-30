@@ -3,6 +3,7 @@
 #include <wrtstat/types.hpp>
 #include <chrono>
 #include <memory>
+#include <iostream>
 
 namespace wrtstat {
 
@@ -20,6 +21,10 @@ struct size_meter
   typedef types::mutex_ptr mutex_ptr;
   typedef types::mutex_wptr mutex_wptr;
 
+  size_meter( const size_meter& ) = delete;
+  size_meter& operator=( const size_meter& ) = delete;
+
+
   size_meter(time_type now, size_type count, size_type multiple, set_span_fun_t fun, mutex_ptr pmutex)
     : now(now)
     , count(count)
@@ -33,7 +38,7 @@ struct size_meter
   {
     if ( timer_fun == nullptr || now == 0)
       return;
-    
+
     if ( auto pmutex = wmutex.lock() ) 
     {
       std::lock_guard<mutex_type> lk(*pmutex);

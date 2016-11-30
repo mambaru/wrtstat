@@ -52,8 +52,6 @@ public:
       d = std::move(_pool.back());
       _pool.pop_back();
     }
-    if ( d == nullptr )
-      abort();
     return std::move(d);
   }
   
