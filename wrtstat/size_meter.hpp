@@ -56,7 +56,7 @@ struct size_meter
   void reset() 
   {
     now = 0;
-    timer_fun = 0;
+    count = 0;
   }
 
   
