@@ -59,6 +59,11 @@ struct size_meter
     count = 0;
   }
 
+  void inc_size(size_type size) 
+  {
+    count+=size;
+  }
+
   
   time_type now;
   size_type count;

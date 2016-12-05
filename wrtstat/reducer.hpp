@@ -101,7 +101,7 @@ public:
   {
     std::lock_guard<mutex_type> lk(tmp_mutex);
     this->add_(v);
-    if ( count != 1 )
+    if ( count > 1 )
     {
       --count;
       _lossy_count += count;

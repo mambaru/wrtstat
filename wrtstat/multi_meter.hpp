@@ -25,19 +25,29 @@ public:
   ~multi_meter()
   {
     for (auto& p : _meters )
-      p.reset();
+      if ( p!=nullptr )
+        p.reset();
     _meters.clear();
   }
 
   void push_back(meter_ptr p)
   {
-    _meters.push_back(p);
+    if ( p!=nullptr )
+      _meters.push_back(p);
   }
 
   void reset()
   {
     for (auto p : _meters )
-      p->reset();
+      if ( p!=nullptr )
+        p->reset();
+  }
+  
+  void inc_size(size_type size) 
+  {
+    for (auto p : _meters )
+      if ( p!=nullptr )
+        p->inc_size(size);
   }
 
   self_ptr clone(time_type now, size_type size) const
@@ -46,7 +56,8 @@ public:
     m->_meters.reserve(this->_meters.size());
     for (auto p : _meters )
     {
-      m->_meters.push_back( p->clone(now, size) );
+      if ( p!=nullptr )
+        m->_meters.push_back( p->clone(now, size) );
     }
     return  m;
   }

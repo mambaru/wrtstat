@@ -35,6 +35,13 @@ public:
       _size_meter->reset();
   }
 
+  void inc_size(size_type size) 
+  {
+    if ( _size_meter!=nullptr )
+      _size_meter->inc_size(size);
+      
+  }
+
   self_ptr clone(time_type now, size_t size) const
   {
     time_meter_ptr time_meter;

@@ -125,7 +125,7 @@ private:
     if ( d==nullptr )
       return nullptr;
 
-    aggregated_ptr res = aggregated_ptr(new aggregated_type);
+    aggregated_ptr res = aggregated_ptr(new aggregated_type() );
     static_cast<reduced_data&>(*res) = std::move(*d);
     size_t size = res->data.size();
     if ( size!=0 )

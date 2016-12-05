@@ -7,11 +7,11 @@ struct aggregated_data
   : reduced_data
 {
   typedef reduced_data::value_type value_type;
-  value_type perc50;
-  value_type perc80;
-  value_type perc95;
-  value_type perc99;
-  value_type perc100;
+  value_type perc50  = 0;
+  value_type perc80  = 0;
+  value_type perc95  = 0;
+  value_type perc99  = 0;
+  value_type perc100 = 0;
 };
 
 }
