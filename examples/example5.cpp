@@ -2,6 +2,7 @@
 #include <wrtstat/wrtstat.hpp>
 #include <unistd.h>
 #include <iostream>
+#include <chrono>
 
 void test(std::function<void()>) 
 {
@@ -13,10 +14,12 @@ int main()
 {
   wrtstat::wrtstat mng;
   int id = mng.reg_name("my_name", 100000);
+  auto meter_proto = mng.create_time_meter<std::chrono::nanoseconds>(id, std::time(0)*1000000, 100000);
   for (int i = 0; i < 5; ++i)
   {
-    auto handler = mng.create_handler<std::chrono::microseconds>(id, 10);
-    test([handler](){});
+    //auto handler = mng.create_handler<std::chrono::microseconds>(id, 10);
+    auto meter = meter_proto->clone(std::time(0)*1000000, 1);
+    test([meter](){});
   }
   
   if ( auto ag = mng.force_pop(id) )

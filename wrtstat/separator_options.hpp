@@ -7,7 +7,7 @@ namespace wrtstat {
 struct separator_options
   : reducer_options
 {
-  types::time_type step_ts = 0;
+  types::time_type step_ts = 1;
 };
 
 }

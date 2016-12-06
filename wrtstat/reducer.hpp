@@ -22,10 +22,6 @@ public:
   typedef reduced_data reduced_type;
   typedef std::unique_ptr<reduced_type> reduced_ptr;
 
-  /*
-  typedef std::recursive_mutex mutex_type;
-  mutex_type tmp_mutex;
-  */
 public:
 
   reducer(reducer_options opt, pool::allocator allocator = pool::allocator() )
@@ -38,13 +34,11 @@ public:
   { 
     if ( _data.empty() )
       return 0;
-    
     if ( _data.size() == 1 )
       return _lossy_count;
-
     return _lossy_count + _opt.limit * (_data.size() - 2) + _data.back()->size();  
-
   }
+
   size_t total_count() const { return _total_count; }
   size_t levels() const { return _opt.levels; }
   size_t max() const { return _max; }
