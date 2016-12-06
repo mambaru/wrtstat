@@ -10,6 +10,7 @@ struct reduced_data
   typedef types::value_type value_type;
   typedef types::data_type data_type;
   typedef types::size_type size_type; 
+  types::time_type ts = 0;
  
   // Общее количество
   size_type count = 0;
@@ -21,6 +22,7 @@ struct reduced_data
   value_type max = 0;
   // Среднее считаем здесь, для точности
   value_type avg = 0;
+  
   data_type data;
 };
 

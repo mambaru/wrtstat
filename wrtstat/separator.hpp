@@ -61,7 +61,10 @@ public:
     while ( _next_time < now )
     {
       if ( auto res = _reducer.detach() )
+      {
+        res->ts = _next_time;
         _sep_list.push_back( std::move(res) );
+      }
       _next_time += _step_ts;
     }
     return true;

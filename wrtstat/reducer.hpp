@@ -22,8 +22,10 @@ public:
   typedef reduced_data reduced_type;
   typedef std::unique_ptr<reduced_type> reduced_ptr;
 
+  /*
   typedef std::recursive_mutex mutex_type;
   mutex_type tmp_mutex;
+  */
 public:
 
   reducer(reducer_options opt, pool::allocator allocator = pool::allocator() )
@@ -54,7 +56,7 @@ public:
   
   void clear()
   {
-    std::lock_guard<mutex_type> lk(tmp_mutex);
+    //std::lock_guard<mutex_type> lk(tmp_mutex);
     
     _min = std::numeric_limits<value_type>::max();
     _max = std::numeric_limits<value_type>::min();
@@ -73,7 +75,7 @@ public:
 
   void add( const data_type& values, size_t count)
   {
-    std::lock_guard<mutex_type> lk(tmp_mutex);
+    //std::lock_guard<mutex_type> lk(tmp_mutex);
     for (value_type v : values)
       this->add_(v);
     
@@ -92,14 +94,14 @@ public:
 
   void add( std::initializer_list<value_type> values )
   {
-    std::lock_guard<mutex_type> lk(tmp_mutex);
+    //std::lock_guard<mutex_type> lk(tmp_mutex);
     for (value_type v : values)
       this->add_(v);
   }
 
   void add( value_type v, size_t count) 
   {
-    std::lock_guard<mutex_type> lk(tmp_mutex);
+    // std::lock_guard<mutex_type> lk(tmp_mutex);
     this->add_(v);
     if ( count > 1 )
     {
@@ -111,7 +113,7 @@ public:
   
   reduced_ptr detach()
   {
-    std::lock_guard<mutex_type> lk(tmp_mutex);
+    //std::lock_guard<mutex_type> lk(tmp_mutex);
     if ( this->empty() )
       return nullptr;
 
@@ -135,7 +137,7 @@ public:
 
   void reduce()
   {
-    std::lock_guard<mutex_type> lk(tmp_mutex);
+    //std::lock_guard<mutex_type> lk(tmp_mutex);
     if ( _data.empty() )
       return;
 
@@ -163,6 +165,9 @@ private:
   void add_( value_type v) 
   {
     ++_total_count;
+    _average += v;
+    _average /= 2;
+
     this->minmax(v);
     
     if ( _data.empty() || _data.back()->size() == _opt.limit  )
