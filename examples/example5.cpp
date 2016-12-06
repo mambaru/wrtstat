@@ -6,16 +6,18 @@
 
 void test(std::function<void()>) 
 {
-  std::cout << "Привет!" << std::endl;
-  sleep(1);
+  usleep( std::rand()%100);
 }
 
 int main()
 {
-  wrtstat::wrtstat_mt mng;
-  int id = mng.create_aggregator("my_name", 100000);
+  std::srand( std::time(0));
+  wrtstat::wrtstat_mt::options_type opt;
+  opt.step_ts = 1000000;
+  wrtstat::wrtstat_mt mng(opt);
+  int id = mng.create_aggregator("my_name", std::time(0)*1000000);
   auto meter_proto = mng.create_time_meter<std::chrono::nanoseconds>(id, std::time(0)*1000000, 100000);
-  for (int i = 0; i < 5; ++i)
+  for (int i = 0; i < 1000; ++i)
   {
     //auto handler = mng.create_handler<std::chrono::microseconds>(id, 10);
     auto meter = meter_proto->clone(std::time(0)*1000000, 1);

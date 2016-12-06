@@ -191,7 +191,7 @@ public:
   int create_aggregator(const std::string& name, time_type now)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return this->create_aggregator( name, now );
+    return super::create_aggregator( name, now );
   }
   
   aggregator_ptr get_aggregator(int id) const
