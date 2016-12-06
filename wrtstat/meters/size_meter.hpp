@@ -25,12 +25,12 @@ struct size_meter
   size_meter& operator=( const size_meter& ) = delete;
 
 
-  size_meter(time_type now, size_type count, size_type multiple, set_span_fun_t fun, mutex_ptr pmutex)
+  size_meter(time_type now, size_type count, size_type multiple, set_span_fun_t fun/*, mutex_ptr pmutex*/)
     : now(now)
     , count(count)
     , multiple(multiple)
     , timer_fun(fun)
-    , wmutex(pmutex)
+    //, wmutex(pmutex)
   {
   }
 
@@ -38,19 +38,24 @@ struct size_meter
   {
     if ( timer_fun == nullptr || now == 0)
       return;
-
+    timer_fun( now, count*multiple, count );
+    /*
     if ( auto pmutex = wmutex.lock() ) 
     {
       std::lock_guard<mutex_type> lk(*pmutex);
       timer_fun( now, count*multiple, count );
     }
+    */
   };
 
   self_ptr clone(time_type now, size_type count) const
   {
+    return std::make_shared<self>(now, count, multiple, timer_fun);
+    /*
     if ( auto pmutex = wmutex.lock() )
       return std::make_shared<self>(now, count, multiple, timer_fun, pmutex);
     return nullptr;
+    */
   }
 
   void reset() 

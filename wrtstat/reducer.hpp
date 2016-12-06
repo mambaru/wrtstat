@@ -1,7 +1,7 @@
 #pragma once
 #include <wrtstat/reduced_data.hpp>
 #include <wrtstat/reducer_options.hpp>
-#include <wrtstat/pool.hpp>
+#include <wrtstat/manager/pool.hpp>
 #include <vector>
 #include <limits>
 #include <memory>

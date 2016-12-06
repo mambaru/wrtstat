@@ -12,8 +12,8 @@ void test(std::function<void()>)
 
 int main()
 {
-  wrtstat::wrtstat mng;
-  int id = mng.reg_name("my_name", 100000);
+  wrtstat::wrtstat_mt mng;
+  int id = mng.create_aggregator("my_name", 100000);
   auto meter_proto = mng.create_time_meter<std::chrono::nanoseconds>(id, std::time(0)*1000000, 100000);
   for (int i = 0; i < 5; ++i)
   {

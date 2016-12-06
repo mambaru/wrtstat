@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wrtstat/pair_meter.hpp>
+#include <wrtstat/meters/pair_meter.hpp>
 #include <string>
 #include <vector>
 #include <memory>

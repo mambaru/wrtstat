@@ -28,11 +28,11 @@ struct time_meter
   time_meter( const time_meter& ) = delete;
   time_meter& operator=( const time_meter& ) = delete;
 
-  time_meter(time_type now, size_type count, set_span_fun_t fun, mutex_ptr pmutex)
+  time_meter(time_type now, size_type count, set_span_fun_t fun/*, mutex_ptr pmutex*/)
     : now(now)
     , count(count)
     , timer_fun(fun)
-    , wmutex(pmutex)
+    //, wmutex(pmutex)
   {
     start = clock_type::now();
   }
@@ -41,11 +41,11 @@ struct time_meter
   {
     if ( timer_fun == nullptr || now == 0 )
       return;
-    if ( auto pmutex = wmutex.lock() ) 
+    //if ( auto pmutex = wmutex.lock() ) 
     {
       clock_type::time_point finish = clock_type::now();
       span_type span = std::chrono::template duration_cast<D>( finish - start ).count();
-      std::lock_guard<mutex_type> lk(*pmutex);
+      //std::lock_guard<mutex_type> lk(*pmutex);
       timer_fun( now, span, count );
     }
   };
@@ -58,15 +58,18 @@ struct time_meter
 
   self_ptr clone(time_type now, size_type count) const
   {
+    return std::make_shared<self>(now, count, timer_fun );
+    /*
     if ( auto pmutex = wmutex.lock() )
       return std::make_shared<self>(now, count, timer_fun, pmutex );
     return nullptr;
+    */
   }
   
   time_type now;
   size_type count;
   set_span_fun_t timer_fun;
-  mutex_wptr wmutex;
+  //mutex_wptr wmutex;
   clock_type::time_point start;
 };
 

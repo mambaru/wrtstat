@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wrtstat/time_meter.hpp>
-#include <wrtstat/size_meter.hpp>
+#include <wrtstat/meters/time_meter.hpp>
+#include <wrtstat/meters/size_meter.hpp>
 #include <string>
 
 namespace wrtstat {
