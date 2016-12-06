@@ -43,21 +43,21 @@ public:
         p->reset();
   }
   
-  void inc_size(size_type size) 
+  void inc(size_type size, size_type count) 
   {
     for (auto p : _meters )
       if ( p!=nullptr )
-        p->inc_size(size);
+        p->inc(size, count);
   }
 
-  self_ptr clone(time_type now, size_type size) const
+  self_ptr clone(time_type now, size_t size, size_t count) const
   {
     auto m = std::make_shared<self_type>();
     m->_meters.reserve(this->_meters.size());
     for (auto p : _meters )
     {
       if ( p!=nullptr )
-        m->_meters.push_back( p->clone(now, size) );
+        m->_meters.push_back( p->clone(now, size, count) );
     }
     return  m;
   }

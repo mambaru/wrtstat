@@ -35,21 +35,21 @@ public:
       _size_meter->reset();
   }
 
-  void inc_size(size_type size) 
+  void inc(size_type size, size_type count) 
   {
     if ( _size_meter!=nullptr )
-      _size_meter->inc_size(size);
+      _size_meter->inc(size, count);
       
   }
 
-  self_ptr clone(time_type now, size_t size) const
+  self_ptr clone(time_type now, size_t size, size_t count) const
   {
     time_meter_ptr time_meter;
     size_meter_ptr size_meter;
     if ( _time_meter!=nullptr )
-      time_meter = _time_meter->clone(now, 1);
+      time_meter = _time_meter->clone(now, count);
     if ( _size_meter!=nullptr )
-      size_meter = _size_meter->clone(now, size);
+      size_meter = _size_meter->clone(now, size, count);
 
     return std::make_shared<pair_meter>(time_meter, size_meter);
   }
