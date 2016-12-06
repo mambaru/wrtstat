@@ -26,6 +26,7 @@ if(UNIX)
 endif(UNIX)
 
 if ( WRTSTAT_BUILD_TEST OR WRTSTAT_BUILD_ALL )
+  enable_testing()
   add_subdirectory(tests)
   if( WRTSTAT_BUILD_ALL )
     add_subdirectory(examples)

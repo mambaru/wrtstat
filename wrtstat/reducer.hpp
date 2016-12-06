@@ -32,17 +32,26 @@ public:
 
   size_t lossy_count() const 
   { 
-    if ( _data.empty() )
-      return 0;
-    if ( _data.size() == 1 )
+    if ( _data.size() < 2 )
       return _lossy_count;
     return _lossy_count + _opt.limit * (_data.size() - 2) + _data.back()->size();  
   }
 
   size_t total_count() const { return _total_count; }
   size_t levels() const { return _opt.levels; }
-  size_t max() const { return _max; }
-  size_t min() const { return _min; }
+  size_t max() const 
+  { 
+    return _max == std::numeric_limits<value_type>::min() 
+            ? 0
+            : _max; 
+  }
+
+  size_t min() const 
+  { 
+    return _min == std::numeric_limits<value_type>::max() 
+            ? 0
+            : _min; 
+  }
   
   size_t size() const 
   { 
@@ -55,18 +64,24 @@ public:
     
   }
 
-  bool filled() const { return _data.size()==_opt.levels && _data.back()->size()==_opt.limit;}
+  bool filled() const 
+  {
+    if ( _opt.levels == 0 || _opt.limit==0)
+      return true;
+
+    if ( _data.empty() )
+      return false;
+
+    return _data.size()==_opt.levels && _data.back()->size()==_opt.limit;
+  }
   
   void clear()
   {
-    //std::lock_guard<mutex_type> lk(tmp_mutex);
-    
     _min = std::numeric_limits<value_type>::max();
     _max = std::numeric_limits<value_type>::min();
     _average = 0;
     _lossy_count = 0;
     _total_count = 0;
-//    _position = 0;
     _data.clear();
   }
 
@@ -78,16 +93,12 @@ public:
 
   void add( const data_type& values, size_t count)
   {
-    //std::lock_guard<mutex_type> lk(tmp_mutex);
     for (value_type v : values)
       this->add_(v);
     
-    if ( values.size() != count )
-    {
-      auto diff = count - values.size();
-      _lossy_count += diff;
-      _total_count += diff;
-    }
+    _total_count += count;
+    if ( values.size() < count )
+      _lossy_count += count - values.size();
   }
 
   void add( const data_type& values)
@@ -97,26 +108,21 @@ public:
 
   void add( std::initializer_list<value_type> values )
   {
-    //std::lock_guard<mutex_type> lk(tmp_mutex);
     for (value_type v : values)
       this->add_(v);
+    _total_count += values.size();
   }
 
   void add( value_type v, size_t count) 
   {
-    // std::lock_guard<mutex_type> lk(tmp_mutex);
     this->add_(v);
-    if ( count > 1 )
-    {
-      --count;
-      _lossy_count += count;
-      _total_count += count;
-    }
+    _total_count += count;
+    if ( count > 1)
+      _lossy_count += count - 1;
   }
   
   reduced_ptr detach()
   {
-    //std::lock_guard<mutex_type> lk(tmp_mutex);
     if ( this->empty() )
       return nullptr;
 
@@ -135,7 +141,7 @@ public:
 
   bool empty()
   {
-    return _data.empty() && _total_count == 0;
+    return _data.empty() /*&& _total_count == 0*/;
   }
 
   void reduce()
@@ -164,12 +170,11 @@ public:
       _allocator.free( std::move(_data[i]) );
     _data.resize(1);
   }
+
 private:
-  
 
   void add_( value_type v) 
   {
-    ++_total_count;
     _average += v;
     _average /= 2;
 
@@ -177,7 +182,7 @@ private:
     
     if ( _data.empty() || _data.back()->size() == _opt.limit  )
     {
-      if ( _data.size() == _opt.levels )
+      if ( _data.size() == _opt.levels || _opt.limit == 0)
       {
         ++_lossy_count;
         return;

@@ -25,7 +25,8 @@ include_directories(..)
 add_executable(
   test_wrtstat
   test_wrtstat.cpp
-  basic_suite.cpp
+  reducer_suite.cpp
+  separator_suite.cpp
   ${FAS_TESTING_CPP}
 )
 

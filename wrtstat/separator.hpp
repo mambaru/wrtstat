@@ -30,29 +30,43 @@ public:
     _next_time = now + _step_ts;
   }
   
-  const reducer_type& get_reducer() const { return this->_reducer;}
+  const reducer_type& get_reducer() const 
+  {
+    return this->_reducer;
+  }
 
   bool add(time_type now, value_type v, size_type count)
   {
+    // TODO: if now < _next_time - _step_ts
+    // TODO: разрешить или запретить устаревший now опционально 
+    // и придумать что с ним делать 
+    // держать вектор редусеров? или временный редусер для таких случаев
     auto ready = this->separate(now, false);
     _reducer.add(v, count);
+    // TODO: еще раз?
     return ready;
   }
   
-  reduced_ptr force_pop()
+  reduced_ptr pop()
   {
-    _reducer.reduce();
-    return _reducer.detach();
-  }
-
-  /*
-  reduced_ptr add_and_pop(time_type now, value_type v)
-  {
-    auto res = this->separate_and_pop(now, v);
-    _reducer.add(v);
+    if ( _sep_list.empty() )
+      return nullptr;
+    auto res = std::move(_sep_list.front());
+    _sep_list.pop_front();
     return res;
   }
-  */
+ 
+ reduced_ptr force_pop()
+  {
+    /* Было
+     * return _reducer.detach();
+     */
+    if (auto r = this->pop() )
+      return r; 
+    auto r = _reducer.detach();
+    r->ts = _next_time;
+    return r;
+  }
 
   bool separate(time_type now, bool force)
   {
@@ -70,26 +84,16 @@ public:
     return true;
   }
   
-  /*
-  reduced_ptr separate_and_pop(time_type now, bool force)
+  bool ready() 
   {
-    if ( !force && now < _next_time )
-      return nullptr;
-    _next_time += _step_ts;
-    return _reducer.detach();
+    return !_sep_list.empty();
   }
-  */
+  
+  bool empty() 
+  {
+    return _sep_list.empty();
+  }
 
-  bool ready() { return !_sep_list.empty();}
-  bool empty() { return _sep_list.empty();}
-  reduced_ptr pop()
-  {
-    if ( _sep_list.empty() )
-      return nullptr;
-    auto res = std::move(_sep_list.front());
-    _sep_list.pop_front();
-    return res;
-  }
   
 private:
   reducer_type _reducer;
