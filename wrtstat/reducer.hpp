@@ -43,8 +43,17 @@ public:
   size_t levels() const { return _opt.levels; }
   size_t max() const { return _max; }
   size_t min() const { return _min; }
-  size_t position() const { return _position; }
-  size_t size() const { return _data.size(); }
+  
+  size_t size() const 
+  { 
+    size_t result = 0;
+    for ( auto& p : _data )
+      if ( p!=nullptr )
+        result += p->size();
+    return result; 
+    //return _data.size(); 
+    
+  }
 
   bool filled() const { return _data.size()==_opt.levels && _data.back()->size()==_opt.limit;}
   
@@ -57,7 +66,7 @@ public:
     _average = 0;
     _lossy_count = 0;
     _total_count = 0;
-    _position = 0;
+//    _position = 0;
     _data.clear();
   }
 
@@ -131,7 +140,6 @@ public:
 
   void reduce()
   {
-    //std::lock_guard<mutex_type> lk(tmp_mutex);
     if ( _data.empty() )
       return;
 
@@ -139,6 +147,9 @@ public:
 
     if ( _data.size() == 1 )
       return;
+
+    // Расчетное становится реальным
+    _lossy_count = this->lossy_count();
 
     for ( size_t i = 1, l = 1; i < _opt.limit; ++i )
     {
@@ -190,7 +201,7 @@ private:
   pool::allocator _allocator;
   value_type _average = 0;
   //
-  size_t _position = 0;
+  //size_t _position = 0;
   // Значения
   data_list _data;
 };
