@@ -7,6 +7,7 @@ namespace wrtstat {
 struct manager_options
   : aggregator_options
 {
+  size_t pool = 0;
 };
 
 }

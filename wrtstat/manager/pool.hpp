@@ -1,5 +1,6 @@
 #pragma once
 #include <wrtstat/types.hpp>
+#include <wrtstat/allocator.hpp>
 #include <vector>
 
 namespace wrtstat {
@@ -13,6 +14,7 @@ public:
   typedef std::vector<data_ptr> data_pool;
   typedef std::mutex mutex_type;
 public:
+  /*
   class allocator
   {
   public:
@@ -42,6 +44,7 @@ public:
     create_handle _create;
     free_handle _free;
   };
+  */
 
   allocator get_allocator()
   { 
@@ -112,7 +115,6 @@ public:
   typedef pool::size_type size_type;
   typedef pool::data_type data_type;
   typedef pool::data_ptr  data_ptr;
-  typedef pool::allocator allocator;
 
   pool_mt(size_type item_size, size_type pool_size)
     : pool( item_size , pool_size)

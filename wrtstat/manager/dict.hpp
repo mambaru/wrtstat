@@ -8,18 +8,8 @@ namespace wrtstat {
 
 class dict
 {
-  /*
-  typedef std::shared_ptr<std::string> string_ptr;
-  struct less_ptr
-  {
-    bool operator()(const string_ptr& first, const string_ptr& second) const
-    {
-      return *first < *second;
-    }
-  };
-
-  */
 public:
+
   int create_id(const std::string& name)
   {
     //auto pname = std::make_shared<std::string>( std::move(name) ); 
@@ -70,6 +60,7 @@ public:
   }
   
 private:
+
   int _counter = 1;
   std::map< std::string, int> _dict;
   std::map<int, std::string> _index;

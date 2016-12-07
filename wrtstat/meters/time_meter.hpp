@@ -16,7 +16,7 @@ struct time_meter
   // typedef std::chrono::high_resolution_clock clock_type;
   typedef std::chrono::steady_clock clock_type;
   typedef D duration_type;
-  typedef types::set_span_fun_t set_span_fun_t;
+  typedef types::meter_fun_t meter_fun_t;
   typedef types::time_type time_type;
   typedef types::span_type span_type;
   typedef types::size_type size_type;
@@ -28,26 +28,21 @@ struct time_meter
   time_meter( const time_meter& ) = delete;
   time_meter& operator=( const time_meter& ) = delete;
 
-  time_meter(time_type now, size_type count, set_span_fun_t fun/*, mutex_ptr pmutex*/)
+  time_meter(time_type now, size_type count, meter_fun_t fun)
     : now(now)
     , count(count)
-    , timer_fun(fun)
-    //, wmutex(pmutex)
+    , meter_fun(fun)
   {
     start = clock_type::now();
   }
 
   ~time_meter()
   {
-    if ( timer_fun == nullptr || now == 0 )
+    if ( meter_fun == nullptr || now == 0 )
       return;
-    //if ( auto pmutex = wmutex.lock() ) 
-    {
-      clock_type::time_point finish = clock_type::now();
-      span_type span = std::chrono::template duration_cast<D>( finish - start ).count();
-      //std::lock_guard<mutex_type> lk(*pmutex);
-      timer_fun( now, span, count );
-    }
+    clock_type::time_point finish = clock_type::now();
+    span_type span = std::chrono::template duration_cast<D>( finish - start ).count();
+    meter_fun( now, span, count );
   };
   
   void reset() 
@@ -58,18 +53,12 @@ struct time_meter
 
   self_ptr clone(time_type now, size_type count) const
   {
-    return std::make_shared<self>(now, count, timer_fun );
-    /*
-    if ( auto pmutex = wmutex.lock() )
-      return std::make_shared<self>(now, count, timer_fun, pmutex );
-    return nullptr;
-    */
+    return std::make_shared<self>(now, count, meter_fun );
   }
-  
+
   time_type now;
   size_type count;
-  set_span_fun_t timer_fun;
-  //mutex_wptr wmutex;
+  meter_fun_t meter_fun;
   clock_type::time_point start;
 };
 

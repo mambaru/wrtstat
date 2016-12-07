@@ -18,8 +18,8 @@ public:
   typedef reducer_type::reduced_type reduced_type;
   typedef reducer_type::reduced_ptr  reduced_ptr; 
 
-  separator( time_type now, separator_options opt, pool::allocator allocator = pool::allocator() )
-    : _reducer(opt, allocator)
+  separator( time_type now, separator_options opt, allocator a = allocator() )
+    : _reducer(opt, a)
     , _step_ts(opt.step_ts)
     , _next_time(now + opt.step_ts)
   {
@@ -71,6 +71,7 @@ public:
   {
     if ( !force && now < _next_time )
       return false;
+
     while ( _next_time <= now )
     {
       if ( auto res = _reducer.detach() )
@@ -105,6 +106,12 @@ public:
     return _sep_list.size();
   }
 
+  void clear( time_type now )
+  {
+    _next_time = now + _step_ts;
+    _reducer.clear();
+    _sep_list.clear();
+  }
   
 private:
   reducer_type _reducer;

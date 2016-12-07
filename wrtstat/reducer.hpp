@@ -1,5 +1,5 @@
 #pragma once
-#include <wrtstat/reduced_data.hpp>
+#include <wrtstat/aggregated_data.hpp>
 #include <wrtstat/reducer_options.hpp>
 #include <wrtstat/manager/pool.hpp>
 #include <vector>
@@ -19,14 +19,14 @@ public:
   typedef std::unique_ptr<data_type> data_ptr;
   typedef std::vector<data_ptr> data_list;
 
-  typedef reduced_data reduced_type;
+  typedef aggregated_data reduced_type;
   typedef std::unique_ptr<reduced_type> reduced_ptr;
 
 public:
 
-  reducer(reducer_options opt, pool::allocator allocator = pool::allocator() )
+  reducer(reducer_options opt, allocator a = allocator() )
     : _opt( opt )
-    , _allocator( allocator )
+    , _allocator( a )
   {
   }
 
@@ -204,7 +204,7 @@ private:
   size_t _lossy_count = 0;
   size_t _total_count = 0;
   // TODO: убрать и сделать аллкатор 
-  pool::allocator _allocator;
+  allocator _allocator;
   value_type _average = 0;
   //
   //size_t _position = 0;

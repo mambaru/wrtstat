@@ -14,15 +14,15 @@ public:
   typedef separator::size_type size_type;
   typedef separator::reduced_type reduced_type;
   typedef separator::reduced_ptr reduced_ptr;
-  typedef types::set_span_fun_t set_span_fun_t;
+  typedef types::meter_fun_t meter_fun_t;
 
   typedef aggregator_options options_type;
   typedef aggregated_data aggregated_type;
   typedef std::unique_ptr<aggregated_type> aggregated_ptr;
   typedef std::list< aggregated_ptr > aggregated_list;
   
-  aggregator_base(time_type now, aggregator_options opt, pool::allocator allocator = pool::allocator())
-    : _sep(now, opt, allocator)
+  aggregator_base(time_type now, aggregator_options opt, allocator a = allocator() )
+    : _sep(now, opt, a)
     , _reduced_size(opt.reduced_size)
   {
     _id = std::make_shared<int>(1);
@@ -72,7 +72,7 @@ public:
   }
 
   template<typename T>
-  set_span_fun_t create_meter( std::weak_ptr<T> wthis )
+  meter_fun_t create_meter( std::weak_ptr<T> wthis )
   {
     std::weak_ptr<int> wid = this->_id;
     return [wid, wthis](time_type now, time_type v, size_type count)
@@ -91,6 +91,14 @@ public:
   {
     return _ag_list.size();
   }
+
+  void clear( time_type now )
+  {
+    _sep.clear(now);
+    _ag_list.clear();
+    _id.reset();
+  }
+
 
   template<typename D>
   static time_type now() 
@@ -154,7 +162,8 @@ private:
     if ( d==nullptr )
       return nullptr;
 
-    aggregated_ptr res = aggregated_ptr(new aggregated_type() );
+    aggregated_ptr& res = d;
+    //aggregated_ptr res = aggregated_ptr(new aggregated_type() );
     static_cast<reduced_data&>(*res) = std::move(*d);
     size_t size = res->data.size();
     if ( size!=0 )
@@ -166,7 +175,7 @@ private:
       res->perc99 = this->nth_(99, off, res->data);
       res->perc100 = res->data[ size - 1 ];
     }
-    return res;
+    return std::move(res);
   }
 
 public:
@@ -184,12 +193,12 @@ class aggregator
 public:
   typedef aggregator_base::options_type options_type;
   
-  aggregator(time_type now, options_type opt, pool::allocator allocator = pool::allocator())
-    : aggregator_base(now, opt, allocator)
+  aggregator(time_type now, options_type opt, allocator a = allocator())
+    : aggregator_base(now, opt, a)
   {
   }
   
-  set_span_fun_t create_meter( )
+  meter_fun_t create_meter( )
   {
     return aggregator_base::create_meter<aggregator>( this->shared_from_this() );
   }
@@ -208,14 +217,14 @@ public:
   typedef aggregator_base::size_type size_type;
   typedef aggregator_base::reduced_type reduced_type;
   typedef aggregator_base::reduced_ptr reduced_ptr;
-  typedef aggregator_base::set_span_fun_t set_span_fun_t;
+  typedef aggregator_base::meter_fun_t meter_fun_t;
 
   typedef aggregator_base::options_type options_type;
   typedef aggregator_base::aggregated_type aggregated_type;
   typedef aggregator_base::aggregated_ptr aggregated_ptr;
 
-  aggregator_mt(time_type now, options_type opt, pool::allocator allocator = pool::allocator())
-    : aggregator_base(now, opt, allocator)
+  aggregator_mt(time_type now, options_type opt, allocator a = allocator() )
+    : aggregator_base(now, opt, a)
   {
   }
 
@@ -237,13 +246,19 @@ public:
     return aggregator_base::force_pop();
   }
 
+  bool separate(time_type now, bool force)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return aggregator_base::separate(now, force);
+  }
+
   void enable(bool value)
   {
     std::lock_guard<mutex_type> lk(_mutex);
     return aggregator_base::enable(value);
   }
 
-  set_span_fun_t create_meter( )
+  meter_fun_t create_meter( )
   {
     std::lock_guard<mutex_type> lk(_mutex);
     return aggregator_base::create_meter<aggregator_mt>( this->shared_from_this() );
@@ -255,9 +270,20 @@ public:
     return aggregator_base::now<D>();
   }
 
+  size_t size() const
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return aggregator_base::size();
+  }
+
+  void clear(time_type now)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return aggregator_base::clear( now );
+  }
+
 private:
-  
-  mutex_type _mutex;
+  mutable mutex_type _mutex;
 };
 
 }
