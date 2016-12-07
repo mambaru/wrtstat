@@ -10,7 +10,7 @@ UNIT(aggregator1, "")
 
   aggregator_options opt;
   opt.levels = 1;
-  opt.limit  = 8;
+  opt.limit  = 10;
   opt.step_ts = 10;
 
   aggregator ag(0, opt);
@@ -25,6 +25,16 @@ UNIT(aggregator1, "")
     t << is_true<assert>( s!=nullptr ) << "i=" << i << FAS_FL;
     t << stop;
     t << equal<expect>( s->ts, i*10 ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->lossy,   0  ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->count,   10 ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->min,     0 + i*10 ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->perc50,  5 + i*10 ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->perc80,  8 + i*10 ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->perc95,  9 + i*10 ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->perc99,  9 + i*10 ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->perc100, 9 + i*10 ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->max,     9 + i*10 ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->avg,     8 + i*10 - 1*(i!=0) ) << "i=" << FAS_FL;
   }
 
   t << nothing;

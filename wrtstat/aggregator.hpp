@@ -36,11 +36,11 @@ public:
   bool add(time_type now, value_type v, size_type count)
   {
     if ( !_enabled )
-      return false;
+      return true;
 
     if ( !_sep.add(now, v, count) )
-      return false;
-
+      return false; // now устарел
+    
     this->aggregate_();
     return true;
   }
@@ -115,6 +115,7 @@ private:
     auto nth = d.begin() + d.size()*perc/100;
     off = std::distance(beg, nth);
     std::nth_element(beg, nth, d.end());
+    // std::cout << "nth_=" << perc << " off=" << off << " nth=" << *nth << std::endl;
     return *nth;
   }
 
@@ -164,7 +165,7 @@ private:
 
     aggregated_ptr& res = d;
     //aggregated_ptr res = aggregated_ptr(new aggregated_type() );
-    static_cast<reduced_data&>(*res) = std::move(*d);
+    // static_cast<reduced_data&>(*res) = std::move(*d);
     size_t size = res->data.size();
     if ( size!=0 )
     {

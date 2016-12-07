@@ -93,14 +93,20 @@ public:
     _max = std::max(_max, v);
   }
 
+  void add( value_type v, size_t count) 
+  {
+    this->add_(v);
+    _total_count += count;
+    if ( count > 1)
+      _lossy_count += count - 1;
+  }
+
   void add( const data_type& values, size_t count)
   {
     for (value_type v : values)
       this->add_(v);
     
     _total_count += count;
-    if ( values.size() < count )
-      _lossy_count += count - values.size();
   }
 
   void add( const data_type& values)
@@ -115,13 +121,6 @@ public:
     _total_count += values.size();
   }
 
-  void add( value_type v, size_t count) 
-  {
-    this->add_(v);
-    _total_count += count;
-    if ( count > 1)
-      _lossy_count += count - 1;
-  }
 
   reduced_ptr detach()
   {
@@ -181,13 +180,17 @@ private:
 
     this->minmax(v);
     
+    // Если заполнен текущий уровень 
     if ( _data.empty() || _data.back()->size() == _opt.limit  )
     {
+      // Создаем новый уровень 
       if ( _data.size() == _opt.levels || _opt.limit == 0)
       {
+        // Лимит уровней закончился
         ++_lossy_count;
         return;
       }
+
       if ( !_data.empty() )
         std::sort( _data.back()->begin(), _data.back()->end() );
       _data.push_back( _allocator.create() );

@@ -32,12 +32,31 @@ public:
 
   bool add( time_type now, value_type v, size_type count )
   {
+    this->separate(now, false);
     if ( now < _next_time - _step_ts )
       return false;
-    this->separate(now, false);
     _reducer.add(v, count);
     return true;
   }
+  
+  bool add( time_type now, const data_type& v, size_type count )
+  {
+    this->separate(now, false);
+    if ( now < _next_time - _step_ts )
+      return false;
+    _reducer.add(v, count);
+    return true;
+  }
+  
+  bool add( time_type now, std::initializer_list<value_type> v )
+  {
+    this->separate(now, false);
+    if ( now < _next_time - _step_ts )
+      return false;
+    _reducer.add( std::move(v) );
+    return true;
+  }
+
 
   reduced_ptr pop()
   {
