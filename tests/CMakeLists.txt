@@ -27,6 +27,7 @@ add_executable(
   test_wrtstat.cpp
   reducer_suite.cpp
   separator_suite.cpp
+  aggregator_suite.cpp
   ${FAS_TESTING_CPP}
 )
 

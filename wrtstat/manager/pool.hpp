@@ -20,7 +20,6 @@ public:
     typedef std::function<data_ptr(data_ptr)> free_handle;
 
     allocator(){}
-    
     allocator(create_handle c, free_handle f)
       : _create(c) 
       , _free(f)
@@ -42,7 +41,6 @@ public:
   private:
     create_handle _create;
     free_handle _free;
-    //pool* _p ;
   };
 
   allocator get_allocator()

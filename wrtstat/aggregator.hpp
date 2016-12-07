@@ -28,6 +28,11 @@ public:
     _id = std::make_shared<int>(1);
   }
 
+  const separator& get_separator() const 
+  {
+    return this->_sep;
+  }
+
   bool add(time_type now, value_type v, size_type count)
   {
     if ( !_enabled )
@@ -35,15 +40,18 @@ public:
 
     if ( !_sep.add(now, v, count) )
       return false;
-    while (auto sep = _sep.pop() )
-    {
-      aggregated_ptr ag = this->aggregate_(std::move(sep) );
-      this->reduce_(ag->data);
-      _ag_list.push_back( std::move(ag) );
-    }
+
+    this->aggregate_();
     return true;
   }
 
+  bool separate(time_type now, bool force)
+  {
+    bool res = _sep.separate(now, force);
+    this->aggregate_();
+    return res;
+  }
+  
   aggregated_ptr pop()
   {
     if ( _ag_list.empty() ) 
@@ -66,7 +74,6 @@ public:
   template<typename T>
   set_span_fun_t create_meter( std::weak_ptr<T> wthis )
   {
-    //std::weak_ptr<aggregator> wthis = this->shared_from_this();
     std::weak_ptr<int> wid = this->_id;
     return [wid, wthis](time_type now, time_type v, size_type count)
     {
@@ -79,6 +86,18 @@ public:
       }
     };
   }
+  
+  size_t size() const
+  {
+    return _ag_list.size();
+  }
+
+  template<typename D>
+  static time_type now() 
+  {
+    return separator::now<D>();
+  }
+
 
 private:
 
@@ -119,7 +138,17 @@ private:
     }
     d.resize(std::distance( beg, end));
   }
-  
+
+  void aggregate_()
+  {
+    while (auto sep = _sep.pop() )
+    {
+      aggregated_ptr ag = this->aggregate_( std::move(sep) );
+      this->reduce_(ag->data);
+      _ag_list.push_back( std::move(ag) );
+    }
+  }
+
   aggregated_ptr aggregate_(reduced_ptr d) const
   {
     if ( d==nullptr )
@@ -137,7 +166,6 @@ private:
       res->perc99 = this->nth_(99, off, res->data);
       res->perc100 = res->data[ size - 1 ];
     }
-
     return res;
   }
 
@@ -219,6 +247,12 @@ public:
   {
     std::lock_guard<mutex_type> lk(_mutex);
     return aggregator_base::create_meter<aggregator_mt>( this->shared_from_this() );
+  }
+
+  template<typename D>
+  static time_type now() 
+  {
+    return aggregator_base::now<D>();
   }
 
 private:

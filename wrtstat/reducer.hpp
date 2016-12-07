@@ -34,23 +34,27 @@ public:
   { 
     if ( _data.size() < 2 )
       return _lossy_count;
-    return _lossy_count + _opt.limit * (_data.size() - 2) + _data.back()->size();  
+    return _lossy_count + _opt.limit*( _data.size() - 2 ) + _data.back()->size();  
   }
 
-  size_t total_count() const { return _total_count; }
-  size_t levels() const { return _opt.levels; }
+  size_t total_count() const 
+  {
+    return _total_count; 
+  }
+
+  size_t levels() const 
+  {
+    return _opt.levels; 
+  }
+
   size_t max() const 
   { 
-    return _max == std::numeric_limits<value_type>::min() 
-            ? 0
-            : _max; 
+    return _max == std::numeric_limits<value_type>::min() ? 0 : _max; 
   }
 
   size_t min() const 
   { 
-    return _min == std::numeric_limits<value_type>::max() 
-            ? 0
-            : _min; 
+    return _min == std::numeric_limits<value_type>::max() ? 0 : _min; 
   }
   
   size_t size() const 
@@ -60,8 +64,6 @@ public:
       if ( p!=nullptr )
         result += p->size();
     return result; 
-    //return _data.size(); 
-    
   }
 
   bool filled() const 
@@ -120,7 +122,7 @@ public:
     if ( count > 1)
       _lossy_count += count - 1;
   }
-  
+
   reduced_ptr detach()
   {
     if ( this->empty() )
@@ -137,11 +139,10 @@ public:
     this->clear();
     return std::move(res);
   }
-  
 
   bool empty()
   {
-    return _data.empty() /*&& _total_count == 0*/;
+    return _data.empty();
   }
 
   void reduce()
