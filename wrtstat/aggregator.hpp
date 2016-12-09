@@ -40,7 +40,7 @@ public:
 
     if ( !_sep.add(now, v, count) )
       return false; // now устарел
-    
+
     this->aggregate_();
     return true;
   }
