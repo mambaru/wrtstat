@@ -5,7 +5,8 @@
 #include <wrtstat/manager/dict.hpp>
 #include <wrtstat/meters/time_meter.hpp>
 #include <wrtstat/meters/size_meter.hpp>
-#include <wrtstat/meters/pair_meter.hpp>
+#include <wrtstat/meters/value_meter.hpp>
+#include <wrtstat/meters/composite_meter.hpp>
 #include <wrtstat/meters/multi_meter.hpp>
 #include <wrtstat/aggregator.hpp>
 #include <mutex>
@@ -78,27 +79,36 @@ public:
   }
 
   std::shared_ptr< size_meter > 
-    create_size_meter(int id, time_type now, size_type count, size_type multiple)
+    create_size_meter(int id, time_type now, size_type size)
   {
-    return this->create_size_meter_(id, now, count, multiple);
+    return this->create_size_meter_(id, now, size);
+  }
+
+  std::shared_ptr< size_meter > 
+    create_value_meter(int id, time_type now, size_type value, size_type count)
+  {
+    return this->create_size_meter_(id, now, value, count);
   }
   
   template<typename D >
-  std::shared_ptr< pair_meter<D> > 
-    create_pair_meter(int rate_id, int size_id, time_type now, size_type count, size_type multiple)
+  std::shared_ptr< composite_meter<D> > 
+    create_composite_meter(int time_id, int read_id, int write_id, time_type now, size_type count, size_type size)
   {
-    return this->create_pair_meter_<D>(rate_id, size_id, now, count, multiple);
+    return this->create_composite_meter_<D>(time_id, read_id, write_id, now, count, size);
   }
 
   template<typename D >
-  std::shared_ptr< pair_meter<D> >
-    create_pair_meter( const std::string& time_name, const std::string& size_name,
-                       time_type now, size_type count, size_type multiple)
+  std::shared_ptr< composite_meter<D> >
+    create_composite_meter( const std::string& time_name, 
+                            const std::string& read_name,
+                            const std::string& write_name,
+                            time_type now, size_type count, size_type size)
   {
-    return this->create_pair_meter_<D>( 
+    return this->create_composite_meter_<D>( 
       this->create_aggregator_( time_name, now), 
-      this->create_aggregator_( size_name, now), 
-      now, count, multiple);
+      this->create_aggregator_( read_name, now), 
+      this->create_aggregator_( write_name, now), 
+      now, count, size);
   }
 
   template<typename D >
@@ -130,38 +140,51 @@ private:
     return std::make_shared< time_meter<D> >(now, count, _m->create_meter(id) );
   }
 
-  std::shared_ptr< size_meter >
-    create_size_meter_(int id, time_type now, size_type size, size_type count)
+
+  std::shared_ptr< value_meter >
+    create_value_meter_(int id, time_type now, size_type value, size_type count)
   {
-    return std::make_shared< size_meter >(now, size, count, _m->create_meter(id) );
+    return std::make_shared< value_meter >(now, value, count, _m->create_meter(id) );
+  }
+  
+  std::shared_ptr< size_meter >
+    create_size_meter_(int id, time_type now, size_type size)
+  {
+    return std::make_shared< size_meter >(now, size, _m->create_meter(id) );
   }
 
   template<typename D >
-  std::shared_ptr< pair_meter<D> >
-    create_pair_meter_(int rate_id, int size_id, time_type now, size_type size, size_type count)
+  std::shared_ptr< composite_meter<D> >
+    create_composite_meter_(int time_id, int read_id, int write_id, time_type now, size_type count, size_type size)
   {
-    return std::make_shared<pair_meter<D> >( 
-      rate_id!=-1 ? this->create_time_meter_< D >(rate_id, now, count) : nullptr,
-      size_id!=-1 ? this->create_size_meter_(size_id, now, size, count) : nullptr
+    return std::make_shared<composite_meter<D> >( 
+      time_id!=-1 ? this->create_time_meter_< D >(time_id, now, count) : nullptr,
+      read_id!=-1 ? this->create_size_meter_(read_id, now, size) : nullptr,
+      write_id!=-1 ? this->create_size_meter_(write_id, now, 0 ) : nullptr
     );
   }
 
   template<typename D >
   std::shared_ptr< multi_meter<D> >
-    create_multi_meter_(const std::string& time_name, const std::string& size_name,
-                        time_type now, size_type size, size_type count)
+    create_multi_meter_(const std::string& time_name, 
+                        const std::string& read_name,
+                        const std::string& write_name,
+                        time_type now, size_type count, size_type size)
   {
     auto meter = std::make_shared< multi_meter<D> >();
     for ( auto prefix : _prefixes )
     {
-      int rate_id = -1;
-      int size_id = -1;
+      int time_id = -1;
+      int read_id = -1;
+      int write_id = -1;
       if ( !time_name.empty() )
-        rate_id = this->create_aggregator_(prefix + time_name, now );
-      if ( !size_name.empty() )
-        size_id = this->create_aggregator_(prefix + size_name, now );
+        time_id = this->create_aggregator_(prefix + time_name, now );
+      if ( !read_name.empty() )
+        read_id = this->create_aggregator_(prefix + read_name, now );
+      if ( !write_name.empty() )
+        write_id = this->create_aggregator_(prefix + write_name, now );
 
-      meter->push_back( this->create_pair_meter_<D>( rate_id, size_id, now, size, count) );
+      meter->push_back( this->create_composite_meter_<D>( time_id, read_id, write_id, now, count, size) );
     }
     return meter;
   }

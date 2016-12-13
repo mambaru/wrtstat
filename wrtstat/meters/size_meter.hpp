@@ -25,10 +25,9 @@ struct size_meter
   size_meter& operator=( const size_meter& ) = delete;
 
 
-  size_meter(time_type now, size_type size, size_type count, meter_fun_t fun/*, mutex_ptr pmutex*/)
+  size_meter(time_type now, size_type size, meter_fun_t fun)
     : now(now)
     , size(size)
-    , count(count)
     , timer_fun(fun)
   {
   }
@@ -37,32 +36,25 @@ struct size_meter
   {
     if ( timer_fun == nullptr || now == 0)
       return;
-    timer_fun( now, size, count );
+    timer_fun( now, size, size );
   };
 
-  self_ptr clone(time_type now, size_type size,  size_type count) const
+  void set_size(size_t size) { this->size = size; }
+  size_type get_size() const { return this->size; }
+
+  self_ptr clone(time_type now, size_type size) const
   {
-    return std::make_shared<self>(now, size, count, timer_fun);
+    return std::make_shared<self>(now, size, timer_fun);
   }
 
   void reset() 
   {
     now = 0;
-    count = 0;
   }
 
-  void inc(size_type size, size_type count) 
-  {
-    this->size+=size;
-    this->count+=count;
-  }
-
-  
   time_type now;
   size_type size;
-  size_type count;
   meter_fun_t timer_fun;
-  mutex_wptr wmutex;
 };
 
 }

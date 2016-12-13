@@ -13,7 +13,6 @@ struct time_meter
   typedef time_meter<D> self;
   typedef std::shared_ptr<self> self_ptr;
 
-  // typedef std::chrono::high_resolution_clock clock_type;
   typedef std::chrono::steady_clock clock_type;
   typedef D duration_type;
   typedef types::meter_fun_t meter_fun_t;

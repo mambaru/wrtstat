@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wrtstat/meters/pair_meter.hpp>
+#include <wrtstat/meters/composite_meter.hpp>
 #include <string>
 #include <vector>
 #include <memory>
@@ -15,7 +15,7 @@ public:
   typedef multi_meter<D> self_type;
   typedef std::shared_ptr<self_type> self_ptr;
 
-  typedef pair_meter<D> meter_type;
+  typedef composite_meter<D> meter_type;
   typedef std::shared_ptr<meter_type> meter_ptr;
   typedef std::vector<meter_ptr> meter_list;
 
@@ -43,21 +43,21 @@ public:
         p->reset();
   }
   
-  void inc(size_type size, size_type count) 
+  void set_write_size(size_type size) 
   {
     for (auto p : _meters )
       if ( p!=nullptr )
-        p->inc(size, count);
+        p->set_write_size(size);
   }
 
-  self_ptr clone(time_type now, size_t size, size_t count) const
+  self_ptr clone(time_type now, size_t count, size_t size) const
   {
     auto m = std::make_shared<self_type>();
     m->_meters.reserve(this->_meters.size());
     for (auto p : _meters )
     {
       if ( p!=nullptr )
-        m->_meters.push_back( p->clone(now, size, count) );
+        m->_meters.push_back( p->clone(now, count, size) );
     }
     return  m;
   }
