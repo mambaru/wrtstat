@@ -113,10 +113,12 @@ public:
 
   template<typename D >
   std::shared_ptr< multi_meter<D> > 
-    create_multi_meter( const std::string& time_name, const std::string& size_name,
-                        time_type now, size_type count, size_type multiple)
+    create_multi_meter( const std::string& time_name, 
+                        const std::string& read_name,
+                        const std::string& write_name,
+                        time_type now, size_type count, size_type size)
   {
-    return this->create_multi_meter_<D>( time_name, size_name, now, count, multiple);
+    return this->create_multi_meter_<D>( time_name, read_name, write_name, now, count, size);
   }
 
   void enable(bool value)
