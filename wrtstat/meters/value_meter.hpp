@@ -25,7 +25,7 @@ struct value_meter
   value_meter& operator=( const value_meter& ) = delete;
 
 
-  value_meter(time_type now, size_type value, size_type count, meter_fun_t fun)
+  value_meter(meter_fun_t fun, time_type now, size_type value, size_type count = 1)
     : now(now)
     , value(value)
     , count(count)
@@ -48,7 +48,7 @@ struct value_meter
 
   self_ptr clone(time_type now, size_type value,  size_type count) const
   {
-    return std::make_shared<self>(now, value, count, timer_fun);
+    return std::make_shared<self>(timer_fun, now, value, count);
   }
 
   void reset() 

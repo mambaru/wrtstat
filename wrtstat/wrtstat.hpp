@@ -111,20 +111,38 @@ public:
       now, count, size);
   }
 
-  template<typename D >
-  std::shared_ptr< multi_meter<D> > 
+  template<typename D>
+  std::shared_ptr< multi_meter< composite_meter<D> > > 
     create_multi_meter( const std::string& time_name, 
                         const std::string& read_name,
                         const std::string& write_name,
-                        time_type now, size_type count, size_type size)
+                        time_type now,
+                        size_type count, size_type size
+                      )
   {
     return this->create_multi_meter_<D>( time_name, read_name, write_name, now, count, size);
+  }
+  
+  template< typename MeterType, typename... A>
+  std::shared_ptr< multi_meter<MeterType> >
+    create_multi_meter(const std::string& meter_name, 
+                        time_type now, 
+                        A... args)
+  {
+    return this->create_multi_meter_<MeterType>( meter_name, now, args...);
   }
 
   void enable(bool value)
   {
     _m->enable(value);
   };
+  
+  template<typename D>
+  static time_type now() 
+  {
+    return aggregator::now<D>();
+  }
+
   
 private:
 
@@ -139,20 +157,20 @@ private:
   std::shared_ptr< time_meter<D> >
     create_time_meter_(int id, time_type now, size_type count)
   {
-    return std::make_shared< time_meter<D> >(now, count, _m->create_meter(id) );
+    return std::make_shared< time_meter<D> >(_m->create_meter(id), now, count );
   }
 
 
   std::shared_ptr< value_meter >
     create_value_meter_(int id, time_type now, size_type value, size_type count)
   {
-    return std::make_shared< value_meter >(now, value, count, _m->create_meter(id) );
+    return std::make_shared< value_meter >(_m->create_meter(id), now, value, count );
   }
   
   std::shared_ptr< size_meter >
     create_size_meter_(int id, time_type now, size_type size)
   {
-    return std::make_shared< size_meter >(now, size, _m->create_meter(id) );
+    return std::make_shared< size_meter >(_m->create_meter(id), now, size);
   }
 
   template<typename D >
@@ -166,14 +184,16 @@ private:
     );
   }
 
+  
   template<typename D >
-  std::shared_ptr< multi_meter<D> >
+  std::shared_ptr< multi_meter< composite_meter<D> > >
     create_multi_meter_(const std::string& time_name, 
                         const std::string& read_name,
                         const std::string& write_name,
-                        time_type now, size_type count, size_type size)
+                        time_type now, 
+                        size_type count, size_type size)
   {
-    auto meter = std::make_shared< multi_meter<D> >();
+    auto meter = std::make_shared< multi_meter< composite_meter<D> > >();
     for ( auto prefix : _prefixes )
     {
       int time_id = -1;
@@ -191,6 +211,24 @@ private:
     return meter;
   }
 
+    
+  template< typename MeterType, typename... A>
+  std::shared_ptr< multi_meter<MeterType> >
+    create_multi_meter_(const std::string& meter_name, 
+                        time_type now, 
+                        A... args)
+  {
+    auto meter = std::make_shared< multi_meter<MeterType> >();
+    for ( auto prefix : _prefixes )
+    {
+      int meter_id = this->create_aggregator_(prefix + meter_name, now );
+      auto m = std::make_shared< MeterType >(_m->create_meter(meter_id), now, args... );
+      meter->push_back(m);
+    }
+    return meter;
+
+  }
+
 public:
   manager_ptr _m;
   std::vector<std::string> _prefixes;
@@ -203,6 +241,14 @@ public:
   wrtstat_st(options_type opt = options_type() ) 
     : wrtstat_base<manager_st>(opt)
   {}
+
+  /*
+  template<typename D>
+  static time_type now() 
+  {
+    return wrtstat_base::now<D>();
+  }
+  */
 };
 
 class wrtstat_mt: public wrtstat_base<manager_mt>
@@ -212,6 +258,14 @@ public:
   wrtstat_mt(options_type opt = options_type() ) 
     : wrtstat_base<manager_mt>(opt)
   {}
+  
+  /*
+  template<typename D>
+  static time_type now() 
+  {
+    return wrtstat_base::now<D>();
+  }
+  */
 };
 
 

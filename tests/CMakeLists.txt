@@ -28,6 +28,7 @@ add_executable(
   reducer_suite.cpp
   separator_suite.cpp
   aggregator_suite.cpp
+  wrtstat_suite.cpp
   ${FAS_TESTING_CPP}
 )
 

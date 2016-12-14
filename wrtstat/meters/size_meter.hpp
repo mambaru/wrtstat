@@ -25,7 +25,7 @@ struct size_meter
   size_meter& operator=( const size_meter& ) = delete;
 
 
-  size_meter(time_type now, size_type size, meter_fun_t fun)
+  size_meter(meter_fun_t fun, time_type now, size_type size)
     : now(now)
     , size(size)
     , timer_fun(fun)
@@ -44,7 +44,7 @@ struct size_meter
 
   self_ptr clone(time_type now, size_type size) const
   {
-    return std::make_shared<self>(now, size, timer_fun);
+    return std::make_shared<self>(timer_fun, now, size);
   }
 
   void reset() 

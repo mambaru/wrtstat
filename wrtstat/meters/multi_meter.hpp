@@ -7,15 +7,15 @@
 
 namespace wrtstat {
 
-template<typename D>
+template< typename MeterType /*typename D, typename MeterType = composite_meter<D>*/ >
 class multi_meter
 {
 public:
-  typedef D duration_type;
-  typedef multi_meter<D> self_type;
+  //typedef D duration_type;
+  typedef multi_meter</*D,*/ MeterType> self_type;
   typedef std::shared_ptr<self_type> self_ptr;
 
-  typedef composite_meter<D> meter_type;
+  typedef MeterType meter_type;
   typedef std::shared_ptr<meter_type> meter_ptr;
   typedef std::vector<meter_ptr> meter_list;
 
