@@ -50,14 +50,15 @@ public:
         p->set_write_size(size);
   }
 
-  self_ptr clone(time_type now, size_t count, size_t size) const
+  template<typename... A>
+  self_ptr clone(time_type now, A... args/*size_t count, size_t size*/) const
   {
     auto m = std::make_shared<self_type>();
     m->_meters.reserve(this->_meters.size());
     for (auto p : _meters )
     {
       if ( p!=nullptr )
-        m->_meters.push_back( p->clone(now, count, size) );
+        m->_meters.push_back( p->clone(now, args.../*count, size*/) );
     }
     return  m;
   }

@@ -65,15 +65,15 @@ public:
       _write_meter->set_size(size);
   }
   
-  self_ptr clone(time_type now, size_t count, size_t read_size) const
+  self_ptr clone(time_type now, size_t size) const
   {
     time_meter_ptr time_meter;
     size_meter_ptr read_meter;
     size_meter_ptr write_meter;
     if ( _time_meter!=nullptr )
-      time_meter = _time_meter->clone(now, count);
+      time_meter = _time_meter->clone(now, 1);
     if ( _read_meter!=nullptr )
-      read_meter = _read_meter->clone(now, read_size);
+      read_meter = _read_meter->clone(now, size);
     if ( _write_meter!=nullptr )
       write_meter = _write_meter->clone(now, 0);
 

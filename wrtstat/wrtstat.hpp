@@ -92,9 +92,9 @@ public:
   
   template<typename D >
   std::shared_ptr< composite_meter<D> > 
-    create_composite_meter(int time_id, int read_id, int write_id, time_type now, size_type count, size_type size)
+    create_composite_meter(int time_id, int read_id, int write_id, time_type now, size_type size)
   {
-    return this->create_composite_meter_<D>(time_id, read_id, write_id, now, count, size);
+    return this->create_composite_meter_<D>(time_id, read_id, write_id, now, size);
   }
 
   template<typename D >
@@ -102,7 +102,7 @@ public:
     create_composite_meter( const std::string& time_name, 
                             const std::string& read_name,
                             const std::string& write_name,
-                            time_type now, size_type count, size_type size)
+                            time_type now, size_type size)
   {
     return this->create_composite_meter_<D>( 
       this->create_aggregator_( time_name, now), 
@@ -117,10 +117,10 @@ public:
                         const std::string& read_name,
                         const std::string& write_name,
                         time_type now,
-                        size_type count, size_type size
+                        size_type size
                       )
   {
-    return this->create_multi_meter_<D>( time_name, read_name, write_name, now, count, size);
+    return this->create_multi_meter_<D>( time_name, read_name, write_name, now, size);
   }
   
   template< typename MeterType, typename... A>
@@ -175,10 +175,10 @@ private:
 
   template<typename D >
   std::shared_ptr< composite_meter<D> >
-    create_composite_meter_(int time_id, int read_id, int write_id, time_type now, size_type count, size_type size)
+    create_composite_meter_(int time_id, int read_id, int write_id, time_type now, size_type size)
   {
     return std::make_shared<composite_meter<D> >( 
-      time_id!=-1 ? this->create_time_meter_< D >(time_id, now, count) : nullptr,
+      time_id!=-1 ? this->create_time_meter_< D >(time_id, now, 1) : nullptr,
       read_id!=-1 ? this->create_size_meter_(read_id, now, size) : nullptr,
       write_id!=-1 ? this->create_size_meter_(write_id, now, 0 ) : nullptr
     );
@@ -191,7 +191,7 @@ private:
                         const std::string& read_name,
                         const std::string& write_name,
                         time_type now, 
-                        size_type count, size_type size)
+                        size_type size)
   {
     auto meter = std::make_shared< multi_meter< composite_meter<D> > >();
     for ( auto prefix : _prefixes )
@@ -206,7 +206,7 @@ private:
       if ( !write_name.empty() )
         write_id = this->create_aggregator_(prefix + write_name, now );
 
-      meter->push_back( this->create_composite_meter_<D>( time_id, read_id, write_id, now, count, size) );
+      meter->push_back( this->create_composite_meter_<D>( time_id, read_id, write_id, now, size) );
     }
     return meter;
   }
