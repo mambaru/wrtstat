@@ -176,7 +176,8 @@ private:
   void add_( value_type v) 
   {
     _average += v;
-    _average /= 2;
+    if ( !_data.empty() )
+      _average /= 2;
 
     this->minmax(v);
     
