@@ -4,9 +4,11 @@
 #include <iostream>
 #include <chrono>
 
+void test(std::function<void()>);
+
 void test(std::function<void()>) 
 {
-  usleep( std::rand()%100);
+  usleep( static_cast<unsigned int>( std::rand()%100) );
 }
 
 int main()

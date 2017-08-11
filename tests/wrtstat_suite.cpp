@@ -12,7 +12,9 @@ UNIT(wrtstat1, "")
   stat.create_multi_meter<std::chrono::microseconds>(
     "a1", "a2", "a3", 
     wrtstat_mt::now<std::chrono::microseconds>(), 
-    1, 255);
+    //static_cast< wrtstat_mt::time_type >(1), 
+    static_cast< wrtstat_mt::size_type >(255)
+  );
   
   stat.create_multi_meter< size_meter >( "s1", wrtstat_mt::now<std::chrono::microseconds>(), 12);
   stat.create_multi_meter< value_meter >( "v1", wrtstat_mt::now<std::chrono::microseconds>(), 12);

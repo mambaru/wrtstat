@@ -4,6 +4,7 @@
 #include <memory>
 #include <mutex>
 #include <ctime>
+#include <functional>
 
 namespace wrtstat {
 

@@ -25,9 +25,9 @@ struct size_meter
   size_meter& operator=( const size_meter& ) = delete;
 
 
-  size_meter(meter_fun_t fun, time_type now, size_type size)
-    : now(now)
-    , size(size)
+  size_meter(meter_fun_t fun, time_type ts_now, size_type s)
+    : now(ts_now)
+    , size(s)
     , timer_fun(fun)
   {
   }
@@ -36,15 +36,15 @@ struct size_meter
   {
     if ( timer_fun == nullptr || now == 0)
       return;
-    timer_fun( now, size, size );
+    timer_fun( now, static_cast<span_type>(size), size );
   };
 
-  void set_size(size_t size) { this->size = size; }
+  void set_size(size_t s) { this->size = s; }
   size_type get_size() const { return this->size; }
 
-  self_ptr clone(time_type now, size_type size) const
+  self_ptr clone(time_type ts_now, size_type s) const
   {
-    return std::make_shared<self>(timer_fun, now, size);
+    return std::make_shared<self>(timer_fun, ts_now, s);
   }
 
   void reset() 

@@ -16,15 +16,15 @@ void empty_reducer(T& t)
   // Заполнили все доступные массивы в первой итерации i3
   t << is_true<expect>( r.filled() ) << FAS_FL;
   // Суммарный размер массивов при полном заполнении = limit*levels
-  t << equal<expect>( r.size(), 0 ) << FAS_FL;
+  t << equal<expect, size_t>( r.size(), 0 ) << FAS_FL;
   // Суммарный вызов add * 2 (передавали count == 2 )
-  t << equal<expect>( r.total_count(), 1 ) << FAS_FL;
+  t << equal<expect, size_t>( r.total_count(), 1 ) << FAS_FL;
   // Расчетное количество выброшенных значений при прореживании (останется только массив длиной ro.limit)
-  t << equal<expect>( r.lossy_count(), 1 ) << FAS_FL;
+  t << equal<expect, size_t>( r.lossy_count(), 1 ) << FAS_FL;
   // Минимальное значение
-  t << equal<expect>( r.min(), 1 ) << FAS_FL;
+  t << equal<expect, size_t>( r.min(), 1 ) << FAS_FL;
   // Текущее максимальное значение
-  t << equal<expect>( r.max(), 1 ) << FAS_FL;
+  t << equal<expect, size_t>( r.max(), 1 ) << FAS_FL;
 
   auto res = r.detach();
   t << is_true<assert>( res==nullptr ) << FAS_FL;
@@ -72,35 +72,35 @@ void filled_reducer(T& t)
   // Заполнили все доступные массивы в первой итерации i3
   t << is_true<expect>( r.filled() ) << FAS_FL;
   // Суммарный размер массивов при полном заполнении = limit*levels
-  t << equal<expect>( r.size(), ro.limit*ro.levels ) << FAS_FL;
+  t << equal<expect, size_t>( r.size(), ro.limit*ro.levels ) << FAS_FL;
   // Суммарный вызов add * 2 (передавали count == 2 )
-  t << equal<expect>( r.total_count(), value*2 ) << FAS_FL;
+  t << equal<expect, size_t>( r.total_count(), value*2 ) << FAS_FL;
   // Расчетное количество выброшенных значений при прореживании (останется только массив длиной ro.limit)
-  t << equal<expect>( r.lossy_count(), r.total_count() - ro.limit ) << FAS_FL;
+  t << equal<expect, size_t>( r.lossy_count(), r.total_count() - ro.limit ) << FAS_FL;
   // Минимальное значение
-  t << equal<expect>( r.min(), 1 ) << FAS_FL;
+  t << equal<expect, size_t>( r.min(), 1 ) << FAS_FL;
   // Текущее максимальное значение
-  t << equal<expect>( r.max(), value ) << FAS_FL;
+  t << equal<expect, size_t>( r.max(), value ) << FAS_FL;
 
   auto res = r.detach();
   t << is_true<assert>( res!=nullptr ) << FAS_FL;
   t << stop;
 
-  t << equal<expect, int>( res->min, 1 ) << FAS_FL;
-  t << equal<expect, int>( res->max, value ) << FAS_FL;
-  t << equal<expect, int>( res->count, value*2 ) << FAS_FL;
-  t << equal<expect, int>( res->lossy, value*2 - ro.limit ) << FAS_FL;
-  t << equal<expect, int>( res->avg, avg ) << FAS_FL;
-  t << equal<expect, int>( res->data.size(), ro.limit ) << FAS_FL;
+  t << equal<expect, long>( res->min, 1 ) << FAS_FL;
+  t << equal<expect, long>( res->max, value ) << FAS_FL;
+  t << equal<expect, long>( res->count, value*2 ) << FAS_FL;
+  t << equal<expect, long>( res->lossy, size_t(value)*2 - ro.limit ) << FAS_FL;
+  t << equal<expect, long>( res->avg, avg ) << FAS_FL;
+  t << equal<expect, long>( res->data.size(), ro.limit ) << FAS_FL;
   for ( auto i : res->data)
     t << message("A: ") << i;
   r.clear();
   t << is_false<expect>( r.filled() ) << FAS_FL;
-  t << equal<expect>( r.size(), 0 ) << FAS_FL;
-  t << equal<expect>( r.total_count(), 0 ) << FAS_FL;
-  t << equal<expect>( r.lossy_count(), 0 ) << FAS_FL;
-  t << equal<expect>( r.min(), 0 ) << FAS_FL;
-  t << equal<expect>( r.max(), 0 ) << FAS_FL;
+  t << equal<expect, size_t>( r.size(), 0 ) << FAS_FL;
+  t << equal<expect, size_t>( r.total_count(), 0 ) << FAS_FL;
+  t << equal<expect, size_t>( r.lossy_count(), 0 ) << FAS_FL;
+  t << equal<expect, size_t>( r.min(), 0 ) << FAS_FL;
+  t << equal<expect, size_t>( r.max(), 0 ) << FAS_FL;
   res = r.detach();
   t << is_true<assert>( res==nullptr ) << FAS_FL;
   t << stop;
@@ -122,11 +122,11 @@ void filled_reducer(T& t)
   }
 
   t << is_true<expect>( r.filled() ) << FAS_FL;
-  t << equal<expect>( r.size(), ro.limit*ro.levels ) << FAS_FL;
-  t << equal<expect>( r.total_count(), 0 ) << FAS_FL;
-  t << equal<expect>( r.lossy_count(), value - ro.limit ) << FAS_FL;
-  t << equal<expect>( r.min(), 1 ) << FAS_FL;
-  t << equal<expect>( r.max(), value  ) << FAS_FL;
+  t << equal<expect, size_t>( r.size(), ro.limit*ro.levels ) << FAS_FL;
+  t << equal<expect, size_t>( r.total_count(), 0 ) << FAS_FL;
+  t << equal<expect, size_t>( r.lossy_count(), size_t(value) - ro.limit ) << FAS_FL;
+  t << equal<expect, size_t>( r.min(), 1 ) << FAS_FL;
+  t << equal<expect, size_t>( r.max(), value  ) << FAS_FL;
 
   res = r.detach();
   t << is_true<assert>( res!=nullptr ) << FAS_FL;
@@ -135,7 +135,7 @@ void filled_reducer(T& t)
   t << equal<expect, int>( res->min, 1 ) << FAS_FL;
   t << equal<expect, int>( res->max, value ) << FAS_FL;
   t << equal<expect, int>( res->count, 0 ) << FAS_FL;
-  t << equal<expect, int>( res->lossy, value - ro.limit ) << FAS_FL;
+  t << equal<expect, int>( res->lossy, size_t(value) - ro.limit ) << FAS_FL;
   t << equal<expect, int>( res->avg, avg ) << FAS_FL;
   t << equal<expect, int>( res->data.size(), ro.limit ) << FAS_FL;
   for ( auto i : res->data)
@@ -197,15 +197,15 @@ void non_filled_reducer(T& t)
   // Заполнили все доступные массивы в первой итерации i3
   t << is_false<expect>( r.filled() ) << FAS_FL;
   // Суммарный размер массивов при полном заполнении = limit*levels
-  t << equal<expect>( r.size(), ro.limit*(ro.levels-1) + Tail ) << FAS_FL;
+  t << equal<expect, size_t>( r.size(), ro.limit*(ro.levels-1) + Tail ) << FAS_FL;
   // Суммарный вызов add * 2 (передавали count == 2 )
-  t << equal<expect>( r.total_count(), value ) << FAS_FL;
+  t << equal<expect, size_t>( r.total_count(), value ) << FAS_FL;
   // Расчетное количество выброшенных значений при прореживании (останется только массив длиной ro.limit)
-  t << equal<expect>( r.lossy_count(), r.total_count() - ro.limit ) << FAS_FL;
+  t << equal<expect, size_t>( r.lossy_count(), r.total_count() - ro.limit ) << FAS_FL;
   // Минимальное значение
-  t << equal<expect>( r.min(), 1 ) << FAS_FL;
+  t << equal<expect, size_t>( r.min(), 1 ) << FAS_FL;
   // Текущее максимальное значение
-  t << equal<expect>( r.max(), value ) << FAS_FL;
+  t << equal<expect, size_t>( r.max(), value ) << FAS_FL;
 
   auto res = r.detach();
   t << is_true<assert>( res!=nullptr ) << FAS_FL;
@@ -214,7 +214,7 @@ void non_filled_reducer(T& t)
   t << equal<expect, int>( res->min, 1 ) << FAS_FL;
   t << equal<expect, int>( res->max, value ) << FAS_FL;
   t << equal<expect, int>( res->count, value ) << FAS_FL;
-  t << equal<expect, int>( res->lossy, value - ro.limit ) << FAS_FL;
+  t << equal<expect, int>( res->lossy, size_t(value) - ro.limit ) << FAS_FL;
   t << equal<expect, int>( res->avg, avg ) << FAS_FL;
   t << equal<expect, int>( res->data.size(), ro.limit ) << FAS_FL;
 }
@@ -261,16 +261,16 @@ void array_reducer(T& t)
     t << is_true<expect>( r.filled() ) << FAS_FL;
   // Суммарный размер массивов при полном заполнении = limit*levels
   int size = Levels*Limit <  Size ? Levels*Limit : Size ;
-  t << equal<expect>( r.size(), size ) << FAS_FL;
+  t << equal<expect, size_t>( r.size(), size ) << FAS_FL;
   // Суммарный вызов add * 2 (передавали count == 2 )
-  t << equal<expect>( r.total_count(), value ) << FAS_FL;
+  t << equal<expect, size_t>( r.total_count(), value ) << FAS_FL;
   // Расчетное количество выброшенных значений при прореживании (останется только массив длиной ro.limit)
   int lossy = Limit < Size ? Size - Limit : 0;
-  t << equal<expect>( r.lossy_count(), lossy ) << FAS_FL;
+  t << equal<expect, size_t>( r.lossy_count(), lossy ) << FAS_FL;
   // Минимальное значение
-  t << equal<expect>( r.min(), 1 ) << FAS_FL;
+  t << equal<expect, size_t>( r.min(), 1 ) << FAS_FL;
   // Текущее максимальное значение
-  t << equal<expect>( r.max(), value ) << FAS_FL;
+  t << equal<expect, size_t>( r.max(), value ) << FAS_FL;
 
   auto res = r.detach();
   t << is_true<assert>( res!=nullptr ) << FAS_FL;

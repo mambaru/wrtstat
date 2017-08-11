@@ -18,10 +18,10 @@ public:
   typedef reducer_type::reduced_type reduced_type;
   typedef reducer_type::reduced_ptr  reduced_ptr; 
 
-  separator( time_type now, separator_options opt, allocator a = allocator() )
+  separator( time_type ts_now, separator_options opt, allocator a = allocator() )
     : _reducer(opt, a)
     , _step_ts(opt.step_ts)
-    , _next_time(now + opt.step_ts)
+    , _next_time(ts_now + opt.step_ts)
   {
   }
 
@@ -30,28 +30,28 @@ public:
     return this->_reducer;
   }
 
-  bool add( time_type now, value_type v, size_type count )
+  bool add( time_type ts_now, value_type v, size_type count )
   {
-    this->separate(now, false);
-    if ( now < _next_time - _step_ts )
+    this->separate(ts_now, false);
+    if ( ts_now < _next_time - _step_ts )
       return false;
     _reducer.add(v, count);
     return true;
   }
   
-  bool add( time_type now, const data_type& v, size_type count )
+  bool add( time_type ts_now, const data_type& v, size_type count )
   {
-    this->separate(now, false);
-    if ( now < _next_time - _step_ts )
+    this->separate(ts_now, false);
+    if ( ts_now < _next_time - _step_ts )
       return false;
     _reducer.add(v, count);
     return true;
   }
   
-  bool add( time_type now, std::initializer_list<value_type> v )
+  bool add( time_type ts_now, std::initializer_list<value_type> v )
   {
-    this->separate(now, false);
-    if ( now < _next_time - _step_ts )
+    this->separate(ts_now, false);
+    if ( ts_now < _next_time - _step_ts )
       return false;
     _reducer.add( std::move(v) );
     return true;
@@ -86,12 +86,12 @@ public:
     return _next_time - _step_ts;
   }
 
-  bool separate(time_type now, bool force)
+  bool separate(time_type ts_now, bool force)
   {
-    if ( !force && now < _next_time )
+    if ( !force && ts_now < _next_time )
       return false;
 
-    while ( _next_time <= now )
+    while ( _next_time <= ts_now )
     {
       if ( auto res = _reducer.detach() )
       {
@@ -125,9 +125,9 @@ public:
     return _sep_list.size();
   }
 
-  void clear( time_type now )
+  void clear( time_type ts_now )
   {
-    _next_time = now + _step_ts;
+    _next_time = ts_now + _step_ts;
     _reducer.clear();
     _sep_list.clear();
   }

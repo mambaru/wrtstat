@@ -18,7 +18,7 @@ UNIT(aggregator1, "")
     t << is_true<expect>( ag.add(i, i, 1) ) << FAS_FL;
 
   ag.separate(100, true);
-  t << equal<expect>( ag.size(), 10 ) << FAS_FL;
+  t << equal<expect, size_t>( ag.size(), 10 ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
   {
     auto s = ag.pop();
@@ -34,7 +34,7 @@ UNIT(aggregator1, "")
     t << equal<expect, size_t>( s->perc99,  9 + i*10 ) << "i=" << FAS_FL;
     t << equal<expect, size_t>( s->perc100, 9 + i*10 ) << "i=" << FAS_FL;
     t << equal<expect, size_t>( s->max,     9 + i*10 ) << "i=" << FAS_FL;
-    t << equal<expect, size_t>( s->avg,     8 + i*10 - 1*(i!=0) ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->avg,     8 + i*10 /* - 1*(i!=0)*/ ) << "i=" << FAS_FL;
   }
 
   t << nothing;
@@ -55,11 +55,11 @@ UNIT(aggregator2, "")
   for (int i = 0 ; i < 100; i++)
   {
     meter(i, i, 1);
-    t << equal<expect>( ag->size(), i/10 ) << FAS_FL;
+    t << equal<expect, size_t>( ag->size(), i/10 ) << FAS_FL;
   }
 
   ag->separate(100, true);
-  t << equal<expect>( ag->size(), 10 ) << FAS_FL;
+  t << equal<expect, size_t>( ag->size(), 10 ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
   {
     auto s = ag->pop();

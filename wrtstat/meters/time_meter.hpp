@@ -27,9 +27,9 @@ struct time_meter
   time_meter( const time_meter& ) = delete;
   time_meter& operator=( const time_meter& ) = delete;
 
-  time_meter(meter_fun_t fun, time_type now, size_type count = 1 )
-    : now(now)
-    , count(count)
+  time_meter(meter_fun_t fun, time_type ts_now, size_type cnt = 1 )
+    : now(ts_now)
+    , count(cnt)
     , meter_fun(fun)
   {
     start = clock_type::now();
@@ -50,9 +50,9 @@ struct time_meter
     count = 0;
   }
 
-  self_ptr clone(time_type now, size_type count) const
+  self_ptr clone(time_type ts_now, size_type cnt) const
   {
-    return std::make_shared<self>(meter_fun, now, count);
+    return std::make_shared<self>(meter_fun, ts_now, cnt);
   }
 
   time_type now;

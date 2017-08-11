@@ -3,6 +3,8 @@
 #include <wrtstat/aggregator_options.hpp>
 #include <wrtstat/separator.hpp>
 #include <iostream>
+#include <algorithm>
+
 namespace wrtstat {
 
 class aggregator_base
@@ -21,8 +23,8 @@ public:
   typedef std::unique_ptr<aggregated_type> aggregated_ptr;
   typedef std::list< aggregated_ptr > aggregated_list;
   
-  aggregator_base(time_type now, aggregator_options opt, allocator a = allocator() )
-    : _sep(now, opt, a)
+  aggregator_base(time_type ts_now, aggregator_options opt, allocator a = allocator() )
+    : _sep(ts_now, opt, a)
     , _reduced_size(opt.reduced_size)
   {
     _id = std::make_shared<int>(1);
@@ -33,21 +35,21 @@ public:
     return this->_sep;
   }
 
-  bool add(time_type now, value_type v, size_type count)
+  bool add(time_type ts_now, value_type v, size_type count)
   {
     if ( !_enabled )
       return true;
 
-    if ( !_sep.add(now, v, count) )
-      return false; // now устарел
+    if ( !_sep.add(ts_now, v, count) )
+      return false; // ts_now устарел
 
     this->aggregate_();
     return true;
   }
 
-  bool separate(time_type now, bool force)
+  bool separate(time_type ts_now, bool force)
   {
-    bool res = _sep.separate(now, force);
+    bool res = _sep.separate(ts_now, force);
     this->aggregate_();
     return res;
   }
@@ -75,13 +77,13 @@ public:
   meter_fun_t create_meter( std::weak_ptr<T> wthis )
   {
     std::weak_ptr<int> wid = this->_id;
-    return [wid, wthis](time_type now, time_type v, size_type count)
+    return [wid, wthis](time_type ts_now, time_type v, size_type count)
     {
       if ( auto pthis = wthis.lock() )
       {
         if (auto id = wid.lock() )
         {
-          pthis->add(now, v, count);
+          pthis->add(ts_now, v, count);
         }
       }
     };
@@ -92,9 +94,9 @@ public:
     return _ag_list.size();
   }
 
-  void clear( time_type now )
+  void clear( time_type ts_now )
   {
-    _sep.clear(now);
+    _sep.clear(ts_now);
     _ag_list.clear();
     _id.reset();
   }
@@ -111,11 +113,16 @@ private:
 
   value_type nth_(size_type perc, size_type& off, data_type& d) const
   {
-    auto beg = d.begin() + off;
-    auto nth = d.begin() + d.size()*perc/100;
-    off = std::distance(beg, nth);
+    data_type::iterator beg = d.begin() + static_cast<std::ptrdiff_t>(off);
+    data_type::iterator nth = d.begin() + static_cast<std::ptrdiff_t>( d.size()*perc/100 );
+    auto dist = std::distance(beg, nth );
+    if ( dist < 0 )
+    {
+      abort();
+      return *beg; // abort;
+    }
+    off = static_cast<size_type>(dist);
     std::nth_element(beg, nth, d.end());
-    // std::cout << "nth_=" << perc << " off=" << off << " nth=" << *nth << std::endl;
     return *nth;
   }
 
@@ -145,7 +152,11 @@ private:
         return (i++)%step!=0;
       });
     }
-    d.resize(std::distance( beg, end));
+    auto dist = std::distance( beg, end);
+    if ( dist > 0 )
+      d.resize( static_cast<size_t>(dist) );
+    else
+      abort();
   }
 
   void aggregate_()
@@ -194,8 +205,8 @@ class aggregator
 public:
   typedef aggregator_base::options_type options_type;
   
-  aggregator(time_type now, options_type opt, allocator a = allocator())
-    : aggregator_base(now, opt, a)
+  aggregator(time_type ts_now, options_type opt, allocator a = allocator())
+    : aggregator_base(ts_now, opt, a)
   {
   }
   
@@ -224,15 +235,15 @@ public:
   typedef aggregator_base::aggregated_type aggregated_type;
   typedef aggregator_base::aggregated_ptr aggregated_ptr;
 
-  aggregator_mt(time_type now, options_type opt, allocator a = allocator() )
-    : aggregator_base(now, opt, a)
+  aggregator_mt(time_type ts_now, options_type opt, allocator a = allocator() )
+    : aggregator_base(ts_now, opt, a)
   {
   }
 
-  bool add(time_type now, value_type v, size_type count)
+  bool add(time_type ts_now, value_type v, size_type count)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return aggregator_base::add(now, v, count);
+    return aggregator_base::add(ts_now, v, count);
   }
 
   aggregated_ptr pop()
@@ -247,10 +258,10 @@ public:
     return aggregator_base::force_pop();
   }
 
-  bool separate(time_type now, bool force)
+  bool separate(time_type ts_now, bool force)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return aggregator_base::separate(now, force);
+    return aggregator_base::separate(ts_now, force);
   }
 
   void enable(bool value)
@@ -277,10 +288,10 @@ public:
     return aggregator_base::size();
   }
 
-  void clear(time_type now)
+  void clear(time_type ts_now)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return aggregator_base::clear( now );
+    return aggregator_base::clear( ts_now );
   }
 
 private:

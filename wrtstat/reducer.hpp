@@ -47,12 +47,12 @@ public:
     return _opt.levels; 
   }
 
-  size_t max() const 
+  value_type max() const 
   { 
     return _max == std::numeric_limits<value_type>::min() ? 0 : _max; 
   }
 
-  size_t min() const 
+  value_type min() const 
   { 
     return _min == std::numeric_limits<value_type>::max() ? 0 : _min; 
   }

@@ -22,7 +22,7 @@ UNIT(separator1, "")
     t << equal<expect>( sep.next_time(), (i/10)*10 + 10 ) << "i=" << FAS_FL;
   }
   sep.separate(100, true);
-  t << equal<expect>( sep.size(), 10 ) << FAS_FL;
+  t << equal<expect>( sep.size(), 10ul ) << FAS_FL;
   t << is_true<expect>( sep.ready() ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
   {

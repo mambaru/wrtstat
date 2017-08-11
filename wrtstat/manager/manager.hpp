@@ -97,7 +97,7 @@ private:
   {
     if ( id < 0 || static_cast<size_type>(id) >= _agarr.size() )
       return nullptr;
-    return _agarr[id];
+    return _agarr[ static_cast<size_t>(id) ];
   }
   
   int findorcre_(const std::string& name, time_type now)
@@ -105,15 +105,16 @@ private:
     int id = _dict.create_id( name );
     if ( id < 0 )
       return id;
-    
-    if ( _agarr.size() <= static_cast<size_type>(id) )
-      _agarr.resize(id + 1);
+    size_t s_id = static_cast<size_t>(id);
+     
+    if ( _agarr.size() <= s_id )
+      _agarr.resize( s_id + 1 );
 
-    if ( _agarr[id] == nullptr )
+    if ( _agarr[s_id] == nullptr )
     {
-      _agarr[id] = std::make_shared<aggregator_type>(now, _opt, _pool.get_allocator() );
+      _agarr[s_id] = std::make_shared<aggregator_type>(now, _opt, _pool.get_allocator() );
       if ( !_enabled )
-        _agarr[id]->enable(false);
+        _agarr[s_id]->enable(false);
     }
     return id;
   }

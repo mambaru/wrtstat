@@ -25,10 +25,10 @@ struct value_meter
   value_meter& operator=( const value_meter& ) = delete;
 
 
-  value_meter(meter_fun_t fun, time_type now, size_type value, size_type count = 1)
-    : now(now)
-    , value(value)
-    , count(count)
+  value_meter(meter_fun_t fun, time_type ts_now, size_type val, size_type cnt = 1)
+    : now(ts_now)
+    , value(val)
+    , count(cnt)
     , timer_fun(fun)
   {
   }
@@ -37,18 +37,18 @@ struct value_meter
   {
     if ( timer_fun == nullptr || now == 0)
       return;
-    timer_fun( now, value, count );
+    timer_fun( now, static_cast<span_type>(value), count );
   };
 
-  void set_value(size_t value) { this->value = value; }
+  void set_value(size_t val) { this->value = val; }
   size_type get_value() const { return this->value; }
 
-  void set_count(size_t count) { this->count = count; }
+  void set_count(size_t cnt) { this->count = cnt; }
   size_type get_count() const { return this->count; }
 
-  self_ptr clone(time_type now, size_type value,  size_type count) const
+  self_ptr clone(time_type ts_now, size_type val,  size_type cnt) const
   {
-    return std::make_shared<self>(timer_fun, now, value, count);
+    return std::make_shared<self>(timer_fun, ts_now, val, cnt);
   }
 
   void reset() 
