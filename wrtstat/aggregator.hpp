@@ -23,11 +23,12 @@ public:
   typedef std::unique_ptr<aggregated_type> aggregated_ptr;
   typedef std::list< aggregated_ptr > aggregated_list;
   
-  aggregator_base(time_type ts_now, aggregator_options opt, allocator a = allocator() )
+  aggregator_base(time_type ts_now, const aggregator_options& opt, const allocator& a = allocator() )
     : _sep(ts_now, opt, a)
     , _reduced_size(opt.reduced_size)
+    , _id( std::make_shared<int>(1) )
   {
-    _id = std::make_shared<int>(1);
+    
   }
 
   const separator& get_separator() const 
@@ -111,7 +112,7 @@ public:
 
 private:
 
-  value_type nth_(size_type perc, size_type& off, data_type& d) const
+  static value_type nth_(size_type perc, size_type& off, data_type& d)
   {
     data_type::iterator beg = d.begin() + static_cast<std::ptrdiff_t>(off);
     data_type::iterator nth = d.begin() + static_cast<std::ptrdiff_t>( d.size()*perc/100 );
@@ -205,7 +206,7 @@ class aggregator
 public:
   typedef aggregator_base::options_type options_type;
   
-  aggregator(time_type ts_now, options_type opt, allocator a = allocator())
+  aggregator(time_type ts_now, const options_type& opt, const allocator& a = allocator())
     : aggregator_base(ts_now, opt, a)
   {
   }
@@ -235,7 +236,7 @@ public:
   typedef aggregator_base::aggregated_type aggregated_type;
   typedef aggregator_base::aggregated_ptr aggregated_ptr;
 
-  aggregator_mt(time_type ts_now, options_type opt, allocator a = allocator() )
+  aggregator_mt(time_type ts_now, const options_type& opt, const allocator& a = allocator() )
     : aggregator_base(ts_now, opt, a)
   {
   }

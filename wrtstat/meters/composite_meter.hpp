@@ -22,7 +22,7 @@ public:
   typedef std::shared_ptr<time_meter_type> time_meter_ptr;
   typedef std::shared_ptr<size_meter_type> size_meter_ptr;
 
-  composite_meter(time_meter_ptr tm, size_meter_ptr rm, size_meter_ptr wm)
+  composite_meter(const time_meter_ptr& tm, const size_meter_ptr& rm, const size_meter_ptr& wm)
     : _time_meter(tm)
     , _read_meter(rm)
     , _write_meter(wm)

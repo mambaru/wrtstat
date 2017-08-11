@@ -24,7 +24,7 @@ public:
 
 public:
 
-  reducer(reducer_options opt, allocator a = allocator() )
+  reducer(const reducer_options& opt, const allocator& a = allocator() )
     : _opt( opt )
     , _allocator( a )
   {
@@ -139,7 +139,7 @@ public:
     return std::move(res);
   }
 
-  bool empty()
+  bool empty() const
   {
     return _data.empty();
   }

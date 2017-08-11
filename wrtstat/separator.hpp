@@ -18,7 +18,7 @@ public:
   typedef reducer_type::reduced_type reduced_type;
   typedef reducer_type::reduced_ptr  reduced_ptr; 
 
-  separator( time_type ts_now, separator_options opt, allocator a = allocator() )
+  separator( time_type ts_now, const separator_options& opt, const allocator& a = allocator() )
     : _reducer(opt, a)
     , _step_ts(opt.step_ts)
     , _next_time(ts_now + opt.step_ts)
@@ -103,12 +103,12 @@ public:
     return true;
   }
   
-  bool ready() 
+  bool ready() const
   {
     return !_sep_list.empty();
   }
 
-  bool empty() 
+  bool empty() const
   {
     return _sep_list.empty();
   }

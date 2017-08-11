@@ -9,10 +9,10 @@ int main()
 {
   {
     std::array<int, LEVEL1> values;
-    int pos = 0;
+    
     for (int i = 0; i < LEVEL2; ++i)
     {
-      pos = i;
+      int pos = i;
       for (int j = 0; j < LEVEL1; ++j)
       {
         if (pos >= LEVEL1)

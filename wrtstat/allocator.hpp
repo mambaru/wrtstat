@@ -16,7 +16,7 @@ namespace wrtstat {
     typedef std::function<data_ptr(data_ptr)> free_handle;
 
     allocator(){}
-    allocator(create_handle c, free_handle f)
+    allocator(const create_handle& c, const free_handle& f)
       : _create(c) 
       , _free(f)
     {}

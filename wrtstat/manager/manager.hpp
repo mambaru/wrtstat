@@ -23,7 +23,7 @@ public:
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::vector<aggregator_ptr> aggregator_list;
 
-  manager_base(options_type opt)
+  explicit manager_base(const options_type& opt)
     : _opt(opt)
     , _pool(opt.limit, opt.pool)
   { }
@@ -86,7 +86,7 @@ public:
 
   void enable(bool value)
   {
-    _enabled = value;
+    this->_enabled = value;
     for (auto a : _agarr)
       if ( a!=nullptr )
         a->enable(value);
@@ -132,7 +132,7 @@ class manager_st: public manager_base<aggregator>
   typedef manager_base<aggregator> super;
 public:
   typedef super::options_type options_type;
-  manager_st(options_type opt): manager_base(opt) {};
+  explicit manager_st( const options_type& opt): manager_base(opt) {};
 };
 
 class manager_mt: private manager_base<aggregator_mt>
@@ -150,7 +150,7 @@ public:
   typedef super::aggregator_ptr aggregator_ptr;
   typedef std::mutex mutex_type;
   
-  manager_mt(options_type opt)
+  explicit manager_mt(const options_type& opt)
     : manager_base(opt) {};
   
   size_t size() const 
@@ -169,7 +169,8 @@ public:
   bool add(int id, time_type now, value_type v, size_type count)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return super::add(id, now, v, count);
+    
+    return manager_base::add(id, now, v, count);
   }
 
   aggregated_ptr force_pop(int id)
@@ -195,7 +196,7 @@ public:
   int create_aggregator(const std::string& name, time_type now)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return super::create_aggregator( name, now );
+    return manager_base::create_aggregator( name, now );
   }
   
   aggregator_ptr get_aggregator(int id) const
@@ -214,7 +215,7 @@ public:
   void enable(bool value)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    super::enable(value);
+    manager_base::enable(value);
   }
 private:
   mutable mutex_type _mutex;

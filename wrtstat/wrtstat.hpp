@@ -33,10 +33,11 @@ public:
   typedef std::shared_ptr<manager_type> manager_ptr;
   typedef std::mutex mutex_type;
 
-  wrtstat_base(options_type opt = options_type() ) 
-    : _prefixes(opt.prefixes)
+  explicit wrtstat_base(const options_type& opt = options_type() ) 
+    : _m( std::make_shared<manager_type>(opt) )
+    , _prefixes(opt.prefixes)
+    
   { 
-    _m = std::make_shared<manager_type>(opt);
     if ( _prefixes.empty() ) 
       _prefixes.push_back("");
   }
@@ -84,10 +85,10 @@ public:
     return this->create_size_meter_(id, ts_now, size);
   }
 
-  std::shared_ptr< size_meter > 
+  std::shared_ptr< value_meter > 
     create_value_meter(int id, time_type ts_now, size_type value, size_type count)
   {
-    return this->create_size_meter_(id, ts_now, value, count);
+    return this->create_value_meter_(id, ts_now, value, count);
   }
   
   template<typename D >
@@ -102,7 +103,9 @@ public:
     create_composite_meter( const std::string& time_name, 
                             const std::string& read_name,
                             const std::string& write_name,
-                            time_type ts_now, size_type size)
+                            time_type ts_now,
+                            size_type size
+                          )
   {
     return this->create_composite_meter_<D>( 
       this->create_aggregator_( time_name, ts_now), 
@@ -238,7 +241,7 @@ class wrtstat_st: public wrtstat_base<manager_st>
 {
 public:
   typedef wrtstat_base::options_type options_type;
-  wrtstat_st(options_type opt = options_type() ) 
+  explicit wrtstat_st(const options_type& opt = options_type() ) 
     : wrtstat_base<manager_st>(opt)
   {}
 
@@ -248,7 +251,7 @@ class wrtstat_mt: public wrtstat_base<manager_mt>
 {
 public:
   typedef wrtstat_base::options_type options_type;
-  wrtstat_mt(options_type opt = options_type() ) 
+  explicit wrtstat_mt(const options_type& opt = options_type() ) 
     : wrtstat_base<manager_mt>(opt)
   {}
   
