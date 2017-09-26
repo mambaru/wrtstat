@@ -27,7 +27,8 @@ public:
   typedef typename manager_type::size_type size_type;
   typedef typename manager_type::aggregated_type aggregated_type;
   typedef typename manager_type::aggregated_ptr aggregated_ptr;
-  
+  typedef typename manager_type::meter_fun_t meter_fun_t;
+  typedef typename manager_type::handler_fun_t handler_fun_t;
   typedef wrtstat_options options_type;
 
   typedef std::shared_ptr<manager_type> manager_ptr;
@@ -62,7 +63,7 @@ public:
     return _m->size();
   }
 
-  int create_aggregator(std::string name, time_type ts_now)
+  int create_aggregator( std::string&& name, time_type ts_now )
   {
     return this->create_aggregator_( std::move(name), ts_now);
   }
@@ -70,6 +71,11 @@ public:
   std::string get_name(int id) const 
   {
     return _m->get_name(id);
+  }
+  
+  handler_fun_t create_handler(std::string&& name, time_type ts_now)
+  {
+    return _m->create_handler( std::move(name), ts_now);
   }
 
   template<typename D >

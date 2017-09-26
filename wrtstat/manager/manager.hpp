@@ -19,6 +19,7 @@ public:
   typedef typename aggregator_type::aggregated_ptr aggregated_ptr;
   typedef manager_options options_type;
   typedef typename aggregator_type::meter_fun_t meter_fun_t;
+  typedef typename aggregator_type::handler_fun_t handler_fun_t;
   
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::vector<aggregator_ptr> aggregator_list;
@@ -74,6 +75,32 @@ public:
     if ( auto ag = this->get_(id) )
       return ag->create_meter();
     return nullptr;
+  }
+
+  handler_fun_t create_handler( int id )
+  {
+    if ( auto ag = this->get_(id) )
+      return ag->create_handler();
+    return nullptr;
+  }
+
+  meter_fun_t create_meter(std::string&& name, time_type ts_now)
+  {
+    return this->create_meter(
+      this->create_aggregator( 
+        std::move(name), 
+        ts_now
+      )
+    );
+  }
+
+  handler_fun_t create_handler(std::string&& name, time_type ts_now)
+  {
+    return this->create_handler(
+      this->create_aggregator( 
+        std::move(name), 
+        ts_now)
+    );
   }
 
   void enable(bool value)
@@ -139,6 +166,7 @@ public:
   typedef super::aggregated_ptr aggregated_ptr;
   typedef super::options_type options_type;
   typedef super::meter_fun_t meter_fun_t;
+  typedef super::handler_fun_t handler_fun_t;
   typedef super::aggregator_ptr aggregator_ptr;
   typedef std::mutex mutex_type;
   
@@ -187,7 +215,7 @@ public:
   aggregator_ptr get_aggregator(int id) const
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return super::get_aggregator(id);
+    return manager_base::get_aggregator(id);
   }
   
   meter_fun_t create_meter( int id )
@@ -195,6 +223,12 @@ public:
     if ( auto ag = this->get_aggregator(id) )
       return ag->create_meter();
     return nullptr;
+  }
+  
+  handler_fun_t create_handler(std::string&& name, time_type ts_now)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return manager_base::create_handler( std::move(name), ts_now );
   }
 
   void enable(bool value)

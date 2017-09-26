@@ -17,6 +17,7 @@ public:
   typedef separator::reduced_type reduced_type;
   typedef separator::reduced_ptr reduced_ptr;
   typedef types::meter_fun_t meter_fun_t;
+  typedef types::handler_fun_t handler_fun_t;
 
   typedef aggregator_options options_type;
   typedef aggregated_data aggregated_type;
@@ -42,6 +43,18 @@ public:
       return true;
 
     if ( !_sep.add(ts_now, v, count) )
+      return false; // ts_now устарел
+
+    this->aggregate_();
+    return true;
+  }
+
+  bool add(time_type ts_now, data_type&& v, size_type count)
+  {
+    if ( !_enabled )
+      return true;
+
+    if ( !_sep.add(ts_now, std::move(v), count) )
       return false; // ts_now устарел
 
     this->aggregate_();
@@ -89,7 +102,23 @@ public:
       }
     };
   }
-  
+
+  template<typename T>
+  handler_fun_t create_handler( std::weak_ptr<T> wthis )
+  {
+    std::weak_ptr<int> wid = this->_id;
+    return [wid, wthis](time_type ts_now, data_type&& v, size_type count)
+    {
+      if ( auto pthis = wthis.lock() )
+      {
+        if (auto id = wid.lock() )
+        {
+          pthis->add(ts_now, std::move(v), count);
+        }
+      }
+    };
+  }
+
   size_t size() const
   {
     return _ag_list.size();
@@ -215,6 +244,12 @@ public:
   {
     return aggregator_base::create_meter<aggregator>( this->shared_from_this() );
   }
+
+  handler_fun_t create_handler( )
+  {
+    return aggregator_base::create_handler<aggregator>( this->shared_from_this() );
+  }
+  
 };
 
 class aggregator_mt
@@ -231,6 +266,8 @@ public:
   typedef aggregator_base::reduced_type reduced_type;
   typedef aggregator_base::reduced_ptr reduced_ptr;
   typedef aggregator_base::meter_fun_t meter_fun_t;
+  typedef aggregator_base::handler_fun_t handler_fun_t;
+  
 
   typedef aggregator_base::options_type options_type;
   typedef aggregator_base::aggregated_type aggregated_type;
@@ -247,6 +284,13 @@ public:
     return aggregator_base::add(ts_now, v, count);
   }
 
+  bool add(time_type ts_now, data_type&& v, size_type count)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return aggregator_base::add(ts_now, std::move(v), count);
+  }
+
+  
   aggregated_ptr pop()
   {
     std::lock_guard<mutex_type> lk(_mutex);
@@ -275,6 +319,12 @@ public:
   {
     std::lock_guard<mutex_type> lk(_mutex);
     return aggregator_base::create_meter<aggregator_mt>( this->shared_from_this() );
+  }
+
+  handler_fun_t create_handler( )
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return aggregator_base::create_handler<aggregator_mt>( this->shared_from_this() );
   }
 
   template<typename D>
