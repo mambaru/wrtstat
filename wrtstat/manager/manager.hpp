@@ -33,14 +33,6 @@ public:
     return _agarr.size();
   }
 
-  /*
-  bool add(const std::string& name, time_type now, value_type v, size_type count)
-  {
-    int id = this->findorcre_(std::move(name), now);
-    return this->add(id , now, v, count );
-  }
-  */
-
   bool add(int id, time_type now, value_type v, size_type count)
   {
     if ( auto p = this->get_(id) )
@@ -158,13 +150,6 @@ public:
     std::lock_guard<mutex_type> lk(_mutex);
     return super::size();
   }
-
-  /*
-  bool add(const std::string& name, time_type now, value_type v, size_type count)
-  {
-    std::lock_guard<mutex_type> lk(_mutex);
-    return super::add(name, now, v, count);
-  }*/
 
   bool add(int id, time_type now, value_type v, size_type count)
   {
