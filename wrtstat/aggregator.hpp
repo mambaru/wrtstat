@@ -156,6 +156,7 @@ private:
     return *nth;
   }
 
+  // TODO: return сколько элементов было удалено + добавить в count
   void reduce_(data_type& d) const
   {
     if ( _reduced_size==0 || d.size() <= _reduced_size)
