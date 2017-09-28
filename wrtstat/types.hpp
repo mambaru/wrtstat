@@ -21,6 +21,7 @@ struct types
   typedef std::weak_ptr<mutex_type> mutex_wptr;
   typedef std::function< void(time_type now, span_type value, size_type count) > meter_fun_t;
   typedef std::function< void(time_type now, data_type&& value, size_type count) > handler_fun_t;
+  
 };
 
 }

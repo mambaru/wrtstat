@@ -18,7 +18,7 @@ public:
   typedef separator::reduced_ptr reduced_ptr;
   typedef types::meter_fun_t meter_fun_t;
   typedef types::handler_fun_t handler_fun_t;
-
+  typedef std::function< void(const reduced_data&) > aggregator_fun_t;
   typedef aggregator_options options_type;
   typedef aggregated_data aggregated_type;
   typedef std::unique_ptr<aggregated_type> aggregated_ptr;
@@ -49,13 +49,25 @@ public:
     return true;
   }
 
-  bool add(time_type ts_now, data_type&& v, size_type count)
+  bool add(time_type ts_now, const data_type& v, size_type count)
   {
     if ( !_enabled )
       return true;
 
-    if ( !_sep.add(ts_now, std::move(v), count) )
+    if ( !_sep.add(ts_now, v, count) )
       return false; // ts_now устарел
+
+    this->aggregate_();
+    return true;
+  }
+
+  bool add( const reduced_data& v)
+  {
+    if ( !_enabled )
+      return true;
+
+    if ( !_sep.add(v) )
+      return false; // v.ts устарел
 
     this->aggregate_();
     return true;
@@ -118,6 +130,22 @@ public:
       }
     };
   }
+  
+  template<typename T>
+  aggregator_fun_t create_aggregator( std::weak_ptr<T> wthis )
+  {
+    std::weak_ptr<int> wid = this->_id;
+    return [wid, wthis]( const reduced_data& reduced)
+    {
+      if ( auto pthis = wthis.lock() )
+      {
+        if (auto id = wid.lock() )
+        {
+          pthis->add(reduced);
+        }
+      }
+    };
+  }
 
   size_t size() const
   {
@@ -170,7 +198,7 @@ private:
       // 300 ~ 400
       // Удаляем каждый N элемент
       size_type step = d.size() / ( d.size() - _reduced_size );
-      end = std::remove_if( beg, d.end(), [&i, step](const value_type&) {
+      end = std::remove_if( beg, end, [&i, step](const value_type&) {
         return (i++)%step==0;
       });
     }
@@ -179,7 +207,7 @@ private:
       // 50 - 400
       // Оставляем каждый N элемент
       size_type step = d.size() / _reduced_size;
-      end = std::remove_if( beg, d.end(), [&i, step](const value_type&) {
+      end = std::remove_if( beg, end, [&i, step](const value_type&) {
         return (i++)%step!=0;
       });
     }
@@ -268,6 +296,7 @@ public:
   typedef aggregator_base::reduced_ptr reduced_ptr;
   typedef aggregator_base::meter_fun_t meter_fun_t;
   typedef aggregator_base::handler_fun_t handler_fun_t;
+  typedef aggregator_base::aggregator_fun_t aggregator_fun_t;
   
 
   typedef aggregator_base::options_type options_type;
@@ -285,11 +314,18 @@ public:
     return aggregator_base::add(ts_now, v, count);
   }
 
-  bool add(time_type ts_now, data_type&& v, size_type count)
+  bool add(time_type ts_now, const data_type& v, size_type count)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return aggregator_base::add(ts_now, std::move(v), count);
+    return aggregator_base::add(ts_now, v, count);
   }
+  
+  bool add( const reduced_data& v)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return aggregator_base::add(v);
+  }
+
 
   
   aggregated_ptr pop()
@@ -326,6 +362,12 @@ public:
   {
     std::lock_guard<mutex_type> lk(_mutex);
     return aggregator_base::create_handler<aggregator_mt>( this->shared_from_this() );
+  }
+  
+  aggregator_fun_t create_aggregator( )
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return aggregator_base::create_aggregator<aggregator_mt>( this->shared_from_this() );
   }
 
   template<typename D>

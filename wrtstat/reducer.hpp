@@ -81,7 +81,8 @@ public:
   {
     _min = std::numeric_limits<value_type>::max();
     _max = std::numeric_limits<value_type>::min();
-    _average = 0;
+    _average = 0.0;
+    _average_count = 0;
     _lossy_count = 0;
     _total_count = 0;
     _data.clear();
@@ -97,16 +98,14 @@ public:
   {
     this->add_(v);
     _total_count += count;
-    if ( count > 1)
-      _lossy_count += count - 1;
   }
 
   void add( const data_type& values, size_t count)
   {
     for (value_type v : values)
       this->add_(v);
-    
     _total_count += count;
+    
   }
 
   void add( const data_type& values)
@@ -120,7 +119,16 @@ public:
       this->add_(v);
     _total_count += values.size();
   }
-
+  
+  void add( const reduced_data& v )
+  {
+    this->add( v.data, v.count);
+    _lossy_count += v.lossy;
+    if ( v.min != 0 )
+      this->minmax( v.min );
+    if ( v.max != 0 )
+      this->minmax( v.max );
+  }
 
   reduced_ptr detach()
   {
@@ -130,7 +138,7 @@ public:
     auto res = reduced_ptr(new reduced_type);
     this->reduce();
     _data.front()->swap(res->data);
-    res->avg = _average;
+    res->avg = static_cast<value_type>(_average);
     res->count = _total_count;
     res->lossy = _lossy_count;
     res->max = _max;
@@ -175,9 +183,8 @@ private:
 
   void add_( value_type v) 
   {
-    _average += v;
-    if ( !_data.empty() )
-      _average /= 2;
+    _average += (v - _average) / (_average_count + 1);
+    ++_average_count;
 
     this->minmax(v);
     
@@ -209,7 +216,8 @@ private:
   size_t _total_count = 0;
   // TODO: убрать и сделать аллкатор 
   allocator _allocator;
-  value_type _average = 0;
+  size_t _average_count = 0;
+  double _average = 0.0;
   //
   //size_t _position = 0;
   // Значения

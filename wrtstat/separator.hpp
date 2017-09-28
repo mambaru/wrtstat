@@ -56,6 +56,15 @@ public:
     _reducer.add( std::move(v) );
     return true;
   }
+  
+  bool add( const reduced_data& v )
+  {
+    this->separate( v.ts, false);
+    if ( v.ts < _next_time - _step_ts )
+      return false;
+    _reducer.add( v );
+    return true;
+  }
 
 
   reduced_ptr pop()

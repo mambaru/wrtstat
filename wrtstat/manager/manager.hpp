@@ -20,6 +20,7 @@ public:
   typedef manager_options options_type;
   typedef typename aggregator_type::meter_fun_t meter_fun_t;
   typedef typename aggregator_type::handler_fun_t handler_fun_t;
+  typedef typename aggregator_type::aggregator_fun_t aggregator_fun_t;
   
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::vector<aggregator_ptr> aggregator_list;
@@ -83,25 +84,42 @@ public:
       return ag->create_handler();
     return nullptr;
   }
+  
+  aggregator_fun_t create_aggregator_handler( int id )
+  {
+    if ( auto ag = this->get_(id) )
+      return ag->create_aggregator();
+    return nullptr;
+  }
 
-  meter_fun_t create_meter(std::string&& name, time_type ts_now)
+  meter_fun_t create_meter(const std::string& name, time_type ts_now)
   {
     return this->create_meter(
       this->create_aggregator( 
-        std::move(name), 
+        name, 
         ts_now
       )
     );
   }
 
-  handler_fun_t create_handler(std::string&& name, time_type ts_now)
+  handler_fun_t create_handler(const std::string& name, time_type ts_now)
   {
     return this->create_handler(
       this->create_aggregator( 
-        std::move(name), 
+        name, 
         ts_now)
     );
   }
+  
+  aggregator_fun_t create_aggregator_handler( const std::string& name, time_type ts_now )
+  {
+    return this->create_aggregator_handler(
+      this->create_aggregator( 
+        name, 
+        ts_now)
+    );
+  }
+
 
   void enable(bool value)
   {
@@ -167,6 +185,7 @@ public:
   typedef super::options_type options_type;
   typedef super::meter_fun_t meter_fun_t;
   typedef super::handler_fun_t handler_fun_t;
+  typedef super::aggregator_fun_t aggregator_fun_t;
   typedef super::aggregator_ptr aggregator_ptr;
   typedef std::mutex mutex_type;
   
@@ -225,10 +244,16 @@ public:
     return nullptr;
   }
   
-  handler_fun_t create_handler(std::string&& name, time_type ts_now)
+  handler_fun_t create_handler( const std::string& name, time_type ts_now)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return manager_base::create_handler( std::move(name), ts_now );
+    return manager_base::create_handler( name, ts_now );
+  }
+
+  aggregator_fun_t create_aggregator_handler( const std::string& name, time_type ts_now)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return manager_base::create_aggregator_handler( name, ts_now );
   }
 
   void enable(bool value)
