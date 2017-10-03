@@ -151,6 +151,11 @@ public:
   {
     _m->enable(value);
   };
+
+  bool del(const std::string& name)
+  {
+    return _m->del(name);
+  };
   
   template<typename D>
   static time_type now() 

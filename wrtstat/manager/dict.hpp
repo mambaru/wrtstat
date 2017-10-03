@@ -39,16 +39,33 @@ public:
       return std::string();
     return itr->second;
   }
-
-  void free(int index) 
+  
+  int get_id(const std::string& name)
+  {
+    auto itr = _dict.find(name);
+    if ( itr == _dict.end() )
+      return -1;
+    return itr->second;
+  }
+  
+  bool free(int index) 
   {
     auto itr = _index.find(index);
     if ( itr == _index.end() )
-      return;
+      return false;
     
     _free.insert( itr->first );
     _dict.erase( itr->second );
     _index.erase( itr );
+    return false;
+  }
+  
+  bool free(const std::string& name)
+  {
+    int id = this->get_id(name);
+    if ( id == -1 )
+      return false;
+    return this->free(id);
   }
   
   void clear()

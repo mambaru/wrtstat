@@ -63,7 +63,7 @@ public:
 
   int create_aggregator(const std::string& name, time_type now)
   {
-    return this->findorcre_( std::move(name), now );
+    return this->findorcre_( name, now );
   }
   
   aggregator_ptr get_aggregator(int id) const
@@ -125,9 +125,21 @@ public:
   {
     this->_enabled = value;
     for (auto a : _agarr)
+    {
       if ( a!=nullptr )
         a->enable(value);
+    }
   }
+
+  bool del(const std::string& name)
+  {
+    int id = this->_dict.get_id(name);
+    if (id==-1)
+      return false;
+    _agarr[id] = nullptr;
+    return this->_dict.free(id);
+  }
+
 private:
 
   aggregator_ptr get_(int id) const
@@ -260,6 +272,12 @@ public:
   {
     std::lock_guard<mutex_type> lk(_mutex);
     manager_base::enable(value);
+  }
+
+  bool del(const std::string& name)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return manager_base::del(name);
   }
 private:
   mutable mutex_type _mutex;
