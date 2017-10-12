@@ -4,6 +4,7 @@
 #include <wrtstat/manager/dict.hpp>
 #include <wrtstat/manager/pool.hpp>
 #include <wrtstat/aggregator.hpp>
+#include <deque>
 
 namespace wrtstat {
 
@@ -23,7 +24,7 @@ public:
   typedef typename aggregator_type::aggregator_fun_t aggregator_fun_t;
   
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
-  typedef std::vector<aggregator_ptr> aggregator_list;
+  typedef std::deque<aggregator_ptr> aggregator_list;
 
   explicit manager_base(const options_type& opt)
     : _opt(opt)
