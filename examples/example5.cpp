@@ -1,42 +1,34 @@
-#include <iostream>
-#include <wrtstat/wrtstat.hpp>
-#include <unistd.h>
-#include <iostream>
 #include <chrono>
-
-void test(std::function<void()>);
-
-void test(std::function<void()>) 
-{
-  usleep( static_cast<unsigned int>( std::rand()%100) );
-}
+#include <unordered_map>
+#include <unordered_map>
+#include <iostream>
+const int SIZE = 1000000;
 
 int main()
 {
-  std::srand( std::time(0));
-  wrtstat::wrtstat_mt::options_type opt;
-  opt.step_ts = 1000000;
-  wrtstat::wrtstat_mt mng(opt);
-  int id = mng.create_aggregator("my_name", std::time(0)*1000000);
-  auto meter_proto = mng.create_time_meter<std::chrono::nanoseconds>(id, std::time(0)*1000000, 100000);
-  for (int i = 0; i < 1000; ++i)
+  std::unordered_map<int, int> m;
+  m.reserve(SIZE);
+  long long c = 0;
+  time_t t = std::numeric_limits<time_t>::max();
+  for (int k = 0; k < 10; ++k)
   {
-    //auto handler = mng.create_handler<std::chrono::microseconds>(id, 10);
-    auto meter = meter_proto->clone(std::time(0)*1000000, 1);
-    test([meter](){});
+    m.clear();
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < SIZE;++i)
+    {
+      m.insert(std::make_pair(i*i, i));
+      c+=i;
+      //c += m[i*i] += i;
+    }
+    auto finish = std::chrono::high_resolution_clock::now();
+    time_t span = std::chrono::duration_cast<std::chrono::milliseconds>( finish - start).count();
+    if ( span < t )
+      t = span;
+    std::cout << t << "ms" << std::endl;
   }
   
-  if ( auto ag = mng.force_pop(id) )
-  {
-    std::cout << "size " << ag->data.size() << std::endl;
-    std::cout << "count " << ag->count << std::endl;
-    std::cout << "min " << ag->min << std::endl;
-    std::cout << "perc50 " << ag->perc50 << std::endl;
-    std::cout << "perc80 " << ag->perc80 << std::endl;
-    std::cout << "perc95 " << ag->perc95 << std::endl;
-    std::cout << "perc99 " << ag->perc99 << std::endl;
-    std::cout << "perc100 " << ag->perc100 << std::endl;
-  }
-  
-  return 0;
+  std::cout << "-------" << std::endl;  
+  std::cout << c << std::endl;
+  std::cout << t << "ms" << std::endl;
+
 }

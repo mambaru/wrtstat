@@ -1,19 +1,42 @@
-#include <cstddef>
 #include <iostream>
-#include <typeinfo>
-#include <string>
-#include <algorithm>
-#include <wrtstat/aggregator_map.hpp>
+#include <wrtstat/wrtstat.hpp>
+#include <unistd.h>
+#include <iostream>
+#include <chrono>
 
+void test(std::function<void()>);
 
-std::string operator "" _json(const char* str, size_t size)
+void test(std::function<void()>) 
 {
-  std::string ss( str, str + size);
-  std::replace( ss.begin(), ss.end(), '\'', '\"');
-  return ss;
+  usleep( static_cast<unsigned int>( std::rand()%100) );
 }
 
 int main()
 {
-  std::cout << "{'method':'plus','params':{'first':2,'second':3},'id':1}"_json << std::endl;
+  std::srand( std::time(0));
+  wrtstat::wrtstat_mt::options_type opt;
+  opt.step_ts = 1000000;
+  wrtstat::wrtstat_mt mng(opt);
+  int id = mng.create_aggregator("my_name", std::time(0)*1000000);
+  auto meter_proto = mng.create_time_meter<std::chrono::nanoseconds>(id, std::time(0)*1000000, 100000);
+  for (int i = 0; i < 1000; ++i)
+  {
+    //auto handler = mng.create_handler<std::chrono::microseconds>(id, 10);
+    auto meter = meter_proto->clone(std::time(0)*1000000, 1);
+    test([meter](){});
+  }
+  
+  if ( auto ag = mng.force_pop(id) )
+  {
+    std::cout << "size " << ag->data.size() << std::endl;
+    std::cout << "count " << ag->count << std::endl;
+    std::cout << "min " << ag->min << std::endl;
+    std::cout << "perc50 " << ag->perc50 << std::endl;
+    std::cout << "perc80 " << ag->perc80 << std::endl;
+    std::cout << "perc95 " << ag->perc95 << std::endl;
+    std::cout << "perc99 " << ag->perc99 << std::endl;
+    std::cout << "perc100 " << ag->perc100 << std::endl;
+  }
+  
+  return 0;
 }

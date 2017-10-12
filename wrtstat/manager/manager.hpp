@@ -137,7 +137,7 @@ public:
     int id = this->_dict.get_id(name);
     if (id==-1)
       return false;
-    _agarr[id] = nullptr;
+    _agarr[ size_t(id) ] = nullptr;
     return this->_dict.free(id);
   }
 

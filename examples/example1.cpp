@@ -15,7 +15,7 @@ int main()
       {
         if (pos >= LEVEL1)
            break;
-        values[pos] = i+1;
+        values[ size_t(pos) ] = i+1;
         pos += (i+1);
       }
     }

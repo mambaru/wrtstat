@@ -29,12 +29,12 @@ int main()
     {
       auto span = std::chrono::duration_cast<std::chrono::nanoseconds>(f2 - s2).count();
       s2 = std::chrono::system_clock::now();
-      if ( i != 0 ) ag.add( t, span );
+      if ( i != 0 ) ag.add( t, span, 1 );
       else ::usleep(10);
       f2 = std::chrono::system_clock::now();
     }
     auto f = std::chrono::system_clock::now();
-    ag2.add( t, std::chrono::duration_cast<std::chrono::microseconds>(f - s).count() );
+    ag2.add( t, std::chrono::duration_cast<std::chrono::microseconds>(f - s).count(), 1);
   }
   
   auto finish = std::chrono::high_resolution_clock::now();

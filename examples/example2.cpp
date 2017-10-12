@@ -17,7 +17,7 @@ int main()
       {
         if (pos >= LEVEL1)
            break;
-        values[pos] = i+1;
+        values[ size_t(pos) ] = i+1;
         pos += (i+1);
       }
     }
@@ -35,11 +35,11 @@ int main()
     wrtstat::reducer_options opt;
     opt.limit = LEVEL1; opt.levels = LEVEL2;
     wrtstat::reducer c(opt);
-    c.add(100);c.add(101);c.add(102);
+    c.add(100, 1); c.add(101, 1); c.add(102, 1);
     for (int i = 0; i < LEVEL2; ++i)
     {
       for (int j = 0; j < LEVEL1; ++j)
-        c.add(i+1);
+        c.add(i+1, 1);
     }
     
     std::cout << "lossy_count: " << c.lossy_count() << std::endl;

@@ -1,34 +1,24 @@
+#include <wrtstat/wrtstat.hpp>
 #include <chrono>
-#include <unordered_map>
-#include <unordered_map>
-#include <iostream>
-const int SIZE = 1000000;
+using namespace wrtstat;
 
 int main()
 {
-  std::unordered_map<int, int> m;
-  m.reserve(SIZE);
-  long long c = 0;
-  time_t t = std::numeric_limits<time_t>::max();
-  for (int k = 0; k < 10; ++k)
+  wrtstat_mt rt;
+  for (int k = 0 ; k < 1000 ; ++k)
+  for (int i = 0 ; i < 1000 ; ++i)
   {
-    m.clear();
-    auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < SIZE;++i)
+    auto start = std::chrono::system_clock::now();
+    for (int j = 0 ; j < 1000 ; ++j)
     {
-      m.insert(std::make_pair(i*i, i));
-      c+=i;
-      //c += m[i*i] += i;
+      if ( auto h = rt.create_aggregator_handler( std::to_string(i+10000000000) + std::to_string(j+10000000000), time(0) ) )
+      {
+        h( reduced_data() );
+      };
     }
-    auto finish = std::chrono::high_resolution_clock::now();
-    time_t span = std::chrono::duration_cast<std::chrono::milliseconds>( finish - start).count();
-    if ( span < t )
-      t = span;
-    std::cout << t << "ms" << std::endl;
+    auto finish = std::chrono::system_clock::now();
+    auto span = std::chrono::duration_cast<std::chrono::microseconds>( finish - start ).count();
+    std::cout << "span " << span << "mks rate " << 1000 * 1000000 / ( span + 1) << "rps" << std::endl;
   }
-  
-  std::cout << "-------" << std::endl;  
-  std::cout << c << std::endl;
-  std::cout << t << "ms" << std::endl;
-
+  return 0;
 }
