@@ -5,6 +5,7 @@
 
 namespace wrtstat {
 
+template<typename Mutex>
 class pool
 {
 public:
@@ -12,39 +13,12 @@ public:
   typedef types::data_type data_type;
   typedef types::data_ptr  data_ptr;
   typedef std::vector<data_ptr> data_pool;
-  typedef std::mutex mutex_type;
+  typedef Mutex mutex_type;
 public:
-  /*
-  class allocator
-  {
-  public:
-    typedef std::function<data_ptr()> create_handle;
-    typedef std::function<data_ptr(data_ptr)> free_handle;
-
-    allocator(){}
-    allocator(create_handle c, free_handle f)
-      : _create(c) 
-      , _free(f)
-    {}
-
-    data_ptr create() 
-    {
-      if ( _create!=nullptr)
-        return _create();
-      return data_ptr(new data_type);
-    }
-
-    data_ptr free( data_ptr d ) 
-    { 
-      if ( _free!=nullptr )
-        return _free(std::move(d));
-      return std::move(d);
-    }
-  private:
-    create_handle _create;
-    free_handle _free;
-  };
-  */
+  pool(size_type item_size, size_type pool_size)
+    : _item_size( item_size )
+    , _pool_size(pool_size)
+  {}
 
   allocator get_allocator()
   { 
@@ -53,11 +27,6 @@ public:
       std::bind(&pool::free, this, std::placeholders::_1)
     );
   }
-
-  pool(size_type item_size, size_type pool_size)
-    : _item_size( item_size )
-    , _pool_size(pool_size)
-  {}
 
   pool(const pool&) = delete;
   pool& operator=(const pool&) = delete;
@@ -109,6 +78,7 @@ private:
   data_pool _pool;
 };
 
+/*
 class pool_mt: private pool
 {
 public:
@@ -142,5 +112,5 @@ public:
 private:
   mutable std::mutex _mutex;
 };
-
+*/
 }

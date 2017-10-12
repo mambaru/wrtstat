@@ -8,7 +8,7 @@
 int main()
 {
   ::srand( std::time(0) );
-  wrtstat::pool pool( 1000, 1000000 );
+  wrtstat::pool<std::mutex> pool( 1000, 1000000 );
   wrtstat::aggregator_options opt;
   opt.step_ts = 5;
   opt.reduced_size = 100;

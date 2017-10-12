@@ -1,4 +1,5 @@
 #pragma once
+#include <wrtstat/manager/mutex/rwlock.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
@@ -6,16 +7,23 @@
 
 namespace wrtstat {
 
+template<typename Mutex>
 class dict
 {
+  typedef rwlock<Mutex> mutex_type;
+  
 public:
 
   int create_id(const std::string& name)
   {
-    auto itr = _dict.find(name);
-    if ( itr != _dict.end() )
-      return itr->second;
+    {
+      read_lock<mutex_type> lk(_mutex);
+      auto itr = _dict.find(name);
+      if ( itr != _dict.end() )
+        return itr->second;
+    }
 
+    std::lock_guard<mutex_type> lk(_mutex);
     int id = 0;
     if ( _free.empty() ) 
     {
@@ -33,22 +41,22 @@ public:
 
   std::string get_name(int id) const
   {
+    read_lock<mutex_type> lk(_mutex);
     auto itr = _index.find(id);
     if ( itr == _index.end() )
       return std::string();
     return itr->second;
   }
   
-  int get_id(const std::string& name)
+  int get_id(const std::string& name) const
   {
-    auto itr = _dict.find(name);
-    if ( itr == _dict.end() )
-      return -1;
-    return itr->second;
+    read_lock<mutex_type> lk(_mutex);
+    return this->get_id_(name);
   }
   
   bool free(int index) 
   {
+    std::lock_guard<mutex_type> lk(_mutex);
     auto itr = _index.find(index);
     if ( itr == _index.end() )
       return false;
@@ -69,6 +77,7 @@ public:
   
   void clear()
   {
+    std::lock_guard<mutex_type> lk(_mutex);
     _counter = 0;
     _dict.clear();
     _index.clear();
@@ -77,6 +86,16 @@ public:
   
 private:
 
+  int get_id_(const std::string& name) const
+  {
+    auto itr = _dict.find(name);
+    if ( itr == _dict.end() )
+      return -1;
+    return itr->second;
+  }
+
+private:
+  mutable mutex_type _mutex;
   int _counter = 1;
   std::unordered_map< std::string, int> _dict;
   std::unordered_map<int, std::string> _index;
