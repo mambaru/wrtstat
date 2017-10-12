@@ -3,15 +3,19 @@
 #include <wrtstat/manager/manager_options.hpp>
 #include <wrtstat/manager/dict.hpp>
 #include <wrtstat/manager/pool.hpp>
+#include <mutex>
+#include <wrtstat/manager/mutex/empty_mutex.hpp>
+#include <wrtstat/manager/mutex/rwlock.hpp>
 #include <wrtstat/aggregator.hpp>
 #include <deque>
 
 namespace wrtstat {
 
-template<typename Aggregator>
+template<typename Aggregator, typename Mutex>
 class manager_base
 {
 public:
+  typedef rwlock<Mutex> mutex_type;
   typedef Aggregator aggregator_type;
   typedef typename aggregator_type::time_type time_type;
   typedef typename aggregator_type::value_type value_type;
@@ -33,26 +37,27 @@ public:
 
   size_t size() const 
   {
+    read_lock<mutex_type> lk(_mutex);
     return _agarr.size();
   }
 
   bool add(int id, time_type now, value_type v, size_type count)
   {
-    if ( auto p = this->get_(id) )
+    if ( auto p = this->get_aggregator(id) )
       return p->add(now, v, count);
     return false;
   }
 
   aggregated_ptr force_pop(int id)
   {
-    if ( auto p = this->get_(id) )
+    if ( auto p = this->get_aggregator(id) )
       return p->force_pop();
     return nullptr;
   }
 
   aggregated_ptr pop(int id)
   {
-    if ( auto p = this->get_(id) )
+    if ( auto p = this->get_aggregator(id) )
       return p->pop();
     return nullptr;
   }
@@ -64,31 +69,49 @@ public:
 
   int create_aggregator(const std::string& name, time_type now)
   {
-    return this->findorcre_( name, now );
+    int id = _dict.create_id( name );
+    if ( id < 0 )
+      return id;
+    size_t s_id = static_cast<size_t>(id);
+     
+    std::lock_guard<mutex_type> lk(_mutex);
+    if ( _agarr.size() <= s_id )
+      _agarr.resize( s_id + 1 );
+
+    if ( _agarr[s_id] == nullptr )
+    {
+      _agarr[s_id] = std::make_shared<aggregator_type>(now, _opt, _pool.get_allocator() );
+      if ( !_enabled )
+        _agarr[s_id]->enable(false);
+    }
+    return id;
   }
   
   aggregator_ptr get_aggregator(int id) const
   {
-    return this->get_(id);
+    read_lock<mutex_type> lk(_mutex);
+    if ( id < 0 || static_cast<size_type>(id) >= _agarr.size() )
+      return nullptr;
+    return _agarr[ static_cast<size_t>(id) ];
   }
   
   meter_fun_t create_meter( int id )
   {
-    if ( auto ag = this->get_(id) )
+    if ( auto ag = this->get_aggregator(id) )
       return ag->create_meter();
     return nullptr;
   }
 
   handler_fun_t create_handler( int id )
   {
-    if ( auto ag = this->get_(id) )
+    if ( auto ag = this->get_aggregator(id) )
       return ag->create_handler();
     return nullptr;
   }
   
   aggregator_fun_t create_aggregator_handler( int id )
   {
-    if ( auto ag = this->get_(id) )
+    if ( auto ag = this->get_aggregator(id) )
       return ag->create_aggregator();
     return nullptr;
   }
@@ -121,9 +144,9 @@ public:
     );
   }
 
-
   void enable(bool value)
   {
+    std::lock_guard<mutex_type> lk(_mutex);
     this->_enabled = value;
     for (auto a : _agarr)
     {
@@ -137,57 +160,42 @@ public:
     int id = this->_dict.get_id(name);
     if (id==-1)
       return false;
-    _agarr[ size_t(id) ] = nullptr;
+    {
+      std::lock_guard<mutex_type> lk(_mutex);
+      _agarr[ size_t(id) ] = nullptr;
+    }
     return this->_dict.free(id);
   }
 
-private:
-
-  aggregator_ptr get_(int id) const
-  {
-    if ( id < 0 || static_cast<size_type>(id) >= _agarr.size() )
-      return nullptr;
-    return _agarr[ static_cast<size_t>(id) ];
-  }
-  
-  int findorcre_(const std::string& name, time_type now)
-  {
-    int id = _dict.create_id( name );
-    if ( id < 0 )
-      return id;
-    size_t s_id = static_cast<size_t>(id);
-     
-    if ( _agarr.size() <= s_id )
-      _agarr.resize( s_id + 1 );
-
-    if ( _agarr[s_id] == nullptr )
-    {
-      _agarr[s_id] = std::make_shared<aggregator_type>(now, _opt, _pool.get_allocator() );
-      if ( !_enabled )
-        _agarr[s_id]->enable(false);
-    }
-    return id;
-  }
-
 public:
+  mutable mutex_type _mutex;
   aggregator_options _opt;
   aggregator_list _agarr;
-  dict _dict;
-  pool _pool;
+  dict<Mutex> _dict;
+  pool<Mutex> _pool;
   bool _enabled = true;
 };
 
-class manager_st: public manager_base<aggregator>
+class manager_st: public manager_base<aggregator, empty_mutex>
 {
-  typedef manager_base<aggregator> super;
+  typedef manager_base<aggregator, empty_mutex> super;
 public:
   typedef super::options_type options_type;
   explicit manager_st( const options_type& opt): manager_base(opt) {};
 };
 
-class manager_mt: private manager_base<aggregator_mt>
+class manager_mt: public manager_base<aggregator_mt, std::mutex>
 {
-  typedef manager_base<aggregator_mt> super;
+  typedef manager_base<aggregator_mt, std::mutex> super;
+public:
+  typedef super::options_type options_type;
+  explicit manager_mt( const options_type& opt): manager_base(opt) {};
+};
+
+/*
+class manager_mt: private manager_base<aggregator_mt, std::mutex>
+{
+  typedef manager_base<aggregator_mt, std::mutex> super;
 public:
   typedef super::aggregator_type aggregator_type;
   typedef super::time_type time_type;
@@ -283,5 +291,5 @@ public:
 private:
   mutable mutex_type _mutex;
 };
-
+*/
 }
