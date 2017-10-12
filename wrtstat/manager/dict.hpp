@@ -1,6 +1,6 @@
 #pragma once
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <memory>
 
@@ -12,7 +12,6 @@ public:
 
   int create_id(const std::string& name)
   {
-    //auto pname = std::make_shared<std::string>( std::move(name) ); 
     auto itr = _dict.find(name);
     if ( itr != _dict.end() )
       return itr->second;
@@ -79,8 +78,8 @@ public:
 private:
 
   int _counter = 1;
-  std::map< std::string, int> _dict;
-  std::map<int, std::string> _index;
-  std::set<int> _free;
+  std::unordered_map< std::string, int> _dict;
+  std::unordered_map<int, std::string> _index;
+  std::unordered_set<int> _free;
 };
 }
