@@ -72,7 +72,7 @@ public:
   }
 
 private:
-  mutable std::mutex _mutex;
+  mutable mutex_type _mutex;
   size_type _item_size;
   size_type _pool_size;
   data_pool _pool;

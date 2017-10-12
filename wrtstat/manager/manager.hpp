@@ -6,6 +6,7 @@
 #include <mutex>
 #include <wrtstat/manager/mutex/empty_mutex.hpp>
 #include <wrtstat/manager/mutex/rwlock.hpp>
+#include <wrtstat/manager/mutex/spinlock.hpp>
 #include <wrtstat/aggregator.hpp>
 #include <deque>
 
@@ -184,9 +185,9 @@ public:
   explicit manager_st( const options_type& opt): manager_base(opt) {};
 };
 
-class manager_mt: public manager_base<aggregator_mt, std::mutex>
+class manager_mt: public manager_base<aggregator_mt, spinlock>
 {
-  typedef manager_base<aggregator_mt, std::mutex> super;
+  typedef manager_base<aggregator_mt, spinlock> super;
 public:
   typedef super::options_type options_type;
   explicit manager_mt( const options_type& opt): manager_base(opt) {};
