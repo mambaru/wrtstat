@@ -49,6 +49,11 @@ public:
   {
     return _m->add(id, ts_now, v, count);
   }
+  
+  bool add( const std::string& name, const reduced_data& v)
+  {
+    return _m->add(name, v);
+  }
 
   aggregated_ptr pop(id_t id)
   {

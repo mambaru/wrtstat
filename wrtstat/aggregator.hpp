@@ -29,7 +29,6 @@ public:
     , _reduced_size(opt.reduced_size)
     , _id( std::make_shared<int>(1) )
   {
-    
   }
 
   const separator& get_separator() const 
@@ -326,8 +325,6 @@ public:
     return aggregator_base::add(v);
   }
 
-
-  
   aggregated_ptr pop()
   {
     std::lock_guard<mutex_type> lk(_mutex);

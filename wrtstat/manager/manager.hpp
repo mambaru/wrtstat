@@ -51,6 +51,14 @@ public:
       return p->add(now, v, count);
     return false;
   }
+  
+  
+  bool add( const std::string& name, const reduced_data& v)
+  {
+    if ( auto p = this->create_get_aggregator( name, v.ts ) )
+      return p->add(v);
+    return false;  
+  }
 
   aggregated_ptr force_pop(id_t id)
   {
@@ -68,20 +76,19 @@ public:
 
   std::string get_name(id_t id) const 
   {
+    read_lock<mutex_type> lk(_mutex);
     return _dict.get_name(id);
   }
 
   id_t create_aggregator(const std::string& name, time_type now)
   {
+    std::lock_guard<mutex_type> lk(_mutex);
+    
     id_t id = _dict.create_id( name );
     size_t pos = _dict.id2pos(id);
-    {
-      read_lock<mutex_type> lk(_mutex);
-      if ( pos < _agarr.size() && _agarr[pos]!=nullptr )
-        return id;
-    }
+    if ( pos < _agarr.size() && _agarr[pos]!=nullptr )
+      return id;
     
-    std::lock_guard<mutex_type> lk(_mutex);
     if ( _agarr.size() <= pos )
       _agarr.resize( pos + 1 );
 
@@ -94,15 +101,36 @@ public:
     return id;
   }
   
+  aggregator_ptr create_get_aggregator(const std::string& name, time_type now)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    
+    id_t id = _dict.create_id( name );
+    size_t pos = _dict.id2pos(id);
+    if ( pos < _agarr.size() && _agarr[pos]!=nullptr )
+      return _agarr[pos];
+    
+    if ( _agarr.size() <= pos )
+      _agarr.resize( pos + 1 );
+
+    if ( _agarr[pos] == nullptr )
+    {
+      _agarr[pos] = std::make_shared<aggregator_type>(now, _opt, _pool.get_allocator() );
+      if ( !_enabled )
+        _agarr[pos]->enable(false);
+    }
+    return _agarr[pos];
+  }
+  
   aggregator_ptr get_aggregator(id_t id) const
   {
-    size_t pos = _dict.id2pos(id);
     read_lock<mutex_type> lk(_mutex);
+    size_t pos = _dict.id2pos(id);
     if ( pos >= _agarr.size() )
       return nullptr;
     return _agarr[ pos ];
   }
-  
+
   meter_fun_t create_meter( id_t id )
   {
     if ( auto ag = this->get_aggregator(id) )
@@ -155,6 +183,7 @@ public:
   void enable(bool value)
   {
     std::lock_guard<mutex_type> lk(_mutex);
+    
     this->_enabled = value;
     for (auto a : _agarr)
     {
@@ -165,22 +194,22 @@ public:
 
   bool del(const std::string& name)
   {
+    std::lock_guard<mutex_type> lk(_mutex);
+
     id_t id = this->_dict.get_id(name);
     if ( id == static_cast<id_t>(-1) )
       return false;
     size_t pos = _dict.id2pos(id);
-    
-    std::lock_guard<mutex_type> lk(_mutex);
     _agarr[ pos ] = nullptr;
     return this->_dict.free(id);
   }
-
-public:
+  
+private:
   mutable mutex_type _mutex;
   aggregator_options _opt;
   aggregator_list _agarr;
-  dict<Mutex> _dict;
-  pool<Mutex> _pool;
+  dict<empty_mutex> _dict;
+  pool<empty_mutex> _pool;
   bool _enabled = true;
 };
 
@@ -194,7 +223,7 @@ public:
 
 class manager_mt: public manager_base<aggregator_mt, std::mutex>
 {
-  typedef manager_base<aggregator_mt, std::mutex/*spinlock*/> super;
+  typedef manager_base<aggregator_mt, std::mutex> super;
 public:
   typedef super::options_type options_type;
   explicit manager_mt( const options_type& opt, id_t init, id_t step): manager_base(opt, init, step) {};
