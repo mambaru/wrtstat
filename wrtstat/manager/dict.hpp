@@ -13,8 +13,16 @@ class dict
   typedef rwlock<Mutex> mutex_type;
   
 public:
+  
+  typedef std::size_t id_t;
+  
+  dict(id_t initial, id_t step)
+    : _counter(initial)
+    , _step(step)
+  {
+  }
 
-  int create_id(const std::string& name)
+  id_t create_id(const std::string& name)
   {
     {
       read_lock<mutex_type> lk(_mutex);
@@ -24,10 +32,11 @@ public:
     }
 
     std::lock_guard<mutex_type> lk(_mutex);
-    int id = 0;
+    id_t id = 0;
     if ( _free.empty() ) 
     {
-      id = _counter++;
+      _counter += _step;
+      id = _counter;
     }
     else
     {
@@ -39,7 +48,7 @@ public:
     return id;
   }
 
-  std::string get_name(int id) const
+  std::string get_name(id_t id) const
   {
     read_lock<mutex_type> lk(_mutex);
     auto itr = _index.find(id);
@@ -48,13 +57,16 @@ public:
     return itr->second;
   }
   
-  int get_id(const std::string& name) const
+  id_t get_id(const std::string& name) const
   {
     read_lock<mutex_type> lk(_mutex);
-    return this->get_id_(name);
+    auto itr = _dict.find(name);
+    if ( itr == _dict.end() )
+      return static_cast<id_t>(-1);
+    return itr->second;
   }
   
-  bool free(int index) 
+  bool free(id_t index) 
   {
     std::lock_guard<mutex_type> lk(_mutex);
     auto itr = _index.find(index);
@@ -69,8 +81,8 @@ public:
   
   bool free(const std::string& name)
   {
-    int id = this->get_id(name);
-    if ( id == -1 )
+    id_t id = this->get_id(name);
+    if ( id == static_cast<id_t>(-1) )
       return false;
     return this->free(id);
   }
@@ -84,21 +96,17 @@ public:
     _free.clear();
   }
   
-private:
-
-  int get_id_(const std::string& name) const
+  size_t id2pos(id_t id) const
   {
-    auto itr = _dict.find(name);
-    if ( itr == _dict.end() )
-      return -1;
-    return itr->second;
+    return (id - _step) / _step;
   }
 
 private:
   mutable mutex_type _mutex;
-  int _counter = 1;
-  std::unordered_map< std::string, int> _dict;
-  std::unordered_map<int, std::string> _index;
-  std::unordered_set<int> _free;
+  id_t _counter = 0;
+  const id_t _step = 1;
+  std::unordered_map< std::string, id_t> _dict;
+  std::unordered_map<id_t, std::string> _index;
+  std::unordered_set<id_t> _free;
 };
 }

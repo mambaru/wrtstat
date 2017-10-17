@@ -8,6 +8,7 @@ struct wrtstat_options
   : manager_options
 {
   std::vector<std::string> prefixes;
+  size_t hash_size = 0;
 };
 
 }

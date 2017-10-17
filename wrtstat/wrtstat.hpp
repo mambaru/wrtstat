@@ -22,6 +22,7 @@ class wrtstat_base
 public:
   typedef Manager manager_type;
   
+  typedef typename manager_type::id_t id_t;
   typedef typename manager_type::time_type time_type;
   typedef typename manager_type::value_type value_type;
   typedef typename manager_type::size_type size_type;
@@ -35,8 +36,8 @@ public:
   typedef std::shared_ptr<manager_type> manager_ptr;
   typedef std::mutex mutex_type;
 
-  explicit wrtstat_base(const options_type& opt = options_type() ) 
-    : _m( std::make_shared<manager_type>(opt) )
+  explicit wrtstat_base(const options_type& opt = options_type(), id_t init = 0, id_t step = 1 ) 
+    : _m( std::make_shared<manager_type>(opt, init, step) )
     , _prefixes(opt.prefixes)
     
   { 
@@ -44,17 +45,17 @@ public:
       _prefixes.push_back("");
   }
 
-  bool add(int id, time_type ts_now, value_type v, size_type count)
+  bool add(id_t id, time_type ts_now, value_type v, size_type count)
   {
     return _m->add(id, ts_now, v, count);
   }
 
-  aggregated_ptr pop(int id)
+  aggregated_ptr pop(id_t id)
   {
     return _m->pop(id);
   }
 
-  aggregated_ptr force_pop(int id)
+  aggregated_ptr force_pop(id_t id)
   {
     return _m->force_pop(id);
   }
@@ -64,12 +65,12 @@ public:
     return _m->size();
   }
 
-  int create_aggregator( const std::string& name, time_type ts_now )
+  id_t create_aggregator( const std::string& name, time_type ts_now )
   {
     return this->create_aggregator_( name, ts_now);
   }
 
-  std::string get_name(int id) const 
+  std::string get_name(id_t id) const 
   {
     return _m->get_name(id);
   }
@@ -86,26 +87,26 @@ public:
   
   template<typename D >
   std::shared_ptr< time_meter<D> > 
-    create_time_meter(int id, time_type ts_now, size_type count)
+    create_time_meter(id_t id, time_type ts_now, size_type count)
   {
     return this->create_time_meter_<D>(id, ts_now, count);
   }
 
   std::shared_ptr< size_meter > 
-    create_size_meter(int id, time_type ts_now, size_type size)
+    create_size_meter(id_t id, time_type ts_now, size_type size)
   {
     return this->create_size_meter_(id, ts_now, size);
   }
 
   std::shared_ptr< value_meter > 
-    create_value_meter(int id, time_type ts_now, size_type value, size_type count)
+    create_value_meter(id_t id, time_type ts_now, size_type value, size_type count)
   {
     return this->create_value_meter_(id, ts_now, value, count);
   }
   
   template<typename D >
   std::shared_ptr< composite_meter<D> > 
-    create_composite_meter(int time_id, int read_id, int write_id, time_type ts_now, size_type size)
+    create_composite_meter(id_t time_id, id_t read_id, id_t write_id, time_type ts_now, size_type size)
   {
     return this->create_composite_meter_<D>(time_id, read_id, write_id, ts_now, size);
   }
@@ -166,41 +167,41 @@ public:
   
 private:
 
-  int create_aggregator_(const std::string& name, time_type ts_now)
+  id_t create_aggregator_(const std::string& name, time_type ts_now)
   {
     if ( name.empty() )
-      return -1;
+      return static_cast<id_t>(-1);
     return _m->create_aggregator( name, ts_now);
   }
 
   template<typename D >
   std::shared_ptr< time_meter<D> >
-    create_time_meter_(int id, time_type ts_now, size_type count)
+    create_time_meter_(id_t id, time_type ts_now, size_type count)
   {
     return std::make_shared< time_meter<D> >(_m->create_meter(id), ts_now, count );
   }
 
 
   std::shared_ptr< value_meter >
-    create_value_meter_(int id, time_type ts_now, size_type value, size_type count)
+    create_value_meter_(id_t id, time_type ts_now, size_type value, size_type count)
   {
     return std::make_shared< value_meter >(_m->create_meter(id), ts_now, value, count );
   }
   
   std::shared_ptr< size_meter >
-    create_size_meter_(int id, time_type ts_now, size_type size)
+    create_size_meter_(id_t id, time_type ts_now, size_type size)
   {
     return std::make_shared< size_meter >(_m->create_meter(id), ts_now, size);
   }
 
   template<typename D >
   std::shared_ptr< composite_meter<D> >
-    create_composite_meter_(int time_id, int read_id, int write_id, time_type ts_now, size_type size)
+    create_composite_meter_(id_t time_id, id_t read_id, id_t write_id, time_type ts_now, size_type size)
   {
     return std::make_shared<composite_meter<D> >( 
-      time_id!=-1 ? this->create_time_meter_< D >(time_id, ts_now, 1) : nullptr,
-      read_id!=-1 ? this->create_size_meter_(read_id, ts_now, size) : nullptr,
-      write_id!=-1 ? this->create_size_meter_(write_id, ts_now, 0 ) : nullptr
+      time_id!=static_cast<id_t>(-1) ? this->create_time_meter_< D >(time_id, ts_now, 1) : nullptr,
+      read_id!=static_cast<id_t>(-1) ? this->create_size_meter_(read_id, ts_now, size) : nullptr,
+      write_id!=static_cast<id_t>(-1) ? this->create_size_meter_(write_id, ts_now, 0 ) : nullptr
     );
   }
 
@@ -216,9 +217,9 @@ private:
     auto meter = std::make_shared< multi_meter< composite_meter<D> > >();
     for ( auto prefix : _prefixes )
     {
-      int time_id = -1;
-      int read_id = -1;
-      int write_id = -1;
+      id_t time_id = static_cast<id_t>(-1);
+      id_t read_id = static_cast<id_t>(-1);
+      id_t write_id = static_cast<id_t>(-1);
       if ( !time_name.empty() )
         time_id = this->create_aggregator_(prefix + time_name, ts_now );
       if ( !read_name.empty() )
@@ -241,7 +242,7 @@ private:
     auto meter = std::make_shared< multi_meter<MeterType> >();
     for ( auto prefix : _prefixes )
     {
-      int meter_id = this->create_aggregator_(prefix + meter_name, ts_now );
+      id_t meter_id = this->create_aggregator_(prefix + meter_name, ts_now );
       auto m = std::make_shared< MeterType >(_m->create_meter(meter_id), ts_now, args... );
       meter->push_back(m);
     }
@@ -259,7 +260,7 @@ class wrtstat_st: public wrtstat_base<manager_st>
 public:
   typedef wrtstat_base::options_type options_type;
   explicit wrtstat_st(const options_type& opt = options_type() ) 
-    : wrtstat_base<manager_st>(opt)
+    : wrtstat_base<manager_st>(opt, 0, 1)
   {}
 
 };
@@ -269,10 +270,8 @@ class wrtstat_mt: public wrtstat_base<manager_mt>
 public:
   typedef wrtstat_base::options_type options_type;
   explicit wrtstat_mt(const options_type& opt = options_type() ) 
-    : wrtstat_base<manager_mt>(opt)
+    : wrtstat_base<manager_mt>(opt, 0, 1)
   {}
-  
 };
-
 
 }

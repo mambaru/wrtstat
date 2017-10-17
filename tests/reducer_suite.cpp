@@ -1,5 +1,7 @@
 #include <fas/testing.hpp>
 #include <wrtstat/reducer.hpp>
+#include <numeric>
+
 
 namespace {
 
@@ -56,7 +58,7 @@ void filled_reducer(T& t)
   ro.levels = Levels;
   reducer r(ro);
   int value = 0;
-  int avg = 0;
+  std::vector<int> values;
 
   for (int i3=0; i3 < 2; ++i3)
   {
@@ -65,10 +67,14 @@ void filled_reducer(T& t)
       for (int i1=0; i1 < Limit; ++i1)
       {
         r.add( ++value, 2 );
-        avg = (avg + value)/2;
+        values.push_back(value);
+        //avg = (avg + value)/2;
       }
     }
   }
+  
+  int avg = std::accumulate(values.begin(), values.end(), 0 ) / static_cast<int>( values.size() );
+  
   // Заполнили все доступные массивы в первой итерации i3
   t << is_true<expect>( r.filled() ) << FAS_FL;
   // Суммарный размер массивов при полном заполнении = limit*levels
@@ -107,7 +113,8 @@ void filled_reducer(T& t)
   
   // count == 0
   value = 0;
-  avg = 0;
+  values.clear();
+  //avg = 0;
 
   for (int i3=0; i3 < 2; ++i3)
   {
@@ -116,11 +123,14 @@ void filled_reducer(T& t)
       for (int i1=0; i1 < Limit; ++i1)
       {
         r.add( ++value, 0 );
-        avg = (avg + value)/2;
+        //avg = (avg + value)/2;
+        values.push_back(value);
       }
     }
   }
 
+  avg = std::accumulate(values.begin(), values.end(), 0 ) / static_cast<int>( values.size() );
+  
   t << is_true<expect>( r.filled() ) << FAS_FL;
   t << equal<expect, size_t>( r.size(), ro.limit*ro.levels ) << FAS_FL;
   t << equal<expect, size_t>( r.total_count(), 0 ) << FAS_FL;
@@ -177,22 +187,24 @@ void non_filled_reducer(T& t)
   ro.levels = Levels;
   reducer r(ro);
   int value = 0;
-  int avg = 0;
+  std::vector<int> values;
 
   for (int i2=0; i2 < Levels - 1; ++i2)
   {
     for (int i1=0; i1 < Limit; ++i1)
     {
       r.add( ++value, 1 );
-      avg = (avg + value)/2;
+      values.push_back(value);
     }
   }
 
   for (int i3=0; i3 < Tail; ++i3)
   {
     r.add( ++value, 1 );
-    avg = (avg + value)/2;
+    values.push_back(value);
   }
+  
+  int avg = std::accumulate(values.begin(), values.end(), 0 ) / static_cast<int>( values.size() );
   
   // Заполнили все доступные массивы в первой итерации i3
   t << is_false<expect>( r.filled() ) << FAS_FL;
@@ -244,16 +256,16 @@ void array_reducer(T& t)
   ro.levels = Levels;
   reducer r(ro);
   int value = 0;
-  int avg = 0;
+  std::vector<int> values;
 
   reducer::data_type data;
   for (int i=0; i < Size;  ++i)
   {
     data.push_back( ++value );
-    avg = (avg + value)/2;
+    values.push_back(value);
   }
   r.add( data );
-
+  int avg = std::accumulate(values.begin(), values.end(), 0 ) / static_cast<int>( values.size() );
   // Заполнили все доступные массивы в первой итерации i3
   if ( Size < Limit*Levels )
     t << is_false<expect>( r.filled() ) << FAS_FL;

@@ -9,6 +9,7 @@
 #include <wrtstat/manager/mutex/spinlock.hpp>
 #include <wrtstat/aggregator.hpp>
 #include <deque>
+#include <array>
 
 namespace wrtstat {
 
@@ -18,6 +19,7 @@ class manager_base
 public:
   typedef rwlock<Mutex> mutex_type;
   typedef Aggregator aggregator_type;
+  typedef typename dict<Mutex>::id_t id_t;
   typedef typename aggregator_type::time_type time_type;
   typedef typename aggregator_type::value_type value_type;
   typedef typename aggregator_type::size_type size_type;
@@ -31,8 +33,9 @@ public:
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::deque<aggregator_ptr> aggregator_list;
 
-  explicit manager_base(const options_type& opt)
+  explicit manager_base(const options_type& opt, id_t init, id_t step)
     : _opt(opt)
+    , _dict(init, step)
     , _pool(opt.limit, opt.pool)
   { }
 
@@ -42,75 +45,79 @@ public:
     return _agarr.size();
   }
 
-  bool add(int id, time_type now, value_type v, size_type count)
+  bool add(id_t id, time_type now, value_type v, size_type count)
   {
     if ( auto p = this->get_aggregator(id) )
       return p->add(now, v, count);
     return false;
   }
 
-  aggregated_ptr force_pop(int id)
+  aggregated_ptr force_pop(id_t id)
   {
     if ( auto p = this->get_aggregator(id) )
       return p->force_pop();
     return nullptr;
   }
 
-  aggregated_ptr pop(int id)
+  aggregated_ptr pop(id_t id)
   {
     if ( auto p = this->get_aggregator(id) )
       return p->pop();
     return nullptr;
   }
 
-  std::string get_name(int id) const 
+  std::string get_name(id_t id) const 
   {
     return _dict.get_name(id);
   }
 
-  int create_aggregator(const std::string& name, time_type now)
+  id_t create_aggregator(const std::string& name, time_type now)
   {
-    int id = _dict.create_id( name );
-    if ( id < 0 )
-      return id;
-    size_t s_id = static_cast<size_t>(id);
-     
-    std::lock_guard<mutex_type> lk(_mutex);
-    if ( _agarr.size() <= s_id )
-      _agarr.resize( s_id + 1 );
-
-    if ( _agarr[s_id] == nullptr )
+    id_t id = _dict.create_id( name );
+    size_t pos = _dict.id2pos(id);
     {
-      _agarr[s_id] = std::make_shared<aggregator_type>(now, _opt, _pool.get_allocator() );
+      read_lock<mutex_type> lk(_mutex);
+      if ( pos < _agarr.size() && _agarr[pos]!=nullptr )
+        return id;
+    }
+    
+    std::lock_guard<mutex_type> lk(_mutex);
+    if ( _agarr.size() <= pos )
+      _agarr.resize( pos + 1 );
+
+    if ( _agarr[pos] == nullptr )
+    {
+      _agarr[pos] = std::make_shared<aggregator_type>(now, _opt, _pool.get_allocator() );
       if ( !_enabled )
-        _agarr[s_id]->enable(false);
+        _agarr[pos]->enable(false);
     }
     return id;
   }
   
-  aggregator_ptr get_aggregator(int id) const
+  aggregator_ptr get_aggregator(id_t id) const
   {
+    size_t pos = _dict.id2pos(id);
     read_lock<mutex_type> lk(_mutex);
-    if ( id < 0 || static_cast<size_type>(id) >= _agarr.size() )
+    if ( pos >= _agarr.size() )
       return nullptr;
-    return _agarr[ static_cast<size_t>(id) ];
+    return _agarr[ pos ];
   }
   
-  meter_fun_t create_meter( int id )
+  meter_fun_t create_meter( id_t id )
   {
     if ( auto ag = this->get_aggregator(id) )
       return ag->create_meter();
     return nullptr;
   }
 
-  handler_fun_t create_handler( int id )
+  handler_fun_t create_handler( id_t id )
   {
     if ( auto ag = this->get_aggregator(id) )
       return ag->create_handler();
     return nullptr;
   }
   
-  aggregator_fun_t create_aggregator_handler( int id )
+  aggregator_fun_t create_aggregator_handler( id_t id )
   {
     if ( auto ag = this->get_aggregator(id) )
       return ag->create_aggregator();
@@ -158,13 +165,13 @@ public:
 
   bool del(const std::string& name)
   {
-    int id = this->_dict.get_id(name);
-    if (id==-1)
+    id_t id = this->_dict.get_id(name);
+    if ( id == static_cast<id_t>(-1) )
       return false;
-    {
-      std::lock_guard<mutex_type> lk(_mutex);
-      _agarr[ size_t(id) ] = nullptr;
-    }
+    size_t pos = _dict.id2pos(id);
+    
+    std::lock_guard<mutex_type> lk(_mutex);
+    _agarr[ pos ] = nullptr;
     return this->_dict.free(id);
   }
 
@@ -182,16 +189,139 @@ class manager_st: public manager_base<aggregator, empty_mutex>
   typedef manager_base<aggregator, empty_mutex> super;
 public:
   typedef super::options_type options_type;
-  explicit manager_st( const options_type& opt): manager_base(opt) {};
+  explicit manager_st( const options_type& opt, id_t init, id_t step): manager_base(opt, init, step) {};
 };
 
-class manager_mt: public manager_base<aggregator_mt, spinlock>
+class manager_mt: public manager_base<aggregator_mt, std::mutex>
 {
-  typedef manager_base<aggregator_mt, spinlock> super;
+  typedef manager_base<aggregator_mt, std::mutex/*spinlock*/> super;
 public:
   typedef super::options_type options_type;
-  explicit manager_mt( const options_type& opt): manager_base(opt) {};
+  explicit manager_mt( const options_type& opt, id_t init, id_t step): manager_base(opt, init, step) {};
 };
+
+/*
+class manager_hash
+{
+  static constexpr std::size_t hash_size = 1024;
+  typedef manager_mt super;
+public:
+  typedef std::shared_ptr<manager_mt> manager_ptr;
+  typedef std::vector<manager_ptr> manager_list;
+  typedef super::aggregator_type aggregator_type;
+  typedef super::time_type time_type;
+  typedef super::value_type value_type;
+  typedef super::size_type size_type;
+  typedef super::aggregated_type aggregated_type;
+  typedef super::aggregated_ptr aggregated_ptr;
+  typedef super::options_type options_type;
+  typedef super::meter_fun_t meter_fun_t;
+  typedef super::handler_fun_t handler_fun_t;
+  typedef super::aggregator_fun_t aggregator_fun_t;
+  typedef super::aggregator_ptr aggregator_ptr;
+  typedef std::mutex mutex_type;
+  
+  explicit manager_hash(const options_type& opt)
+    //: manager_mt(opt)
+  {
+    _managers.resize(hash_size);
+    for (auto& pm : _managers )
+      pm = std::make_shared<manager_mt>(opt);
+  };
+  
+  
+  manager_ptr by_name( const std::string& name )
+  {
+    size_t pos = std::hash<std::string>(name) % hash_size;
+    return _managers[pos];
+  }
+  
+  manager_ptr by_name( int id )
+  {
+    
+  }
+  
+  
+  size_t size() const 
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return super::size();
+  }
+
+  bool add(int id, time_type now, value_type v, size_type count)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    
+    return manager_base::add(id, now, v, count);
+  }
+
+  aggregated_ptr force_pop(int id)
+  {
+    if ( auto p = this->get_aggregator(id) )
+      return p->force_pop();
+    return nullptr;
+  }
+
+  aggregated_ptr pop(int id)
+  {
+    if ( auto p = this->get_aggregator(id) )
+      return p->pop();
+    return nullptr;
+  }
+
+  std::string get_name(int id) const 
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return super::get_name(id);
+  }
+
+  int create_aggregator(const std::string& name, time_type now)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return manager_base::create_aggregator( name, now );
+  }
+  
+  aggregator_ptr get_aggregator(int id) const
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return manager_base::get_aggregator(id);
+  }
+  
+  meter_fun_t create_meter( int id )
+  {
+    if ( auto ag = this->get_aggregator(id) )
+      return ag->create_meter();
+    return nullptr;
+  }
+  
+  handler_fun_t create_handler( const std::string& name, time_type ts_now)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return manager_base::create_handler( name, ts_now );
+  }
+
+  aggregator_fun_t create_aggregator_handler( const std::string& name, time_type ts_now)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return manager_base::create_aggregator_handler( name, ts_now );
+  }
+
+  void enable(bool value)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    manager_base::enable(value);
+  }
+
+  bool del(const std::string& name)
+  {
+    std::lock_guard<mutex_type> lk(_mutex);
+    return manager_base::del(name);
+  }
+private:
+  mutable mutex_type _mutex;
+  manager_list _managers;
+};
+*/
 
 /*
 class manager_mt: private manager_base<aggregator_mt, std::mutex>

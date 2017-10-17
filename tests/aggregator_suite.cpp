@@ -1,5 +1,6 @@
 #include <fas/testing.hpp>
 #include <wrtstat/aggregator.hpp>
+#include <numeric>
 
 namespace {
 
@@ -12,15 +13,20 @@ UNIT(aggregator1, "")
   opt.levels = 1;
   opt.limit  = 10;
   opt.step_ts = 10;
-
+  std::vector<int> values;
   aggregator ag(0, opt);
   for (int i = 0 ; i < 100; i++)
+  {
     t << is_true<expect>( ag.add(i, i, 1) ) << FAS_FL;
+    values.push_back(i);
+  }
+  
 
   ag.separate(100, true);
   t << equal<expect, size_t>( ag.size(), 10 ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
   {
+    int avg = std::accumulate(values.begin() + i*10, values.begin() + (i+1)*10 , 0) / 10;
     auto s = ag.pop();
     t << is_true<assert>( s!=nullptr ) << "i=" << i << FAS_FL;
     t << stop;
@@ -34,7 +40,7 @@ UNIT(aggregator1, "")
     t << equal<expect, size_t>( s->perc99,  9 + i*10 ) << "i=" << FAS_FL;
     t << equal<expect, size_t>( s->perc100, 9 + i*10 ) << "i=" << FAS_FL;
     t << equal<expect, size_t>( s->max,     9 + i*10 ) << "i=" << FAS_FL;
-    t << equal<expect, size_t>( s->avg,     8 + i*10 /* - 1*(i!=0)*/ ) << "i=" << FAS_FL;
+    t << equal<expect, size_t>( s->avg,     avg ) << "i=" << FAS_FL;
   }
 
   t << nothing;

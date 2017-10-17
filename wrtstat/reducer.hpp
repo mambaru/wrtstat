@@ -98,6 +98,8 @@ public:
   {
     this->add_(v);
     _total_count += count;
+    if ( count > 1)
+      _lossy_count += count - 1;
   }
 
   void add( const data_type& values, size_t count)
@@ -105,6 +107,8 @@ public:
     for (value_type v : values)
       this->add_(v);
     _total_count += count;
+    if ( values.size() < count )
+      _lossy_count += count - values.size();
     
   }
 
@@ -214,13 +218,9 @@ private:
   // Счетчик отброшенных после заполнения
   size_t _lossy_count = 0;
   size_t _total_count = 0;
-  // TODO: убрать и сделать аллкатор 
   allocator _allocator;
   size_t _average_count = 0;
   double _average = 0.0;
-  //
-  //size_t _position = 0;
-  // Значения
   data_list _data;
 };
 
