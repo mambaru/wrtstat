@@ -7,11 +7,9 @@
 
 namespace wrtstat {
 
-template<typename Mutex>
+
 class dict
 {
-  typedef rwlock<Mutex> mutex_type;
-  
 public:
   
   typedef std::size_t id_t;
@@ -24,14 +22,10 @@ public:
 
   id_t create_id(const std::string& name)
   {
-    {
-      read_lock<mutex_type> lk(_mutex);
-      auto itr = _dict.find(name);
-      if ( itr != _dict.end() )
-        return itr->second;
-    }
+    auto itr = _dict.find(name);
+    if ( itr != _dict.end() )
+      return itr->second;
 
-    std::lock_guard<mutex_type> lk(_mutex);
     id_t id = 0;
     if ( _free.empty() ) 
     {
@@ -50,7 +44,6 @@ public:
 
   std::string get_name(id_t id) const
   {
-    read_lock<mutex_type> lk(_mutex);
     auto itr = _index.find(id);
     if ( itr == _index.end() )
       return std::string();
@@ -59,7 +52,6 @@ public:
   
   id_t get_id(const std::string& name) const
   {
-    read_lock<mutex_type> lk(_mutex);
     auto itr = _dict.find(name);
     if ( itr == _dict.end() )
       return static_cast<id_t>(-1);
@@ -68,7 +60,6 @@ public:
   
   bool free(id_t index) 
   {
-    std::lock_guard<mutex_type> lk(_mutex);
     auto itr = _index.find(index);
     if ( itr == _index.end() )
       return false;
@@ -89,7 +80,6 @@ public:
   
   void clear()
   {
-    std::lock_guard<mutex_type> lk(_mutex);
     _counter = 0;
     _dict.clear();
     _index.clear();
@@ -102,7 +92,6 @@ public:
   }
 
 private:
-  mutable mutex_type _mutex;
   id_t _counter = 0;
   const id_t _step = 1;
   std::unordered_map< std::string, id_t> _dict;

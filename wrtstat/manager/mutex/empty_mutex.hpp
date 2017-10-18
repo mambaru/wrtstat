@@ -17,13 +17,13 @@ public:
   empty_mutex(const empty_mutex&) = delete;
   empty_mutex& operator=(const empty_mutex&) = delete;
 
-  static void lock(){}
+  static inline void lock(){}
     
-  static void unlock(){}
+  static inline void unlock(){}
 
-  static void lock_r() {}
+  static inline void lock_r() {}
   
-  static void unlock_r() {}
+  static inline void unlock_r() {}
 };
 
   

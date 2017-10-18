@@ -19,7 +19,7 @@ class manager_base
 public:
   typedef rwlock<Mutex> mutex_type;
   typedef Aggregator aggregator_type;
-  typedef typename dict<Mutex>::id_t id_t;
+  typedef typename dict::id_t id_t;
   typedef typename aggregator_type::time_type time_type;
   typedef typename aggregator_type::value_type value_type;
   typedef typename aggregator_type::size_type size_type;
@@ -104,7 +104,6 @@ public:
   aggregator_ptr create_get_aggregator(const std::string& name, time_type now)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    
     id_t id = _dict.create_id( name );
     size_t pos = _dict.id2pos(id);
     if ( pos < _agarr.size() && _agarr[pos]!=nullptr )
@@ -208,8 +207,8 @@ private:
   mutable mutex_type _mutex;
   aggregator_options _opt;
   aggregator_list _agarr;
-  dict<empty_mutex> _dict;
-  pool<empty_mutex> _pool;
+  dict _dict;
+  pool _pool;
   bool _enabled = true;
 };
 

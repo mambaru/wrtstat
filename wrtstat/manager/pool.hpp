@@ -5,7 +5,6 @@
 
 namespace wrtstat {
 
-template<typename Mutex>
 class pool
 {
 public:
@@ -13,7 +12,7 @@ public:
   typedef types::data_type data_type;
   typedef types::data_ptr  data_ptr;
   typedef std::vector<data_ptr> data_pool;
-  typedef Mutex mutex_type;
+  
 public:
   pool(size_type item_size, size_type pool_size)
     : _item_size( item_size )
@@ -33,7 +32,6 @@ public:
   
   data_ptr create()
   {
-    std::lock_guard<mutex_type> lk(_mutex);
     data_ptr d;
     if ( _pool.empty() )
     {
@@ -50,7 +48,6 @@ public:
   
   data_ptr free( data_ptr d )
   {
-    std::lock_guard<mutex_type> lk(_mutex);
     if ( d == nullptr )
       return nullptr;
 
@@ -72,7 +69,6 @@ public:
   }
 
 private:
-  mutable mutex_type _mutex;
   size_type _item_size;
   size_type _pool_size;
   data_pool _pool;
