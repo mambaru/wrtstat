@@ -6,6 +6,7 @@
 #include <limits>
 #include <memory>
 #include <algorithm>
+#include <iostream>
 
 
 namespace wrtstat {

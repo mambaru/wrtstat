@@ -22,7 +22,9 @@ public:
   typedef aggregator_options options_type;
   typedef aggregated_data aggregated_type;
   typedef std::unique_ptr<aggregated_type> aggregated_ptr;
+  typedef std::function< void(aggregated_ptr) > pop_handler_fun_t;
   typedef std::list< aggregated_ptr > aggregated_list;
+  
   
   aggregator_base(time_type ts_now, const aggregator_options& opt, const allocator& a = allocator() )
     : _sep(ts_now, opt, a)
@@ -64,12 +66,31 @@ public:
   {
     if ( !_enabled )
       return true;
-
     if ( !_sep.add(v) )
       return false; // v.ts устарел
-
     this->aggregate_();
     return true;
+  }
+
+  bool add( const reduced_data& v, pop_handler_fun_t handler)
+  {
+    if ( !_enabled )
+      return true;
+
+/*    if ( handler == nullptr)
+      return this->add(v);
+      */
+    
+    bool result = _sep.add(v, [this, handler](aggregated_ptr ag)
+    {
+      if ( handler!=nullptr )
+      {
+        ag = this->aggregate_( std::move(ag) );
+        this->reduce_(ag->data);
+        handler(std::move(ag));
+      }
+    });
+    return result;
   }
 
   bool separate(time_type ts_now, bool force)
@@ -140,7 +161,7 @@ public:
       {
         if (auto id = wid.lock() )
         {
-          pthis->add(reduced);
+          pthis->add(reduced, nullptr);
         }
       }
     };
@@ -224,6 +245,16 @@ private:
       aggregated_ptr ag = this->aggregate_( std::move(sep) );
       this->reduce_(ag->data);
       _ag_list.push_back( std::move(ag) );
+    }
+  }
+
+  void aggregate_(pop_handler_fun_t handler)
+  {
+    while (auto sep = _sep.pop() )
+    {
+      aggregated_ptr ag = this->aggregate_( std::move(sep) );
+      this->reduce_(ag->data);
+      handler( std::move(ag) );
     }
   }
 
@@ -319,10 +350,10 @@ public:
     return aggregator_base::add(ts_now, v, count);
   }
   
-  bool add( const reduced_data& v)
+  bool add( const reduced_data& v, pop_handler_fun_t handler)
   {
     std::lock_guard<mutex_type> lk(_mutex);
-    return aggregator_base::add(v);
+    return aggregator_base::add(v, handler);
   }
 
   aggregated_ptr pop()

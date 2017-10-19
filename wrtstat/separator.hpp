@@ -3,6 +3,7 @@
 #include <wrtstat/separator_options.hpp>
 #include <list>
 #include <ctime>
+#include <iostream>
 
 namespace wrtstat {
 
@@ -17,6 +18,10 @@ public:
   typedef reducer_type::value_type   value_type;
   typedef reducer_type::reduced_type reduced_type;
   typedef reducer_type::reduced_ptr  reduced_ptr; 
+  typedef aggregated_data aggregated_type;
+  typedef std::unique_ptr<aggregated_type> aggregated_ptr;
+  typedef std::function< void(aggregated_ptr) > pop_handler_fun_t;
+
 
   separator( time_type ts_now, const separator_options& opt, const allocator& a = allocator() )
     : _reducer(opt, a)
@@ -66,6 +71,16 @@ public:
     return true;
   }
 
+  bool add( const reduced_data& v, pop_handler_fun_t handler )
+  {
+    this->separate( v.ts, handler);
+    if ( v.ts < _next_time - _step_ts )
+      return false;
+    _reducer.add( v );
+    return true;
+  }
+
+  
 
   reduced_ptr pop()
   {
@@ -95,6 +110,25 @@ public:
     return _next_time - _step_ts;
   }
 
+  
+  bool separate(time_type ts_now, pop_handler_fun_t handler)
+  {
+    if ( ts_now < _next_time )
+      return false;
+
+    while ( _next_time <= ts_now )
+    {
+      if ( auto res = _reducer.detach() )
+      {
+        res->ts = _next_time - _step_ts;
+        if ( handler!=nullptr) 
+          handler( std::move(res) );
+      }
+      _next_time += _step_ts;
+    }
+    return true;
+  }
+  
   bool separate(time_type ts_now, bool force)
   {
     if ( !force && ts_now < _next_time )
