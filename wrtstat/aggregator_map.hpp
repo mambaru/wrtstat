@@ -10,7 +10,7 @@ namespace wrtstat {
 
 struct aggregator_map_options: aggregator_base::options_type
 {
-  time_t random_startup_offset = 0;
+  //time_t random_startup_offset = 0;
   size_t pool = 0;
 };
 
@@ -35,12 +35,12 @@ public:
     auto itr = _aggregator_map.find(name);
     if ( itr == _aggregator_map.end() )
     {
-      time_t create_ts = v.ts - ( _opt.random_startup_offset ? rand()*rand() % _opt.random_startup_offset : 0 );
+      //time_t create_ts = v.ts - ( _opt.random_startup_offset ? rand()*rand() % _opt.random_startup_offset : 0 );
       itr = _aggregator_map.insert( 
         std::make_pair(
           name, 
           std::make_shared<aggregator_type>(
-            create_ts, 
+            v.ts, 
             _opt, 
             _pool.get_allocator()
           ) 

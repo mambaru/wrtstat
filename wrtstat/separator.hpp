@@ -26,8 +26,17 @@ public:
   separator( time_type ts_now, const separator_options& opt, const allocator& a = allocator() )
     : _reducer(opt, a)
     , _step_ts(opt.step_ts)
-    , _next_time(ts_now + opt.step_ts)
+    , _next_time(0)
+    , _resolution(opt.resolution)
   {
+    ts_now = this->get_ts(ts_now);
+    if ( opt.soiled_start!=0 )
+    {
+      size_t rnd = static_cast<size_t>(std::rand());
+      //std::cout << ts_now << " " << (soiled*soiled) % size_t(opt.soiled_start) << std::endl;
+      ts_now -= time_type(rnd*rnd) % opt.soiled_start;
+    }
+    _next_time = ts_now + opt.step_ts;
   }
 
   const reducer_type& get_reducer() const 
@@ -37,8 +46,9 @@ public:
 
   bool add( time_type ts_now, value_type v, size_type count )
   {
-    this->separate(ts_now, false);
-    if ( ts_now < _next_time - _step_ts )
+    time_type ts = this->get_ts(ts_now);
+    this->separate(ts, false);
+    if ( ts < _next_time - _step_ts )
       return false;
     _reducer.add(v, count);
     return true;
@@ -46,8 +56,9 @@ public:
   
   bool add( time_type ts_now, const data_type& v, size_type count )
   {
-    this->separate(ts_now, false);
-    if ( ts_now < _next_time - _step_ts )
+    time_type ts = this->get_ts(ts_now);
+    this->separate(ts, false);
+    if ( ts < _next_time - _step_ts )
       return false;
     _reducer.add(v, count);
     return true;
@@ -55,8 +66,9 @@ public:
   
   bool add( time_type ts_now, std::initializer_list<value_type> v )
   {
-    this->separate(ts_now, false);
-    if ( ts_now < _next_time - _step_ts )
+    time_type ts = this->get_ts(ts_now);
+    this->separate(ts, false);
+    if ( ts < _next_time - _step_ts )
       return false;
     _reducer.add( std::move(v) );
     return true;
@@ -64,8 +76,9 @@ public:
   
   bool add( const reduced_data& v )
   {
-    this->separate( v.ts, false);
-    if ( v.ts < _next_time - _step_ts )
+    time_type ts = this->get_ts(v.ts);
+    this->separate( ts, false);
+    if ( ts < _next_time - _step_ts )
       return false;
     _reducer.add( v );
     return true;
@@ -73,14 +86,13 @@ public:
 
   bool add( const reduced_data& v, pop_handler_fun_t handler )
   {
-    this->separate( v.ts, handler);
-    if ( v.ts < _next_time - _step_ts )
+    time_type ts = this->get_ts(v.ts);
+    this->separate( ts, handler);
+    if ( ts < _next_time - _step_ts )
       return false;
     _reducer.add( v );
     return true;
   }
-
-  
 
   reduced_ptr pop()
   {
@@ -110,6 +122,10 @@ public:
     return _next_time - _step_ts;
   }
 
+  time_type get_ts(time_type ts)
+  {
+    return ts!=0 ? ts : separator::now(_resolution);
+  }
   
   bool separate(time_type ts_now, pop_handler_fun_t handler)
   {
@@ -162,6 +178,20 @@ public:
     static std::chrono::time_point< std::chrono::system_clock, D > beg;
     return std::chrono::duration_cast<D>(std::chrono::system_clock::now() - beg ).count();
   }
+  
+  static time_type now(time_type resolution)
+  {
+    switch (resolution)
+    {
+      case 1 : return separator::now<std::chrono::seconds>();
+      case 1000 : return separator::now<std::chrono::milliseconds>();
+      case 1000000 : return separator::now<std::chrono::microseconds>();
+      case 1000000000 : return separator::now<std::chrono::nanoseconds>();
+      default:
+        return separator::now<std::chrono::seconds>();
+    };
+    return separator::now<std::chrono::seconds>();
+  }
 
   size_t size() const 
   {
@@ -179,6 +209,7 @@ private:
   reducer_type _reducer;
   const time_type _step_ts;
   time_type _next_time;
+  time_type _resolution;
   std::list<reduced_ptr> _sep_list;
 };
 

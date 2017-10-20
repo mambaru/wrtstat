@@ -36,8 +36,8 @@ void test()
         rd.ts = aggregator::now<std::chrono::microseconds>();
         const std::string& name = names[size_t(i*j)];
         rt.add(name, rd, [&name]( aggregated_ptr ag){
-          rt2.add( name, *ag, [&name](aggregated_ptr ag1){
-            std::cout << name << "=" << ag1->count << std::endl;
+          rt2.add( name, *ag, [&name](aggregated_ptr /*ag1*/){
+            //std::cout << name << "=" << ag1->count << std::endl;
           });
           //std::cout << "ready,";
           //std::cout.flush();
@@ -60,9 +60,12 @@ int main()
   opt.levels = 16;
   opt.reduced_size = 1024;
   opt.step_ts = 1000000;
-  opt.random_startup_offset = 1000000;
+  //opt.random_startup_offset = 1000000;
+  opt.resolution = 1000000;
+  opt.soiled_start = 1000000;
   rt = aggregator_map_t(opt);
   opt.step_ts = 5000000;
+  opt.soiled_start = 5000000;
   rt2 = aggregator_map_t(opt);
   
   rd.data={1,2,3,4,5, 6,7,8,9,10};
