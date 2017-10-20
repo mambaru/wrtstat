@@ -1,6 +1,7 @@
 #pragma once
 #include <wrtstat/aggregator.hpp>
 #include <wrtstat/allocator.hpp>
+#include <wrtstat/manager/pool.hpp>
 #include <iostream>
 #include <algorithm>
 #include <unordered_map>
@@ -10,6 +11,7 @@ namespace wrtstat {
 struct aggregator_map_options: aggregator_base::options_type
 {
   time_t random_startup_offset = 0;
+  size_t pool = 0;
 };
 
 class aggregator_map
@@ -22,9 +24,9 @@ public:
   typedef aggregator_base::aggregated_ptr aggregated_ptr;
   typedef std::unordered_map<std::string, aggregator_ptr> aggregator_map_t;
   
-  aggregator_map(const options_type& opt = options_type(), const allocator& a = allocator() )
+  aggregator_map(const options_type& opt = options_type() )
     : _opt(opt)
-    , _allocator(a)
+    , _pool(opt.limit, opt.pool)
   {
   }
 
@@ -40,7 +42,7 @@ public:
           std::make_shared<aggregator_type>(
             create_ts, 
             _opt, 
-            _allocator
+            _pool.get_allocator()
           ) 
         )  
       ).first;
@@ -52,7 +54,7 @@ public:
 private:
   aggregator_map_t _aggregator_map;
   options_type _opt;
-  allocator _allocator;
+  pool _pool;
 };
 
 struct aggregator_hash_options: aggregator_map::options_type
