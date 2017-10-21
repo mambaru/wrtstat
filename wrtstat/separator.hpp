@@ -188,9 +188,9 @@ public:
       case 1000000 : return separator::now<std::chrono::microseconds>();
       case 1000000000 : return separator::now<std::chrono::nanoseconds>();
       default:
-        return separator::now<std::chrono::seconds>();
+        return 0;
     };
-    return separator::now<std::chrono::seconds>();
+    return 0;
   }
 
   size_t size() const 

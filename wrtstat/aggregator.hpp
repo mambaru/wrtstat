@@ -266,15 +266,15 @@ private:
     aggregated_ptr& res = d;
     //aggregated_ptr res = aggregated_ptr(new aggregated_type() );
     // static_cast<reduced_data&>(*res) = std::move(*d);
-    size_t size = res->data.size();
-    if ( size!=0 )
+    size_t s = res->data.size();
+    if ( s!=0 )
     {
       size_type off = 0;
       res->perc50 = this->nth_(50, off, res->data);
       res->perc80 = this->nth_(80, off, res->data);
       res->perc95 = this->nth_(95, off, res->data);
       res->perc99 = this->nth_(99, off, res->data);
-      res->perc100 = res->data[ size - 1 ];
+      res->perc100 = res->data[ s - 1 ];
     }
     return std::move(res);
   }

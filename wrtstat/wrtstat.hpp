@@ -45,9 +45,9 @@ public:
       _prefixes.push_back("");
   }
 
-  bool add(id_t id, time_type ts_now, value_type v, size_type count)
+  bool add(id_t id, time_type ts_now, value_type v, size_type cnt)
   {
-    return _m->add(id, ts_now, v, count);
+    return _m->add(id, ts_now, v, cnt);
   }
   
   bool add( const std::string& name, const reduced_data& v)
@@ -92,28 +92,28 @@ public:
   
   template<typename D >
   std::shared_ptr< time_meter<D> > 
-    create_time_meter(id_t id, time_type ts_now, size_type count)
+    create_time_meter(id_t id, time_type ts_now, size_type cnt)
   {
-    return this->create_time_meter_<D>(id, ts_now, count);
+    return this->create_time_meter_<D>(id, ts_now, cnt);
   }
 
   std::shared_ptr< size_meter > 
-    create_size_meter(id_t id, time_type ts_now, size_type size)
+    create_size_meter(id_t id, time_type ts_now, size_type s)
   {
-    return this->create_size_meter_(id, ts_now, size);
+    return this->create_size_meter_(id, ts_now, s);
   }
 
   std::shared_ptr< value_meter > 
-    create_value_meter(id_t id, time_type ts_now, size_type value, size_type count)
+    create_value_meter(id_t id, time_type ts_now, size_type value, size_type cnt)
   {
-    return this->create_value_meter_(id, ts_now, value, count);
+    return this->create_value_meter_(id, ts_now, value, cnt);
   }
   
   template<typename D >
   std::shared_ptr< composite_meter<D> > 
-    create_composite_meter(id_t time_id, id_t read_id, id_t write_id, time_type ts_now, size_type size)
+    create_composite_meter(id_t time_id, id_t read_id, id_t write_id, time_type ts_now, size_type s)
   {
-    return this->create_composite_meter_<D>(time_id, read_id, write_id, ts_now, size);
+    return this->create_composite_meter_<D>(time_id, read_id, write_id, ts_now, s);
   }
 
   template<typename D >
@@ -122,14 +122,14 @@ public:
                             const std::string& read_name,
                             const std::string& write_name,
                             time_type ts_now,
-                            size_type size
+                            size_type s
                           )
   {
     return this->create_composite_meter_<D>( 
       this->create_aggregator_( time_name, ts_now), 
       this->create_aggregator_( read_name, ts_now), 
       this->create_aggregator_( write_name, ts_now), 
-      ts_now, size);
+      ts_now, s);
   }
 
   template<typename D>
@@ -181,16 +181,16 @@ private:
 
   template<typename D >
   std::shared_ptr< time_meter<D> >
-    create_time_meter_(id_t id, time_type ts_now, size_type count)
+    create_time_meter_(id_t id, time_type ts_now, size_type cnt)
   {
-    return std::make_shared< time_meter<D> >(_m->create_meter(id), ts_now, count );
+    return std::make_shared< time_meter<D> >(_m->create_meter(id), ts_now, cnt );
   }
 
 
   std::shared_ptr< value_meter >
-    create_value_meter_(id_t id, time_type ts_now, size_type value, size_type count)
+    create_value_meter_(id_t id, time_type ts_now, size_type value, size_type cnt)
   {
-    return std::make_shared< value_meter >(_m->create_meter(id), ts_now, value, count );
+    return std::make_shared< value_meter >(_m->create_meter(id), ts_now, value, cnt );
   }
   
   std::shared_ptr< size_meter >
