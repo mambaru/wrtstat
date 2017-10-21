@@ -11,7 +11,7 @@ namespace wrtstat {
 struct aggregator_map_options: aggregator_base::options_type
 {
   //time_t random_startup_offset = 0;
-  size_t pool = 0;
+  size_t pool_size = 0;
 };
 
 class aggregator_map
@@ -26,7 +26,7 @@ public:
   
   aggregator_map(const options_type& opt = options_type() )
     : _opt(opt)
-    , _pool(opt.limit, opt.pool)
+    , _pool(opt.limit, opt.pool_size)
   {
   }
 

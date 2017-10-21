@@ -64,6 +64,7 @@ int main()
   //opt.random_startup_offset = 1000000;
   opt.resolution = 1000000;
   opt.soiled_start = 1000000;
+  opt.pool_size = 1024;
   //opt.soiled_start = 0;
   rt = aggregator_map_t(opt);
   opt.step_ts = 5000000;
