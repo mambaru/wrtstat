@@ -29,31 +29,31 @@ void test()
   {
     for (int i = 0 ; i < 1000 ; ++i)
     {
-      //auto start = std::chrono::system_clock::now();
-      int xcount = 100;
+      auto start = std::chrono::system_clock::now();
+      int xcount = 1000;
       for (int x = 0 ; x < xcount ; ++x)
-      for (int j = 0 ; j < 2/*00*/ ; ++j)
+      for (int j = 0 ; j < 1000 ; ++j)
       {
         rd.ts = aggregator::now<std::chrono::microseconds>();
         const std::string& name = names[size_t(i*j)];
         rt.add(name, rd, [&name]( aggregated_ptr ag){
-          rt2.add( name, *ag, [&name](aggregated_ptr ag1){
-            std::cout << name << "=" << ag1->count << std::endl;
+          rt2.add( name, *ag, [&name](aggregated_ptr /*ag1*/){
+            //std::cout << name << "=" << ag1->count << std::endl;
           });
           //std::cout << "ready,";
           //std::cout.flush();
         } );
       }
-      //auto finish = std::chrono::system_clock::now();
-      //auto span = std::chrono::duration_cast<std::chrono::microseconds>( finish - start ).count();
-      //std::cout << "span " << span << "mks rate " << xcount*1000l * 1000000l / ( span + 1) << "rps" << std::endl;
+      auto finish = std::chrono::system_clock::now();
+      auto span = std::chrono::duration_cast<std::chrono::microseconds>( finish - start ).count();
+      std::cout << "span " << span << "mks rate " << xcount*1000l * 1000000l / ( span + 1) << "rps" << std::endl;
     }
   }
 }
 
 int main()
 {
-  size_t S = 1;
+  size_t S = 4;
 
   aggregator_map_t::options_type opt;
   opt.hash_size = 1024*1024;
