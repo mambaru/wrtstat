@@ -46,7 +46,7 @@ public:
     if ( !_sep.add(ts_now, v, count) )
       return false; // ts_now устарел
 
-    this->aggregate_();
+    this->aggregate0_();
     return true;
   }
 
@@ -58,7 +58,7 @@ public:
     if ( !_sep.add(ts_now, v, count) )
       return false; // ts_now устарел
 
-    this->aggregate_();
+    this->aggregate0_();
     return true;
   }
 
@@ -68,7 +68,7 @@ public:
       return true;
     if ( !_sep.add(v) )
       return false; // v.ts устарел
-    this->aggregate_();
+    this->aggregate0_();
     return true;
   }
 
@@ -85,7 +85,7 @@ public:
     {
       if ( handler!=nullptr )
       {
-        ag = this->aggregate_( std::move(ag) );
+        ag = this->aggregate2_( std::move(ag) );
         this->reduce_(ag->data);
         handler(std::move(ag));
       }
@@ -96,7 +96,7 @@ public:
   bool separate(time_type ts_now, bool force)
   {
     bool res = _sep.separate(ts_now, force);
-    this->aggregate_();
+    this->aggregate0_();
     return res;
   }
   
@@ -111,7 +111,7 @@ public:
 
   aggregated_ptr force_pop()
   {
-    return this->aggregate_(_sep.force_pop());
+    return this->aggregate2_(_sep.force_pop());
   }
 
   void enable(bool value)
@@ -238,27 +238,27 @@ private:
       abort();
   }
 
-  void aggregate_()
+  void aggregate0_()
   {
     while (auto sep = _sep.pop() )
     {
-      aggregated_ptr ag = this->aggregate_( std::move(sep) );
+      aggregated_ptr ag = this->aggregate2_( std::move(sep) );
       this->reduce_(ag->data);
       _ag_list.push_back( std::move(ag) );
     }
   }
 
-  void aggregate_(pop_handler_fun_t handler)
+  void aggregate1_(pop_handler_fun_t handler)
   {
     while (auto sep = _sep.pop() )
     {
-      aggregated_ptr ag = this->aggregate_( std::move(sep) );
+      aggregated_ptr ag = this->aggregate2_( std::move(sep) );
       this->reduce_(ag->data);
       handler( std::move(ag) );
     }
   }
 
-  aggregated_ptr aggregate_(reduced_ptr d) const
+  aggregated_ptr aggregate2_(reduced_ptr d) const
   {
     if ( d==nullptr )
       return nullptr;
