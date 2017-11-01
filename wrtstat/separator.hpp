@@ -33,7 +33,6 @@ public:
     if ( opt.soiled_start!=0 )
     {
       size_t rnd = static_cast<size_t>(std::rand());
-      //std::cout << ts_now << " " << (soiled*soiled) % size_t(opt.soiled_start) << std::endl;
       ts_now -= time_type(rnd*rnd) % opt.soiled_start;
     }
     _next_time = ts_now + opt.step_ts;
@@ -131,7 +130,7 @@ public:
   {
     if ( ts_now < _next_time )
       return false;
-
+    
     while ( _next_time <= ts_now )
     {
       if ( auto res = _reducer.detach() )

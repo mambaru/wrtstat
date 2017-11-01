@@ -80,6 +80,7 @@ public:
   
   void clear()
   {
+    _empty = true;
     _min = std::numeric_limits<value_type>::max();
     _max = std::numeric_limits<value_type>::min();
     _average = 0.0;
@@ -97,6 +98,7 @@ public:
 
   void add( value_type v, size_t count) 
   {
+    _empty = false;
     this->add_(v);
     _total_count += count;
     if ( count > 1)
@@ -105,6 +107,7 @@ public:
 
   void add( const data_type& values, size_t count)
   {
+    _empty = false;
     for (value_type v : values)
       this->add_(v);
     _total_count += count;
@@ -122,6 +125,7 @@ public:
   {
     for (value_type v : values)
       this->add_(v);
+    _empty = false;
     _total_count += values.size();
   }
   
@@ -137,12 +141,13 @@ public:
 
   reduced_ptr detach()
   {
-    if ( this->empty() )
+    if ( /*this->empty()*/ _empty )
       return nullptr;
 
     auto res = reduced_ptr(new reduced_type);
     this->reduce();
-    _data.front()->swap(res->data);
+    if ( !_data.empty() )
+      _data.front()->swap(res->data);
     res->avg = static_cast<value_type>(_average);
     res->count = _total_count;
     res->lossy = _lossy_count;
@@ -154,7 +159,7 @@ public:
 
   bool empty() const
   {
-    return _data.empty();
+    return _empty;
   }
 
   void reduce()
@@ -214,6 +219,7 @@ private:
 
 private:
   const reducer_options _opt;
+  bool _empty = true;
   value_type _min = std::numeric_limits<value_type>::max();
   value_type _max = std::numeric_limits<value_type>::min();
   // Счетчик отброшенных после заполнения

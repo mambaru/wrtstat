@@ -74,6 +74,7 @@ public:
 
   bool add( const reduced_data& v, pop_handler_fun_t handler)
   {
+    
     if ( !_enabled )
       return true;
 
@@ -90,6 +91,7 @@ public:
         handler(std::move(ag));
       }
     });
+    
     return result;
   }
 

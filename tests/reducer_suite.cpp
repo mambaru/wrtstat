@@ -29,8 +29,14 @@ void empty_reducer(T& t)
   t << equal<expect, size_t>( r.max(), 1 ) << FAS_FL;
 
   auto res = r.detach();
-  t << is_true<assert>( res==nullptr ) << FAS_FL;
+  t << is_true<assert>( res!=nullptr ) << FAS_FL;
   t << stop;
+  t << equal<expect, size_t>( res->count, 1 ) << FAS_FL; 
+  t << equal<expect, size_t>( res->lossy, 1 ) << FAS_FL;
+  t << equal<expect, size_t>( res->lossy, 1 ) << FAS_FL;
+  t << equal<expect, size_t>( res->min, 1) << FAS_FL;
+  t << equal<expect, size_t>( res->max, 1) << FAS_FL;
+  t << equal<expect, size_t>( res->avg, 1) << FAS_FL;
 }
   
 UNIT(reducer_0_0, "")
