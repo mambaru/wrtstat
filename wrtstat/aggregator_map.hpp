@@ -10,7 +10,6 @@ namespace wrtstat {
 
 struct aggregator_map_options: aggregator_base::options_type
 {
-  //time_t random_startup_offset = 0;
   size_t pool_size = 0;
 };
 

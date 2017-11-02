@@ -52,7 +52,6 @@ public:
     return false;
   }
   
-  
   bool add( const std::string& name, const reduced_data& v)
   {
     if ( auto p = this->create_get_aggregator( name, v.ts ) )
