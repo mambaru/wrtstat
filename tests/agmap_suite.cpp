@@ -13,11 +13,11 @@ UNIT(agmap1, "")
 
   aggregator_hashmap_options opt;
   opt.resolution = 1000000000;
-  opt.soiled_start = 1000000000;
-  opt.levels = 1;
-  opt.limit  = 10;
-  opt.step_ts = 500000000;
-  opt.reduced_size = 13;
+  opt.soiled_start_ts = 1000000000;
+  opt.reducer_levels = 1;
+  opt.reducer_limit  = 10;
+  opt.aggregation_step_ts = 500000000;
+  opt.outgoing_reduced_size = 13;
   
   aggregator_hashmap_mt agh(opt);
   

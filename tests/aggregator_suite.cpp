@@ -10,9 +10,9 @@ UNIT(aggregator1, "")
   using namespace wrtstat;
 
   aggregator_options opt;
-  opt.levels = 1;
-  opt.limit  = 10;
-  opt.step_ts = 10;
+  opt.reducer_levels = 1;
+  opt.reducer_limit  = 10;
+  opt.aggregation_step_ts = 10;
   std::vector<int> values;
   aggregator ag(0, opt);
   for (int i = 0 ; i < 100; i++)
@@ -52,9 +52,9 @@ UNIT(aggregator2, "")
   using namespace wrtstat;
 
   aggregator_options opt;
-  opt.levels = 1;
-  opt.limit  = 8;
-  opt.step_ts = 10;
+  opt.reducer_levels = 1;
+  opt.reducer_limit  = 8;
+  opt.aggregation_step_ts = 10;
 
   auto ag = std::make_shared<aggregator_mt>(0, opt);
   auto meter = ag->create_value_adder();

@@ -35,7 +35,7 @@ public:
   explicit manager_base(const options_type& opt, id_t init, id_t step)
     : _opt(opt)
     , _dict(init, step)
-    , _pool(opt.limit, opt.pool)
+    , _pool(opt.reducer_limit, opt.data_pool)
   { }
 
   size_t size() const 

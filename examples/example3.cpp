@@ -10,14 +10,14 @@ int main()
   ::srand( std::time(0) );
   wrtstat::pool pool( 1000, 1000000 );
   wrtstat::aggregator_options opt;
-  opt.step_ts = 5;
-  opt.reduced_size = 100;
-  opt.limit = 1000;
-  opt.levels = 1000;
+  opt.aggregation_step_ts = 5;
+  opt.outgoing_reduced_size = 100;
+  opt.reducer_limit = 1000;
+  opt.reducer_levels = 1000;
   wrtstat::aggregator ag( 0, opt, pool.get_allocator() );
-  opt.step_ts = 10;
-  opt.limit = 100;
-  opt.levels = 1;
+  opt.aggregation_step_ts = 10;
+  opt.reducer_limit = 100;
+  opt.reducer_levels = 1;
   wrtstat::aggregator ag2( 0, opt);
   auto start = std::chrono::high_resolution_clock::now();
   for (int t = 0 ; t < 100; ++t)

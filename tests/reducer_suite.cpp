@@ -11,8 +11,8 @@ void empty_reducer(T& t)
   using namespace fas::testing;
   using namespace wrtstat;
   reducer_options ro;
-  ro.limit = Limit;
-  ro.levels = Levels;
+  ro.reducer_limit = Limit;
+  ro.reducer_levels = Levels;
   reducer r(ro);
   r.add(1,1);
   // Заполнили все доступные массивы в первой итерации i3
@@ -60,8 +60,8 @@ void filled_reducer(T& t)
   using namespace fas::testing;
   using namespace wrtstat;
   reducer_options ro;
-  ro.limit = Limit;
-  ro.levels = Levels;
+  ro.reducer_limit = Limit;
+  ro.reducer_levels = Levels;
   reducer r(ro);
   int value = 0;
   std::vector<int> values;
@@ -84,11 +84,11 @@ void filled_reducer(T& t)
   // Заполнили все доступные массивы в первой итерации i3
   t << is_true<expect>( r.filled() ) << FAS_FL;
   // Суммарный размер массивов при полном заполнении = limit*levels
-  t << equal<expect, size_t>( r.size(), ro.limit*ro.levels ) << FAS_FL;
+  t << equal<expect, size_t>( r.size(), ro.reducer_limit*ro.reducer_levels ) << FAS_FL;
   // Суммарный вызов add * 2 (передавали count == 2 )
   t << equal<expect, size_t>( r.total_count(), value*2 ) << FAS_FL;
   // Расчетное количество выброшенных значений при прореживании (останется только массив длиной ro.limit)
-  t << equal<expect, size_t>( r.lossy_count(), r.total_count() - ro.limit ) << FAS_FL;
+  t << equal<expect, size_t>( r.lossy_count(), r.total_count() - ro.reducer_limit ) << FAS_FL;
   // Минимальное значение
   t << equal<expect, size_t>( r.min(), 1 ) << FAS_FL;
   // Текущее максимальное значение
@@ -101,9 +101,9 @@ void filled_reducer(T& t)
   t << equal<expect, long>( res->min, 1 ) << FAS_FL;
   t << equal<expect, long>( res->max, value ) << FAS_FL;
   t << equal<expect, long>( res->count, value*2 ) << FAS_FL;
-  t << equal<expect, long>( res->lossy, size_t(value)*2 - ro.limit ) << FAS_FL;
+  t << equal<expect, long>( res->lossy, size_t(value)*2 - ro.reducer_limit ) << FAS_FL;
   t << equal<expect, long>( res->avg, avg ) << FAS_FL;
-  t << equal<expect, long>( res->data.size(), ro.limit ) << FAS_FL;
+  t << equal<expect, long>( res->data.size(), ro.reducer_limit ) << FAS_FL;
   for ( auto i : res->data)
     t << message("A: ") << i;
   r.clear();
@@ -138,9 +138,9 @@ void filled_reducer(T& t)
   avg = std::accumulate(values.begin(), values.end(), 0 ) / static_cast<int>( values.size() );
   
   t << is_true<expect>( r.filled() ) << FAS_FL;
-  t << equal<expect, size_t>( r.size(), ro.limit*ro.levels ) << FAS_FL;
+  t << equal<expect, size_t>( r.size(), ro.reducer_limit*ro.reducer_levels ) << FAS_FL;
   t << equal<expect, size_t>( r.total_count(), 0 ) << FAS_FL;
-  t << equal<expect, size_t>( r.lossy_count(), size_t(value) - ro.limit ) << FAS_FL;
+  t << equal<expect, size_t>( r.lossy_count(), size_t(value) - ro.reducer_limit ) << FAS_FL;
   t << equal<expect, size_t>( r.min(), 1 ) << FAS_FL;
   t << equal<expect, size_t>( r.max(), value  ) << FAS_FL;
 
@@ -151,9 +151,9 @@ void filled_reducer(T& t)
   t << equal<expect, int>( res->min, 1 ) << FAS_FL;
   t << equal<expect, int>( res->max, value ) << FAS_FL;
   t << equal<expect, int>( res->count, 0 ) << FAS_FL;
-  t << equal<expect, int>( res->lossy, size_t(value) - ro.limit ) << FAS_FL;
+  t << equal<expect, int>( res->lossy, size_t(value) - ro.reducer_limit ) << FAS_FL;
   t << equal<expect, int>( res->avg, avg ) << FAS_FL;
-  t << equal<expect, int>( res->data.size(), ro.limit ) << FAS_FL;
+  t << equal<expect, int>( res->data.size(), ro.reducer_limit ) << FAS_FL;
   for ( auto i : res->data)
     t << message("B: ") << i;
 }
@@ -189,8 +189,8 @@ void non_filled_reducer(T& t)
   using namespace fas::testing;
   using namespace wrtstat;
   reducer_options ro;
-  ro.limit = Limit;
-  ro.levels = Levels;
+  ro.reducer_limit = Limit;
+  ro.reducer_levels = Levels;
   reducer r(ro);
   int value = 0;
   std::vector<int> values;
@@ -215,11 +215,11 @@ void non_filled_reducer(T& t)
   // Заполнили все доступные массивы в первой итерации i3
   t << is_false<expect>( r.filled() ) << FAS_FL;
   // Суммарный размер массивов при полном заполнении = limit*levels
-  t << equal<expect, size_t>( r.size(), ro.limit*(ro.levels-1) + Tail ) << FAS_FL;
+  t << equal<expect, size_t>( r.size(), ro.reducer_limit*(ro.reducer_levels-1) + Tail ) << FAS_FL;
   // Суммарный вызов add * 2 (передавали count == 2 )
   t << equal<expect, size_t>( r.total_count(), value ) << FAS_FL;
   // Расчетное количество выброшенных значений при прореживании (останется только массив длиной ro.limit)
-  t << equal<expect, size_t>( r.lossy_count(), r.total_count() - ro.limit ) << FAS_FL;
+  t << equal<expect, size_t>( r.lossy_count(), r.total_count() - ro.reducer_limit ) << FAS_FL;
   // Минимальное значение
   t << equal<expect, size_t>( r.min(), 1 ) << FAS_FL;
   // Текущее максимальное значение
@@ -232,9 +232,9 @@ void non_filled_reducer(T& t)
   t << equal<expect, int>( res->min, 1 ) << FAS_FL;
   t << equal<expect, int>( res->max, value ) << FAS_FL;
   t << equal<expect, int>( res->count, value ) << FAS_FL;
-  t << equal<expect, int>( res->lossy, size_t(value) - ro.limit ) << FAS_FL;
+  t << equal<expect, int>( res->lossy, size_t(value) - ro.reducer_limit ) << FAS_FL;
   t << equal<expect, int>( res->avg, avg ) << FAS_FL;
-  t << equal<expect, int>( res->data.size(), ro.limit ) << FAS_FL;
+  t << equal<expect, int>( res->data.size(), ro.reducer_limit ) << FAS_FL;
 }
 
 UNIT(nf_reducer_4_8_2, "")
@@ -258,8 +258,8 @@ void array_reducer(T& t)
   using namespace fas::testing;
   using namespace wrtstat;
   reducer_options ro;
-  ro.limit = Limit;
-  ro.levels = Levels;
+  ro.reducer_limit = Limit;
+  ro.reducer_levels = Levels;
   reducer r(ro);
   int value = 0;
   std::vector<int> values;

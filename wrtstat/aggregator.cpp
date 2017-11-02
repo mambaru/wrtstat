@@ -7,7 +7,7 @@ namespace wrtstat {
 
 aggregator_base::aggregator_base(time_type ts_now, const aggregator_options& opt, const allocator& a )
   : _sep(ts_now, opt, a)
-  , _reduced_size(opt.reduced_size)
+  , _reduced_size(opt.outgoing_reduced_size)
   , _id( std::make_shared<int>(1) )
 {
 }

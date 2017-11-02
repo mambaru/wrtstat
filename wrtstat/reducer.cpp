@@ -12,7 +12,7 @@ size_t reducer::lossy_count() const
 { 
   if ( _data.size() < 2 )
     return _lossy_count;
-  return _lossy_count + _opt.limit*( _data.size() - 2 ) + _data.back()->size();  
+  return _lossy_count + _opt.reducer_limit*( _data.size() - 2 ) + _data.back()->size();  
 }
   
 size_t reducer::total_count() const 
@@ -22,7 +22,7 @@ size_t reducer::total_count() const
   
 size_t reducer::levels() const 
 {
-  return _opt.levels; 
+  return _opt.reducer_levels; 
 }
   
 reducer::value_type reducer::max() const 
@@ -48,13 +48,13 @@ size_t reducer::size() const
   
 bool reducer::filled() const 
 {
-  if ( _opt.levels == 0 || _opt.limit==0)
+  if ( _opt.reducer_levels == 0 || _opt.reducer_limit==0)
     return true;
    
   if ( _data.empty() )
     return false;
   
-  return _data.size()==_opt.levels && _data.back()->size()==_opt.limit;
+  return _data.size()==_opt.reducer_levels && _data.back()->size()==_opt.reducer_limit;
 }
   
 void reducer::clear()
@@ -154,7 +154,7 @@ void reducer::reduce()
   // Расчетное становится реальным
   _lossy_count = this->lossy_count();
     
-  for ( size_t i = 1, l = 1; i < _opt.limit; ++i )
+  for ( size_t i = 1, l = 1; i < _opt.reducer_limit; ++i )
   {
     if ( l == _data.size() ) // первую строку не трогаем 
       l=1;
@@ -178,10 +178,10 @@ void reducer::add_( value_type v)
   this->minmax(v);
     
   // Если заполнен текущий уровень 
-  if ( _data.empty() || _data.back()->size() == _opt.limit  )
+  if ( _data.empty() || _data.back()->size() == _opt.reducer_limit  )
   {
     // Создаем новый уровень 
-    if ( _data.size() == _opt.levels || _opt.limit == 0)
+    if ( _data.size() == _opt.reducer_levels || _opt.reducer_limit == 0)
     {
       // Лимит уровней закончился
       ++_lossy_count;

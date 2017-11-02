@@ -4,17 +4,17 @@ namespace wrtstat {
 
 separator::separator( time_type ts_now, const separator_options& opt, const allocator& a )
   : _reducer(opt, a)
-  , _step_ts(opt.step_ts)
+  , _step_ts(opt.aggregation_step_ts)
   , _next_time(0)
   , _resolution(opt.resolution)
 {
   ts_now = this->get_ts(ts_now);
-  if ( opt.soiled_start!=0 )
+  if ( opt.soiled_start_ts!=0 )
   {
     size_t rnd = static_cast<size_t>(std::rand());
-    ts_now -= time_type(rnd*rnd) % opt.soiled_start;
+    ts_now -= time_type(rnd*rnd) % opt.soiled_start_ts;
   }
-  _next_time = ts_now + opt.step_ts;
+  _next_time = ts_now + opt.aggregation_step_ts;
 }
 
 const separator::reducer_type& separator::get_reducer() const 

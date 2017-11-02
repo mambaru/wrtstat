@@ -58,18 +58,18 @@ int main()
 
   aggregator_map_t::options_type opt;
   opt.hash_size = 2048;
-  opt.limit = 2048;
-  opt.levels = 16;
-  opt.reduced_size = 1024;
-  opt.step_ts = 1000000;
+  opt.reducer_limit = 2048;
+  opt.reducer_levels = 16;
+  opt.outgoing_reduced_size = 1024;
+  opt.aggregation_step_ts = 1000000;
   //opt.random_startup_offset = 1000000;
   opt.resolution = 1000000;
-  opt.soiled_start = 1000000;
+  opt.soiled_start_ts = 1000000;
   opt.pool_size = 128;
   //opt.soiled_start = 0;
   rt = aggregator_map_t(opt);
-  opt.step_ts = 5000000;
-  opt.soiled_start = 5000000;
+  opt.aggregation_step_ts = 5000000;
+  opt.soiled_start_ts = 5000000;
   rt2 = aggregator_map_t(opt);
   
   rd.data={1,2,3,4,5, 6,7,8,9,10};

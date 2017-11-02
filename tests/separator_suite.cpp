@@ -11,9 +11,9 @@ UNIT(separator1, "")
   t << equal<expect, types::time_type>( std::time(0), separator::now<std::chrono::seconds>() ) << FAS_FL;
   
   separator_options opt;
-  opt.levels = 1;
-  opt.limit  = 8;
-  opt.step_ts = 10;
+  opt.reducer_levels = 1;
+  opt.reducer_limit  = 8;
+  opt.aggregation_step_ts = 10;
   separator sep(0, opt);
   for (int i = 0 ; i < 100; i++)
   {
