@@ -52,6 +52,11 @@ public:
     return separator::now<D>();
   }
 
+  static time_type now(time_type resolution) 
+  {
+    return separator::now(resolution);
+  }
+
 protected:
   template<typename T>
   value_adder_t create_value_adder( std::weak_ptr<T> wthis );
