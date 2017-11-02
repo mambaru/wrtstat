@@ -78,7 +78,12 @@ public:
   {
     return _m->get_name(id);
   }
-  
+
+  value_adder_t create_value_adder( const std::string& name, time_type ts_now)
+  {
+    return _m->create_value_adder( name, ts_now);
+  }
+
   data_adder_t create_data_adder( const std::string& name, time_type ts_now)
   {
     return _m->create_data_adder( name, ts_now);

@@ -39,9 +39,11 @@ size_t reducer::size() const
 { 
   size_t result = 0;
   for ( auto& p : _data )
+  {
     if ( p!=nullptr )
       result += p->size();
-    return result; 
+  }
+  return result; 
 }
   
 bool reducer::filled() const 

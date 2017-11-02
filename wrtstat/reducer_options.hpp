@@ -6,8 +6,8 @@ namespace wrtstat {
 
 struct reducer_options
 {
-  types::size_type limit = 1024;
-  types::size_type levels = 16;
+  types::size_type reducer_limit = 1024;
+  types::size_type reducer_levels = 16;
 };
 
 }

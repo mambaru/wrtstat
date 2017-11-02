@@ -7,7 +7,7 @@ namespace wrtstat {
 struct aggregator_options
   : separator_options
 {
-  types::size_type reduced_size = 128;
+  types::size_type outgoing_reduced_size = 128;
 };
 
 }

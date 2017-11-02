@@ -7,7 +7,8 @@ namespace wrtstat {
 struct manager_options
   : aggregator_options
 {
-  size_t pool = 0;
+  // количество массивов размером reducer_limit
+  size_t data_pool = 0;
 };
 
 }

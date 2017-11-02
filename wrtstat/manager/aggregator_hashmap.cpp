@@ -19,7 +19,7 @@ aggregator_hashmap_mt::aggregator_hashmap_mt(const aggregator_hashmap_mt& agh)
   :_opt(agh._opt)
 {
   this->initialize_();
-};
+}
 
 aggregator_hashmap_mt& aggregator_hashmap_mt::operator=(aggregator_hashmap_mt&& agh)
 {
@@ -27,7 +27,7 @@ aggregator_hashmap_mt& aggregator_hashmap_mt::operator=(aggregator_hashmap_mt&& 
   _mutex_list = std::move(agh._mutex_list);
   _aggregator_list = std::move(agh._aggregator_list);
   return *this;
-};
+}
   
 bool aggregator_hashmap_mt::add( const std::string& name, const reduced_data& v, aggregated_handler handler)
 {
