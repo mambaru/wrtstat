@@ -15,11 +15,11 @@ struct time_meter
 
   typedef std::chrono::steady_clock clock_type;
   typedef D duration_type;
-  typedef types::meter_fun_t meter_fun_t;
   typedef types::time_type time_type;
   typedef types::span_type span_type;
   typedef types::size_type size_type;
   
+  typedef std::function< void(time_type now, time_type value, size_type count) > meter_fun_t;
   typedef types::mutex_type mutex_type;
   typedef types::mutex_ptr mutex_ptr;
   typedef types::mutex_wptr mutex_wptr;

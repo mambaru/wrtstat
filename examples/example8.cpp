@@ -1,4 +1,5 @@
-#include <wrtstat/aggregator_map.hpp>
+#include <wrtstat/manager/aggregator_map.hpp>
+#include <wrtstat/manager/aggregator_hashmap.hpp>
 #include <chrono>
 #include <thread>
 #include <vector>
@@ -9,7 +10,7 @@ aggregator_map rt;
 aggregator_map rt2;
 */
 
-typedef aggregator_hash aggregator_map_t;
+typedef aggregator_hashmap_mt aggregator_map_t;
 //typedef aggregator_map aggregator_map_t;
 
 aggregator_map_t rt;
@@ -56,15 +57,15 @@ int main()
   size_t S = 4;
 
   aggregator_map_t::options_type opt;
-  opt.hash_size = 1024*1024;
-  opt.limit = 1024;
+  opt.hash_size = 2048;
+  opt.limit = 2048;
   opt.levels = 16;
   opt.reduced_size = 1024;
   opt.step_ts = 1000000;
   //opt.random_startup_offset = 1000000;
   opt.resolution = 1000000;
   opt.soiled_start = 1000000;
-  opt.pool_size = 1024;
+  opt.pool_size = 128;
   //opt.soiled_start = 0;
   rt = aggregator_map_t(opt);
   opt.step_ts = 5000000;

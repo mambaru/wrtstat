@@ -57,7 +57,7 @@ UNIT(aggregator2, "")
   opt.step_ts = 10;
 
   auto ag = std::make_shared<aggregator_mt>(0, opt);
-  auto meter = ag->create_meter();
+  auto meter = ag->create_value_adder();
   for (int i = 0 ; i < 100; i++)
   {
     meter(i, i, 1);

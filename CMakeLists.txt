@@ -17,4 +17,15 @@ if ( BUILD_TESTING OR WRTSTAT_BUILD_ALL)
   add_subdirectory(examples)
 endif()
 
+include_directories(.)
+
+add_library(
+  wrtstat
+  wrtstat/reducer.cpp
+  wrtstat/separator.cpp
+  wrtstat/aggregator.cpp
+  wrtstat/manager/aggregator_map.cpp
+  wrtstat/manager/aggregator_hashmap.cpp
+)
+
 

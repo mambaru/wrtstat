@@ -23,12 +23,11 @@ public:
   typedef typename aggregator_type::time_type time_type;
   typedef typename aggregator_type::value_type value_type;
   typedef typename aggregator_type::size_type size_type;
-  typedef typename aggregator_type::aggregated_type aggregated_type;
-  typedef typename aggregator_type::aggregated_ptr aggregated_ptr;
+  typedef typename aggregated_data::ptr aggregated_ptr;
   typedef manager_options options_type;
-  typedef typename aggregator_type::meter_fun_t meter_fun_t;
-  typedef typename aggregator_type::handler_fun_t handler_fun_t;
-  typedef typename aggregator_type::aggregator_fun_t aggregator_fun_t;
+  typedef typename aggregator_type::value_adder_t value_adder_t;
+  typedef typename aggregator_type::data_adder_t data_adder_t;
+  typedef typename aggregator_type::reduced_adder_t reduced_adder_t;
   
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::deque<aggregator_ptr> aggregator_list;
@@ -129,30 +128,30 @@ public:
     return _agarr[ pos ];
   }
 
-  meter_fun_t create_meter( id_t id )
+  value_adder_t create_value_adder( id_t id )
   {
     if ( auto ag = this->get_aggregator(id) )
-      return ag->create_meter();
+      return ag->create_value_adder();
     return nullptr;
   }
 
-  handler_fun_t create_handler( id_t id )
+  data_adder_t create_data_adder( id_t id )
   {
     if ( auto ag = this->get_aggregator(id) )
-      return ag->create_handler();
+      return ag->create_data_adder();
     return nullptr;
   }
   
-  aggregator_fun_t create_aggregator_handler( id_t id )
+  reduced_adder_t create_reduced_adder( id_t id )
   {
     if ( auto ag = this->get_aggregator(id) )
-      return ag->create_aggregator();
+      return ag->create_reduced_adder();
     return nullptr;
   }
 
-  meter_fun_t create_meter(const std::string& name, time_type ts_now)
+  value_adder_t create_value_adder(const std::string& name, time_type ts_now)
   {
-    return this->create_meter(
+    return this->create_value_adder(
       this->create_aggregator( 
         name, 
         ts_now
@@ -160,18 +159,18 @@ public:
     );
   }
 
-  handler_fun_t create_handler(const std::string& name, time_type ts_now)
+  data_adder_t create_data_adder(const std::string& name, time_type ts_now)
   {
-    return this->create_handler(
+    return this->create_data_adder(
       this->create_aggregator( 
         name, 
         ts_now)
     );
   }
   
-  aggregator_fun_t create_aggregator_handler( const std::string& name, time_type ts_now )
+  reduced_adder_t create_reduced_adder( const std::string& name, time_type ts_now )
   {
-    return this->create_aggregator_handler(
+    return this->create_reduced_adder(
       this->create_aggregator( 
         name, 
         ts_now)

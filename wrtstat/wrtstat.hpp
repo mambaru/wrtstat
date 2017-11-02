@@ -26,11 +26,10 @@ public:
   typedef typename manager_type::time_type time_type;
   typedef typename manager_type::value_type value_type;
   typedef typename manager_type::size_type size_type;
-  typedef typename manager_type::aggregated_type aggregated_type;
   typedef typename manager_type::aggregated_ptr aggregated_ptr;
-  typedef typename manager_type::meter_fun_t meter_fun_t;
-  typedef typename manager_type::handler_fun_t handler_fun_t;
-  typedef typename manager_type::aggregator_fun_t aggregator_fun_t;
+  typedef typename manager_type::value_adder_t value_adder_t;
+  typedef typename manager_type::data_adder_t data_adder_t;
+  typedef typename manager_type::reduced_adder_t reduced_adder_t;
   typedef wrtstat_options options_type;
 
   typedef std::shared_ptr<manager_type> manager_ptr;
@@ -80,14 +79,14 @@ public:
     return _m->get_name(id);
   }
   
-  handler_fun_t create_handler( const std::string& name, time_type ts_now)
+  data_adder_t create_data_adder( const std::string& name, time_type ts_now)
   {
-    return _m->create_handler( name, ts_now);
+    return _m->create_data_adder( name, ts_now);
   }
 
-  aggregator_fun_t create_aggregator_handler( const std::string& name, time_type ts_now)
+  reduced_adder_t create_reduced_adder( const std::string& name, time_type ts_now)
   {
-    return _m->create_aggregator_handler( name, ts_now);
+    return _m->create_reduced_adder( name, ts_now);
   }
   
   template<typename D >
@@ -183,20 +182,20 @@ private:
   std::shared_ptr< time_meter<D> >
     create_time_meter_(id_t id, time_type ts_now, size_type cnt)
   {
-    return std::make_shared< time_meter<D> >(_m->create_meter(id), ts_now, cnt );
+    return std::make_shared< time_meter<D> >(_m->create_value_adder(id), ts_now, cnt );
   }
 
 
   std::shared_ptr< value_meter >
     create_value_meter_(id_t id, time_type ts_now, size_type value, size_type cnt)
   {
-    return std::make_shared< value_meter >(_m->create_meter(id), ts_now, value, cnt );
+    return std::make_shared< value_meter >(_m->create_value_adder(id), ts_now, value, cnt );
   }
   
   std::shared_ptr< size_meter >
     create_size_meter_(id_t id, time_type ts_now, size_type size)
   {
-    return std::make_shared< size_meter >(_m->create_meter(id), ts_now, size);
+    return std::make_shared< size_meter >(_m->create_value_adder(id), ts_now, size);
   }
 
   template<typename D >
@@ -248,7 +247,7 @@ private:
     for ( auto prefix : _prefixes )
     {
       id_t meter_id = this->create_aggregator_(prefix + meter_name, ts_now );
-      auto m = std::make_shared< MeterType >(_m->create_meter(meter_id), ts_now, args... );
+      auto m = std::make_shared< MeterType >(_m->create_value_adder(meter_id), ts_now, args... );
       meter->push_back(m);
     }
     return meter;

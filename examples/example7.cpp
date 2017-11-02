@@ -1,4 +1,4 @@
-#include <wrtstat/aggregator_map.hpp>
+#include <wrtstat/manager/aggregator_map.hpp>
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
