@@ -11,9 +11,7 @@ namespace wrtstat {
 class dict
 {
 public:
-  
-  typedef std::size_t id_t;
-  
+
   dict(id_t initial, id_t step)
     : _counter(initial)
     , _step(step)

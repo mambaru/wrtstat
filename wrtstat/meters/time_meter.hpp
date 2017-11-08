@@ -15,14 +15,11 @@ struct time_meter
 
   typedef std::chrono::steady_clock clock_type;
   typedef D duration_type;
-  typedef types::time_type time_type;
-  typedef types::span_type span_type;
-  typedef types::size_type size_type;
   
-  typedef std::function< void(time_type now, time_type value, size_type count) > meter_fun_t;
-  typedef types::mutex_type mutex_type;
-  typedef types::mutex_ptr mutex_ptr;
-  typedef types::mutex_wptr mutex_wptr;
+  typedef std::function< void(time_type now, value_type value, size_type count) > meter_fun_t;
+  typedef std::mutex mutex_type;
+  typedef std::shared_ptr<mutex_type> mutex_ptr;
+  typedef std::weak_ptr<mutex_type> mutex_wptr;
 
   time_meter( const time_meter& ) = delete;
   time_meter& operator=( const time_meter& ) = delete;
@@ -40,8 +37,8 @@ struct time_meter
     if ( meter_fun == nullptr || now == 0 )
       return;
     clock_type::time_point finish = clock_type::now();
-    span_type span = std::chrono::template duration_cast<D>( finish - start ).count();
-    meter_fun( now, span, count );
+    time_type span = std::chrono::template duration_cast<D>( finish - start ).count();
+    meter_fun( now, static_cast<value_type>(span), count );
   };
   
   void reset() 

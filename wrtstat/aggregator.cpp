@@ -158,7 +158,7 @@ void aggregator_base::clear( time_type ts_now )
   _id.reset();
 }
 
-aggregator_base::value_type aggregator_base::nth_(size_type perc, size_type& off, data_type& d)
+value_type aggregator_base::nth_(size_type perc, size_type& off, data_type& d)
 {
   data_type::iterator beg = d.begin() + static_cast<std::ptrdiff_t>(off);
   data_type::iterator nth = d.begin() + static_cast<std::ptrdiff_t>( d.size()*perc/100 );

@@ -11,16 +11,10 @@ struct size_meter
 {
   typedef size_meter self;
   typedef std::shared_ptr<self> self_ptr;
-
-  
-  typedef types::time_type time_type;
-  typedef types::span_type span_type;
-  typedef types::size_type size_type;
-  typedef std::function< void(time_type now, time_type value, size_type count) > meter_fun_t;
-  
-  typedef types::mutex_type mutex_type;
-  typedef types::mutex_ptr mutex_ptr;
-  typedef types::mutex_wptr mutex_wptr;
+  typedef std::function< void(time_type now, value_type value, size_type count) > meter_fun_t;
+  typedef std::mutex mutex_type;
+  typedef std::shared_ptr<mutex_type> mutex_ptr;
+  typedef std::weak_ptr<mutex_type> mutex_wptr;
 
   size_meter( const size_meter& ) = delete;
   size_meter& operator=( const size_meter& ) = delete;
@@ -37,7 +31,7 @@ struct size_meter
   {
     if ( timer_fun == nullptr || now == 0)
       return;
-    timer_fun( now, static_cast<span_type>(size), size );
+    timer_fun( now, static_cast<value_type>(size), size );
   };
 
   void set_size(size_t s) { this->size = s; }

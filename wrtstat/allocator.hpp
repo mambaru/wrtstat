@@ -10,8 +10,6 @@ namespace wrtstat {
   class allocator
   {
   public:
-    typedef types::data_type data_type;
-    typedef types::data_ptr  data_ptr;
     typedef std::function<data_ptr()> create_handle;
     typedef std::function<data_ptr(data_ptr)> free_handle;
 

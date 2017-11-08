@@ -14,12 +14,7 @@ namespace wrtstat {
 class reducer
 {
 public:
-  typedef types::size_type size_type;
-  typedef reduced_data::value_type value_type;
-  typedef reduced_data::data_type data_type;
-  typedef std::unique_ptr<data_type> data_ptr;
   typedef std::vector<data_ptr> data_list;
-
   typedef aggregated_data reduced_type;
   typedef std::unique_ptr<reduced_type> reduced_ptr;
 

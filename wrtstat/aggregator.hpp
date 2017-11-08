@@ -10,10 +10,6 @@ namespace wrtstat {
 class aggregator_base
 {
 public:
-  typedef separator::time_type time_type;
-  typedef separator::value_type value_type;
-  typedef separator::data_type data_type;
-  typedef separator::size_type size_type;
   typedef separator::reduced_type reduced_type;
   typedef separator::reduced_ptr reduced_ptr;
   typedef std::function< void(time_type now, time_type value, size_type count) > value_adder_t;
@@ -111,10 +107,6 @@ class aggregator_mt
 public:
   typedef std::mutex mutex_type;
   
-  typedef aggregator_base::time_type time_type;
-  typedef aggregator_base::value_type value_type;
-  typedef aggregator_base::data_type data_type;
-  typedef aggregator_base::size_type size_type;
   typedef aggregator_base::reduced_type reduced_type;
   typedef aggregator_base::reduced_ptr reduced_ptr;
   typedef aggregator_base::options_type options_type;

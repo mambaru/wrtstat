@@ -8,9 +8,6 @@ namespace wrtstat {
 class pool
 {
 public:
-  typedef types::size_type size_type;
-  typedef types::data_type data_type;
-  typedef types::data_ptr  data_ptr;
   typedef std::vector<data_ptr> data_pool;
   
 public:

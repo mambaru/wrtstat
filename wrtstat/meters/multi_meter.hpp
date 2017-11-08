@@ -19,9 +19,6 @@ public:
   typedef std::shared_ptr<meter_type> meter_ptr;
   typedef std::vector<meter_ptr> meter_list;
 
-  typedef typename meter_type::time_type time_type;
-  typedef typename meter_type::size_type size_type;
-  
   ~multi_meter()
   {
     for (auto& p : _meters )

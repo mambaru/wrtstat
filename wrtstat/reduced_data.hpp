@@ -7,10 +7,6 @@ namespace wrtstat {
 
 struct reduced_info
 {
-  typedef types::value_type value_type;
-  typedef types::size_type size_type;
-  typedef types::time_type time_type; 
-
   time_type ts = 0;
   // Общее количество
   size_type count = 0;
@@ -27,7 +23,6 @@ struct reduced_info
   
 struct reduced_data: reduced_info
 {
-  typedef types::data_type data_type;
   data_type data;
 };
 

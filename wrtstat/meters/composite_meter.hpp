@@ -16,9 +16,6 @@ public:
   typedef D duration_type;
   typedef time_meter< duration_type > time_meter_type;
   typedef size_meter size_meter_type;
-
-  typedef typename time_meter_type::time_type  time_type;
-  typedef typename size_meter_type::size_type size_type;
   typedef std::shared_ptr<time_meter_type> time_meter_ptr;
   typedef std::shared_ptr<size_meter_type> size_meter_ptr;
 

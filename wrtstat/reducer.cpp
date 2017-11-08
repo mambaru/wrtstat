@@ -25,12 +25,12 @@ size_t reducer::levels() const
   return _opt.reducer_levels; 
 }
   
-reducer::value_type reducer::max() const 
+value_type reducer::max() const 
 { 
   return _max == std::numeric_limits<value_type>::min() ? 0 : _max; 
 }
   
-reducer::value_type reducer::min() const 
+value_type reducer::min() const 
 { 
   return _min == std::numeric_limits<value_type>::max() ? 0 : _min; 
 }

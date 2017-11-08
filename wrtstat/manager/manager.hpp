@@ -19,10 +19,6 @@ class manager_base
 public:
   typedef rwlock<Mutex> mutex_type;
   typedef Aggregator aggregator_type;
-  typedef typename dict::id_t id_t;
-  typedef typename aggregator_type::time_type time_type;
-  typedef typename aggregator_type::value_type value_type;
-  typedef typename aggregator_type::size_type size_type;
   typedef typename aggregated_data::ptr aggregated_ptr;
   typedef manager_options options_type;
   typedef typename aggregator_type::value_adder_t value_adder_t;

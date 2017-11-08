@@ -90,17 +90,17 @@ separator::reduced_ptr separator::force_pop()
   return r;
 }
 
-separator::time_type separator::next_time() const 
+time_type separator::next_time() const 
 {
   return _next_time;
 }
 
-separator::time_type separator::current_time() const 
+time_type separator::current_time() const 
 {
   return _next_time - _step_ts;
 }
 
-separator::time_type separator::get_ts(time_type ts)
+time_type separator::get_ts(time_type ts)
 {
   return ts!=0 ? ts : separator::now(_resolution);
 }
@@ -150,7 +150,7 @@ bool separator::empty() const
   return _sep_list.empty();
 }
   
-separator::time_type separator::now(time_type resolution)
+time_type separator::now(time_type resolution)
 {
   switch (resolution)
   {

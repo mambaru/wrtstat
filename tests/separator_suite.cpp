@@ -8,7 +8,7 @@ UNIT(separator1, "")
   using namespace fas::testing;
   using namespace wrtstat;
 
-  t << equal<expect, types::time_type>( std::time(0), separator::now<std::chrono::seconds>() ) << FAS_FL;
+  t << equal<expect, time_type>( std::time(0), separator::now<std::chrono::seconds>() ) << FAS_FL;
   
   separator_options opt;
   opt.reducer_levels = 1;

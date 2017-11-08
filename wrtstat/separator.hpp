@@ -10,12 +10,7 @@ namespace wrtstat {
 class separator
 {
 public:
-  typedef types::time_type time_type;
   typedef reducer reducer_type;
-  typedef reducer_type::size_type   size_type;
-
-  typedef reducer_type::data_type    data_type;
-  typedef reducer_type::value_type   value_type;
   typedef reducer_type::reduced_type reduced_type;
   typedef reducer_type::reduced_ptr  reduced_ptr; 
   typedef aggregated_data::handler aggregated_handler;

@@ -21,11 +21,6 @@ class wrtstat_base
 {
 public:
   typedef Manager manager_type;
-  
-  typedef typename manager_type::id_t id_t;
-  typedef typename manager_type::time_type time_type;
-  typedef typename manager_type::value_type value_type;
-  typedef typename manager_type::size_type size_type;
   typedef typename manager_type::aggregated_ptr aggregated_ptr;
   typedef typename manager_type::value_adder_t value_adder_t;
   typedef typename manager_type::data_adder_t data_adder_t;

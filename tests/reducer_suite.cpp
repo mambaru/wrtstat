@@ -264,7 +264,7 @@ void array_reducer(T& t)
   int value = 0;
   std::vector<int> values;
 
-  reducer::data_type data;
+  data_type data;
   for (int i=0; i < Size;  ++i)
   {
     data.push_back( ++value );
