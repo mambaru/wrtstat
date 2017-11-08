@@ -5,13 +5,13 @@
 
 namespace wrtstat {
 
-struct reduced_data
+struct reduced_info
 {
   typedef types::value_type value_type;
-  typedef types::data_type data_type;
-  typedef types::size_type size_type; 
-  types::time_type ts = 0;
- 
+  typedef types::size_type size_type;
+  typedef types::time_type time_type; 
+
+  time_type ts = 0;
   // Общее количество
   size_type count = 0;
   // Количество не учтенных
@@ -22,7 +22,12 @@ struct reduced_data
   value_type max = 0;
   // Среднее считаем здесь, для точности
   value_type avg = 0;
+};
+
   
+struct reduced_data: reduced_info
+{
+  typedef types::data_type data_type;
   data_type data;
 };
 
