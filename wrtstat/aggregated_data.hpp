@@ -18,6 +18,7 @@ struct aggregated_info
   : reduced_info
   , aggregated_perc
 {
+  aggregated_info() = default;
 };
 
   

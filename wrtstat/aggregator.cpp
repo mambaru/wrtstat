@@ -17,6 +17,7 @@ const separator& aggregator_base::get_separator() const
   return this->_sep;
 }
 
+
 bool aggregator_base::add(time_type ts_now, value_type v, size_type count)
 {
   if ( !_enabled )
@@ -87,7 +88,9 @@ aggregator_base::aggregated_ptr aggregator_base::pop()
 
 aggregator_base::aggregated_ptr aggregator_base::force_pop()
 {
-  return this->aggregate2_(_sep.force_pop());
+  auto ag = this->aggregate2_(_sep.force_pop());
+  this->reduce_(ag->data);
+  return std::move(ag);
 }
 
 void aggregator_base::enable(bool value)

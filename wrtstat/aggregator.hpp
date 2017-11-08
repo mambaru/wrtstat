@@ -20,7 +20,6 @@ public:
   typedef aggregated_data::handler aggregated_handler;
   typedef std::list< aggregated_ptr > aggregated_list;
   
-  
   aggregator_base(time_type ts_now, const aggregator_options& opt, const allocator& a = allocator() );
 
   const separator& get_separator() const;
