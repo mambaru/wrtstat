@@ -7,6 +7,21 @@ reducer::reducer(const reducer_options& opt, const allocator& a  )
   : _opt( opt )
   , _allocator( a )
 {}
+
+std::unique_ptr<reducer> reducer::clone()
+{
+  std::unique_ptr<reducer> cln = std::unique_ptr<reducer>( new reducer(_opt, _allocator) );
+  cln->_empty = _empty;
+  cln->_min = _min;
+  cln->_max = _max;
+  cln->_lossy_count = _lossy_count;
+  cln->_total_count = _total_count;
+  cln->_average_count = _average_count;
+  cln->_average = _average;
+  for (const auto& d : this->_data )
+    cln->_data.push_back( data_ptr( new data_type(*d) ) );
+  return std::move(cln);
+}
   
 size_t reducer::lossy_count() const 
 { 
@@ -117,10 +132,16 @@ void reducer::add( const reduced_data& v )
   if ( v.max != 0 )
     this->minmax( v.max );
 }
+
+reducer::reduced_ptr reducer::get_current()
+{
+  auto tmp = this->clone();
+  return tmp->detach();
+}
   
 reducer::reduced_ptr reducer::detach()
 {
-  if ( /*this->empty()*/ _empty )
+  if ( _empty )
     return nullptr;
     
   auto res = reduced_ptr(new reduced_type);

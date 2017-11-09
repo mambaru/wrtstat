@@ -34,6 +34,8 @@ public:
   aggregated_ptr pop();
 
   aggregated_ptr force_pop();
+  
+  aggregated_ptr aggregate_current();
 
   void enable(bool value);
 

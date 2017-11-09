@@ -93,6 +93,13 @@ aggregator_base::aggregated_ptr aggregator_base::force_pop()
   return std::move(ag);
 }
 
+aggregator_base::aggregated_ptr aggregator_base::aggregate_current()
+{
+  auto ag = this->aggregate2_(_sep.get_current());
+  this->reduce_(ag->data);
+  return std::move(ag);
+}
+
 void aggregator_base::enable(bool value)
 {
   _enabled = value;

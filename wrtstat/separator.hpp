@@ -33,6 +33,8 @@ public:
 
   reduced_ptr force_pop();
   
+  reduced_ptr get_current();
+  
   time_type next_time() const;
 
   time_type current_time() const;

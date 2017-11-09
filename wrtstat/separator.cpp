@@ -84,10 +84,17 @@ separator::reduced_ptr separator::pop()
 separator::reduced_ptr separator::force_pop()
 {
   if (auto r = this->pop() )
-    return r; 
+    return std::move(r); 
   auto r = _reducer.detach();
-  r->ts = _next_time;
-  return r;
+  r->ts = _next_time  - _step_ts;
+  return std::move(r);
+}
+
+separator::reduced_ptr separator::get_current()
+{
+  auto r = _reducer.get_current();
+  r->ts = _next_time  - _step_ts;
+  return std::move(r);
 }
 
 time_type separator::next_time() const 

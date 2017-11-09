@@ -51,12 +51,15 @@ public:
   void add( const reduced_data& v );
 
   reduced_ptr detach();
+  reduced_ptr get_current();
 
   bool empty() const;
 
   void reduce();
-
+  
 private:
+  
+  std::unique_ptr<reducer> clone();
 
   void add_( value_type v);
 
