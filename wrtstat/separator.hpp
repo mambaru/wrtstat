@@ -50,13 +50,15 @@ public:
   bool empty() const;
   
   template<typename D>
-  static time_type now() 
+  static time_type now_t() 
   {
     static std::chrono::time_point< std::chrono::system_clock, D > beg;
     return std::chrono::duration_cast<D>(std::chrono::system_clock::now() - beg ).count();
   }
   
   static time_type now(time_type resolution);
+  
+  time_type now();
 
   size_t size() const;
 

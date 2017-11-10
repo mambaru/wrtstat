@@ -17,6 +17,17 @@ const separator& aggregator_base::get_separator() const
   return this->_sep;
 }
 
+time_type aggregator_base::now(time_type resolution) 
+{
+  return separator::now(resolution);
+}
+  
+time_type aggregator_base::now()
+{
+  return _sep.now();
+}
+
+
 
 bool aggregator_base::add(time_type ts_now, value_type v, size_type count)
 {

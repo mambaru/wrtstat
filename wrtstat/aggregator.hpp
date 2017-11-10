@@ -44,15 +44,14 @@ public:
   void clear( time_type ts_now );
 
   template<typename D>
-  static time_type now() 
+  static time_type now_t() 
   {
-    return separator::now<D>();
+    return separator::now_t<D>();
   }
 
-  static time_type now(time_type resolution) 
-  {
-    return separator::now(resolution);
-  }
+  static time_type now(time_type resolution);
+  
+  time_type now();
 
 protected:
   template<typename T>
@@ -143,9 +142,9 @@ public:
   reduced_adder_t create_reduced_adder( );
 
   template<typename D>
-  static time_type now() 
+  static time_type now_t() 
   {
-    return aggregator_base::now<D>();
+    return aggregator_base::now_t<D>();
   }
 
   size_t size() const;

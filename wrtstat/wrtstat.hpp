@@ -163,9 +163,9 @@ public:
   };
   
   template<typename D>
-  static time_type now() 
+  static time_type now_t() 
   {
-    return aggregator::now<D>();
+    return aggregator::now_t<D>();
   }
 
   

@@ -161,14 +161,19 @@ time_type separator::now(time_type resolution)
 {
   switch (resolution)
   {
-    case 1 : return separator::now<std::chrono::seconds>();
-    case 1000 : return separator::now<std::chrono::milliseconds>();
-    case 1000000 : return separator::now<std::chrono::microseconds>();
-    case 1000000000 : return separator::now<std::chrono::nanoseconds>();
+    case 1 : return separator::now_t<std::chrono::seconds>();
+    case 1000 : return separator::now_t<std::chrono::milliseconds>();
+    case 1000000 : return separator::now_t<std::chrono::microseconds>();
+    case 1000000000 : return separator::now_t<std::chrono::nanoseconds>();
     default:
       return 0;
   };
   return 0;
+}
+
+time_type separator::now()
+{
+  return this->now(_resolution);
 }
 
 size_t separator::size() const 
