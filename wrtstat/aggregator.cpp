@@ -106,9 +106,12 @@ aggregator_base::aggregated_ptr aggregator_base::force_pop()
 
 aggregator_base::aggregated_ptr aggregator_base::aggregate_current()
 {
-  auto ag = this->aggregate2_(_sep.get_current());
-  this->reduce_(ag->data);
-  return std::move(ag);
+  if ( auto ag = this->aggregate2_(_sep.get_current()) )
+  {
+    this->reduce_(ag->data);
+    return std::move(ag);
+  }
+  return nullptr;
 }
 
 void aggregator_base::enable(bool value)
@@ -327,6 +330,12 @@ aggregator_mt::aggregated_ptr aggregator_mt::force_pop()
 {
   std::lock_guard<mutex_type> lk(_mutex);
   return aggregator_base::force_pop();
+}
+
+aggregator_mt::aggregated_ptr aggregator_mt::aggregate_current()
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  return aggregator_base::aggregate_current();
 }
 
 bool aggregator_mt::separate(time_type ts_now, bool force)

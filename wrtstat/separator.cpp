@@ -92,9 +92,12 @@ separator::reduced_ptr separator::force_pop()
 
 separator::reduced_ptr separator::get_current()
 {
-  auto r = _reducer.get_current();
-  r->ts = _next_time  - _step_ts;
-  return std::move(r);
+  if ( auto r = _reducer.get_current() )
+  {
+    r->ts = _next_time  - _step_ts;
+    return std::move(r);
+  }
+  return nullptr;
 }
 
 time_type separator::next_time() const 

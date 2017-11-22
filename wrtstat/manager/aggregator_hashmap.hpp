@@ -13,7 +13,7 @@ public:
   typedef aggregator_map::aggregated_handler aggregated_handler;
   typedef aggregator_hashmap_options options_type;
 
-  aggregator_hashmap_mt(const options_type& opt = options_type() );
+  explicit aggregator_hashmap_mt(const options_type& opt = options_type() );
   
   aggregator_hashmap_mt(aggregator_hashmap_mt&& agh);
   

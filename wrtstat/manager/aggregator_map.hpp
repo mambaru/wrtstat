@@ -19,7 +19,7 @@ public:
   typedef aggregator_base::aggregated_ptr aggregated_ptr;
   typedef std::unordered_map<std::string, aggregator_ptr> aggregator_map_t;
   
-  aggregator_map(const options_type& opt = options_type() );
+  explicit aggregator_map(const options_type& opt = options_type() );
 
   bool add( const std::string& name, const reduced_data& v, aggregated_handler handler);
   

@@ -25,7 +25,7 @@ UNIT(agmap1, "")
   bool run = true;
   while(run)
   {
-    rd.ts=aggregator::now<std::chrono::nanoseconds>();
+    rd.ts=aggregator::now_t<std::chrono::nanoseconds>();
     rd.count = 1;
     agh.add("xxx", rd, [&run, &t]( aggregator_hashmap_mt::aggregated_ptr ag)
     {

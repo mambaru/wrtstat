@@ -35,7 +35,7 @@ void test()
       for (int x = 0 ; x < xcount ; ++x)
       for (int j = 0 ; j < 1000 ; ++j)
       {
-        rd.ts = aggregator::now<std::chrono::microseconds>();
+        rd.ts = aggregator::now_t<std::chrono::microseconds>();
         const std::string& name = names[size_t(i*j)];
         rt.add(name, rd, [&name]( aggregated_ptr ag){
           rt2.add( name, *ag, [&name](aggregated_ptr /*ag1*/){

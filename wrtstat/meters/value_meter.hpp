@@ -21,7 +21,7 @@ struct value_meter
   value_meter& operator=( const value_meter& ) = delete;
 
 
-  value_meter(meter_fun_t fun, time_type ts_now, value_type val, size_type cnt = 1)
+  value_meter(const meter_fun_t& fun, time_type ts_now, value_type val, size_type cnt = 1)
     : now(ts_now)
     , value(val)
     , count(cnt)

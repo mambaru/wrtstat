@@ -24,7 +24,7 @@ struct time_meter
   time_meter( const time_meter& ) = delete;
   time_meter& operator=( const time_meter& ) = delete;
 
-  time_meter(meter_fun_t fun, time_type ts_now, size_type cnt = 1 )
+  time_meter(const meter_fun_t& fun, time_type ts_now, size_type cnt = 1 )
     : now(ts_now)
     , count(cnt)
     , meter_fun(fun)

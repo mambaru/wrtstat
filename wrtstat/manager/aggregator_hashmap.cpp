@@ -9,14 +9,16 @@ aggregator_hashmap_mt::aggregator_hashmap_mt(const options_type& opt )
 }
   
 aggregator_hashmap_mt::aggregator_hashmap_mt(aggregator_hashmap_mt&& agh) 
-  :_opt(agh._opt)
+  : _hash( std::move(agh._hash) )
+  , _opt( std::move(agh._opt) )
   ,_mutex_list( std::move(agh._mutex_list) )
   ,_aggregator_list( std::move(agh._aggregator_list) )
 {
 }
   
 aggregator_hashmap_mt::aggregator_hashmap_mt(const aggregator_hashmap_mt& agh)
-  :_opt(agh._opt)
+  : _hash(agh._hash)
+  , _opt(agh._opt)
 {
   this->initialize_();
 }

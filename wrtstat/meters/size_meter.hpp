@@ -20,7 +20,7 @@ struct size_meter
   size_meter& operator=( const size_meter& ) = delete;
 
 
-  size_meter(meter_fun_t fun, time_type ts_now, size_type s)
+  size_meter(const meter_fun_t& fun, time_type ts_now, size_type s)
     : now(ts_now)
     , size(s)
     , timer_fun(fun)

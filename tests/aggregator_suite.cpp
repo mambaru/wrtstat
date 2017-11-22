@@ -74,6 +74,9 @@ UNIT(aggregator2, "")
     t << equal<expect>( s->ts, i*10 ) << "i=" << FAS_FL;
   }
 
+  t << warning("TOOD test for aggregate_current()") <<FAS_FL;
+  ag->aggregate_current();  
+  
   t << nothing;
 }
 
