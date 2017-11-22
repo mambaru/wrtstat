@@ -40,7 +40,7 @@ public:
       d = std::move(_pool.back());
       _pool.pop_back();
     }
-    return std::move(d);
+    return d;
   }
   
   data_ptr free( data_ptr d )
@@ -49,7 +49,7 @@ public:
       return nullptr;
 
     if ( _pool.size() == _pool_size )
-      return std::move(d);
+      return d;
 
     if ( d->capacity() > _item_size )
     {

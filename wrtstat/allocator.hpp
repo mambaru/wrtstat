@@ -30,7 +30,7 @@ namespace wrtstat {
     { 
       if ( _free!=nullptr )
         return _free(std::move(d));
-      return std::move(d);
+      return d;
     }
   private:
     create_handle _create;
