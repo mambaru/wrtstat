@@ -86,7 +86,7 @@ public:
   
   size_t id2pos(id_t id) const
   {
-    return (id - _step) / _step;
+    return (id + _step - 1) / _step;
   }
 
 private:

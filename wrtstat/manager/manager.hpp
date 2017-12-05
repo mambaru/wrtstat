@@ -120,7 +120,11 @@ public:
     read_lock<mutex_type> lk(_mutex);
     size_t pos = _dict.id2pos(id);
     if ( pos >= _agarr.size() )
+    {
+      std::cout << "get_aggregator" << std::endl;
+      abort();
       return nullptr;
+    }
     return _agarr[ pos ];
   }
 
