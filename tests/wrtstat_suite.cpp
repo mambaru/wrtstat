@@ -24,9 +24,28 @@ UNIT(wrtstat1, "")
   t << nothing;
 }
 
+UNIT(wrtstat2, "")
+{
+  using namespace fas::testing;
+  using namespace wrtstat;
+  
+  wrtstat_mt::options_type opt;
+  wrtstat_mt stat(opt);
+  wrtstat::id_t id = stat.create_aggregator( "test1", 0 );
+  // bool add(id_t id, time_type ts_now, value_type v, size_type cnt)
+  stat.add(id, 0, 0, 1);
+  stat.add(id, 1, 0, 1);
+  auto pag = stat.pop(id);
+  t << is_true<assert>(pag!=nullptr) << FAS_FL;
+  t << stop;
+  t << equal<expect, value_type>(pag->count, 1) << FAS_FL;
+  t << nothing;
+}
+
 }
 
 BEGIN_SUITE(wrtstat, "")
   ADD_UNIT(wrtstat1)
+  ADD_UNIT(wrtstat2)
 END_SUITE(wrtstat)
 
