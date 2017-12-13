@@ -1,5 +1,6 @@
 syntaxError:./tests/aggregator_suite.cpp:49
 syntaxError:./tests/reducer_suite.cpp:42
+syntaxError:./tests/wrtstat_suite.cpp:27
 unusedFunction:./wrtstat/reducer.cpp:64
 unusedFunction:./wrtstat/separator.cpp:20
 unusedFunction:./wrtstat/aggregator.cpp:15
