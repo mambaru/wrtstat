@@ -35,3 +35,4 @@ target_link_libraries(example6 wrtstat)
 target_link_libraries(example7 wrtstat)
 target_link_libraries(example8 wrtstat)
 target_link_libraries(example9 wrtstat)
+
