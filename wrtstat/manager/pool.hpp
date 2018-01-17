@@ -33,13 +33,14 @@ public:
     if ( _pool.empty() )
     {
       d = data_ptr(new data_type);
-      d->reserve(_item_size);
+      d->resize(_item_size, value_type() );
     }
     else
     {
       d = std::move(_pool.back());
       _pool.pop_back();
     }
+    d->clear();
     return d;
   }
   
@@ -57,7 +58,7 @@ public:
       d->shrink_to_fit();
     }
     else
-      d->reserve(_item_size);
+      d->resize(_item_size, value_type());
 
     d->clear();
 

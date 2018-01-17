@@ -224,7 +224,7 @@ void aggregator_base::reduce_(data_type& d) const
   }
   auto dist = std::distance( beg, end);
   if ( dist > 0 )
-    d.resize( static_cast<size_t>(dist) );
+    d.resize( static_cast<size_t>(dist), 0 );
   else
     abort();
 }
