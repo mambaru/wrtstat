@@ -113,9 +113,9 @@ time_type separator::current_time() const
 time_type separator::get_ts(time_type ts)
 {
   time_type now_ts = ts!=0 ? ts : separator::now(_resolution);
-  ts /= _step_ts;
-  ts *= _step_ts;
-  return ts;
+  now_ts /= _step_ts;
+  now_ts *= _step_ts;
+  return now_ts;
 }
   
 bool separator::separate(time_type ts_now, aggregated_handler handler)
