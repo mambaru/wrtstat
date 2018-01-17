@@ -112,9 +112,9 @@ time_type separator::current_time() const
 
 time_type separator::get_ts(time_type ts)
 {
-  time_type ts!=0 ? ts : separator::now(_resolution);
-  ts /= opt.aggregation_step_ts;
-  ts *= opt.aggregation_step_ts;
+  time_type now_ts = ts!=0 ? ts : separator::now(_resolution);
+  ts /= _step_ts;
+  ts *= _step_ts;
   return ts;
 }
   
