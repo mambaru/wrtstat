@@ -9,8 +9,6 @@ separator::separator( time_type ts_now, const separator_options& opt, const allo
   , _resolution(opt.resolution)
 {
   ts_now = this->get_ts(ts_now);
-  ts_now /= opt.aggregation_step_ts;
-  ts_now *= opt.aggregation_step_ts;
   if ( opt.soiled_start_ts!=0 )
   {
     size_t rnd = static_cast<size_t>(std::rand());
@@ -114,7 +112,10 @@ time_type separator::current_time() const
 
 time_type separator::get_ts(time_type ts)
 {
-  return ts!=0 ? ts : separator::now(_resolution);
+  time_type ts!=0 ? ts : separator::now(_resolution);
+  ts /= opt.aggregation_step_ts;
+  ts *= opt.aggregation_step_ts;
+  return ts;
 }
   
 bool separator::separate(time_type ts_now, aggregated_handler handler)
