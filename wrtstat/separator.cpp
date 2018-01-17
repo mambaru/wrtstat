@@ -9,6 +9,8 @@ separator::separator( time_type ts_now, const separator_options& opt, const allo
   , _resolution(opt.resolution)
 {
   ts_now = this->get_ts(ts_now);
+  ts_now /= opt.aggregation_step_ts;
+  ts_now *= opt.aggregation_step_ts;
   if ( opt.soiled_start_ts!=0 )
   {
     size_t rnd = static_cast<size_t>(std::rand());
