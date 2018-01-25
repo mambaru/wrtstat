@@ -39,7 +39,7 @@ public:
 
   time_type current_time() const;
 
-  time_type get_ts(time_type ts);
+  time_type get_ts(time_type ts)const;
   
   bool separate(time_type ts_now, aggregated_handler handler);
   
