@@ -24,7 +24,10 @@ struct reduced_info
 
 inline reduced_info& reduced_info::operator += (const reduced_info& value)
 {
-  this->avg = (this->count*this->avg + value.count*value.avg) / (this->count+value.count);
+  if ( this->count+value.count != 0)
+    this->avg = (this->count*this->avg + value.count*value.avg) / (this->count+value.count);
+  else
+    this->avg = (this->avg + value.avg) / 2;
   this->count += value.count;
   this->lossy += value.lossy;
   this->min = std::min(this->min, value.min);
