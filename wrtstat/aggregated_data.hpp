@@ -27,18 +27,20 @@ inline aggregated_info& aggregated_info::operator+=(const aggregated_info& v)
 {
   reduced_info::operator+=(v);
   typedef std::pair<value_type, value_type> vp_t;
+  value_type count1 = static_cast<value_type>(this->count);
+  value_type count2 = static_cast<value_type>(v.count);
   std::array< vp_t, 10 > arr1 = 
   {
-    vp_t{ value_type(perc50*(count/2+1) ),    perc50},
-    vp_t{ value_type(perc80*(count/3+1) ),    perc80},
-    vp_t{ value_type(perc95*(count/6+1) ),    perc95},
-    vp_t{ value_type(perc99*(count/10+1) ),   perc99},
-    vp_t{ value_type(perc100*(count/100+1) ), perc100},
-    vp_t{ value_type(v.perc50*(v.count/2+1) ),    v.perc50},
-    vp_t{ value_type(v.perc80*(v.count/3+1) ),    v.perc80},
-    vp_t{ value_type(v.perc95*(v.count/6+1) ),    v.perc95},
-    vp_t{ value_type(v.perc99*(v.count/10+1) ),   v.perc99},
-    vp_t{ value_type(v.perc100*(v.count/100+1) ), v.perc100}
+    vp_t{ perc50*(count1/2+1),    perc50},
+    vp_t{ perc80*(count1/3+1),    perc80},
+    vp_t{ perc95*(count1/6+1),    perc95},
+    vp_t{ perc99*(count1/10+1),   perc99},
+    vp_t{ perc100*(count1/100+1), perc100},
+    vp_t{ v.perc50*(count2/2+1),    v.perc50},
+    vp_t{ v.perc80*(count2/3+1),    v.perc80},
+    vp_t{ v.perc95*(count2/6+1),    v.perc95},
+    vp_t{ v.perc99*(count2/10+1),   v.perc99},
+    vp_t{ v.perc100*(count2/100+1), v.perc100}
   };
   
   std::sort(arr1.begin(), arr1.end());
