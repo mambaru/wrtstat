@@ -25,7 +25,7 @@ struct reduced_info
 inline reduced_info& reduced_info::operator += (const reduced_info& value)
 {
   if ( this->count+value.count != 0)
-    this->avg = (this->count*this->avg + value.count*value.avg) / (this->count+value.count);
+    this->avg = ( value_type(this->count)*this->avg + value_type(value.count)*value.avg) / value_type(this->count+value.count);
   else
     this->avg = (this->avg + value.avg) / 2;
   this->count += value.count;
