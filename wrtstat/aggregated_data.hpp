@@ -20,7 +20,7 @@ struct aggregated_info
   , aggregated_perc
 {
   aggregated_info() = default;
-  aggregated_info& operator+=(const aggregated_info& value);
+  aggregated_info& operator+=(const aggregated_info& v);
 };
 
 inline aggregated_info& aggregated_info::operator+=(const aggregated_info& v)
