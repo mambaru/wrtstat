@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.6)
 
 project(wrtstat)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb ")
+SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -ggdb -DNDEBUG -march=core2 ") 
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ggdb -DNDEBUG -march=core2 ") 
+
 if ( BUILD_TESTING)
   if( PARANOID_WARNING )
     if(UNIX)
