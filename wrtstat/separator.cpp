@@ -110,7 +110,7 @@ time_type separator::current_time() const
   return _next_time - _step_ts;
 }
 
-time_type separator::get_ts(time_type ts)
+time_type separator::get_ts(time_type ts) const
 {
   time_type now_ts = ts!=0 ? ts : separator::now(_resolution);
   now_ts /= _step_ts;
