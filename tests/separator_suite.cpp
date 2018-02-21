@@ -95,7 +95,7 @@ UNIT(separator2, "")
   sep.separate(0, true);
   t << equal<expect>( sep.size(), 1000ul ) << FAS_FL;
   t << is_true<expect>( sep.ready() ) << FAS_FL;
-  for (int i = 0 ; i < 1000ul; i++)
+  for (int i = 0 ; i < 1000; i++)
   {
     auto s = sep.pop();
     t << is_true<assert>( s!=nullptr ) << "i=" << i << FAS_FL;
