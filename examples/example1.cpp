@@ -1,7 +1,7 @@
 #include <iostream>
 #include <array>
 #include <algorithm>
-#include <wrtstat/aggregator.hpp>
+//#include <wrtstat/aggregator.hpp>
 #define LEVEL1 100
 #define LEVEL2 50
 int main()
@@ -15,7 +15,7 @@ int main()
       {
         if (pos >= LEVEL1)
            break;
-        values[ size_t(pos) ] = i+1;
+        values[ std::size_t(pos) ] = i+1;
         pos += (i+1);
       }
     }

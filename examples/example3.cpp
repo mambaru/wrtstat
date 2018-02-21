@@ -12,6 +12,7 @@ int main()
   wrtstat::aggregator_options opt;
   opt.aggregation_step_ts = 5;
   opt.outgoing_reduced_size = 100;
+  opt.resolution = 0;
   opt.reducer_limit = 1000;
   opt.reducer_levels = 1000;
   wrtstat::aggregator ag( 0, opt, pool.get_allocator() );

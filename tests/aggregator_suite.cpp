@@ -12,6 +12,7 @@ UNIT(aggregator1, "")
   aggregator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 10;
+  opt.resolution = 0;
   opt.aggregation_step_ts = 10;
   std::vector<int> values;
   aggregator ag(0, opt);
@@ -54,6 +55,7 @@ UNIT(aggregator2, "")
   aggregator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 8;
+  opt.resolution = 0;
   opt.aggregation_step_ts = 10;
 
   auto ag = std::make_shared<aggregator_mt>(0, opt);

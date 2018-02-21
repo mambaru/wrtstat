@@ -30,6 +30,7 @@ UNIT(wrtstat2, "")
   using namespace wrtstat;
   
   wrtstat_mt::options_type opt;
+  opt.resolution = 0;
   wrtstat_mt stat(opt);
   wrtstat::id_t id = stat.create_aggregator( "test1", 0 );
   // bool add(id_t id, time_type ts_now, value_type v, size_type cnt)

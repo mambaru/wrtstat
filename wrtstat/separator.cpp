@@ -22,9 +22,9 @@ const separator::reducer_type& separator::get_reducer() const
   return this->_reducer;
 }
 
-bool separator::add( time_type ts_now, value_type v, size_type count )
+bool separator::add( time_type ts, value_type v, size_type count )
 {
-  time_type ts = this->get_ts(ts_now);
+  ts = this->get_ts(ts);
   this->separate(ts, false);
   if ( ts < _next_time - _step_ts )
     return false;
@@ -32,9 +32,9 @@ bool separator::add( time_type ts_now, value_type v, size_type count )
   return true;
 }
   
-bool separator::add( time_type ts_now, const data_type& v, size_type count )
+bool separator::add( time_type ts, const data_type& v, size_type count )
 {
-  time_type ts = this->get_ts(ts_now);
+  ts = this->get_ts(ts);
   this->separate(ts, false);
   if ( ts < _next_time - _step_ts )
     return false;
@@ -42,9 +42,9 @@ bool separator::add( time_type ts_now, const data_type& v, size_type count )
   return true;
 }
   
-bool separator::add( time_type ts_now, std::initializer_list<value_type> v )
+bool separator::add( time_type ts, std::initializer_list<value_type> v )
 {
-  time_type ts = this->get_ts(ts_now);
+  ts = this->get_ts(ts);
   this->separate(ts, false);
   if ( ts < _next_time - _step_ts )
     return false;
@@ -112,7 +112,7 @@ time_type separator::current_time() const
 
 time_type separator::get_ts(time_type ts) const
 {
-  time_type now_ts = ts!=0 ? ts : separator::now(_resolution);
+  time_type now_ts = ( ts!=0 || _resolution==0 ) ? ts : separator::now(_resolution);
   now_ts /= _step_ts;
   now_ts *= _step_ts;
   return now_ts;
@@ -120,6 +120,8 @@ time_type separator::get_ts(time_type ts) const
   
 bool separator::separate(time_type ts_now, aggregated_handler handler)
 {
+  ts_now = this->get_ts(ts_now);
+  
   if ( ts_now < _next_time )
     return false;
   
@@ -138,6 +140,8 @@ bool separator::separate(time_type ts_now, aggregated_handler handler)
   
 bool separator::separate(time_type ts_now, bool force)
 {
+  ts_now = this->get_ts(ts_now);
+  
   if ( !force && ts_now < _next_time )
     return false;
 
@@ -189,6 +193,7 @@ size_t separator::size() const
 
 void separator::clear( time_type ts_now )
 {
+  ts_now = this->get_ts(ts_now);
   _next_time = ts_now + _step_ts;
   _reducer.clear();
   _sep_list.clear();
