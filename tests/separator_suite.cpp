@@ -16,6 +16,8 @@ UNIT(separator0, "")
   opt.resolution = 0;
   opt.aggregation_step_ts = 10;
   separator sep(0, opt);
+  time_t tc = sep.current_time();
+  t << equal<expect>( tc, 0 ) << FAS_FL;
   for (int i = 0 ; i < 100; i++)
   {
     t << is_true<expect>( sep.add(i, i, 1) ) << "i=" << i  << FAS_FL;

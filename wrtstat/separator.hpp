@@ -19,11 +19,11 @@ public:
 
   const reducer_type& get_reducer() const;
 
-  bool add( time_type ts_now, value_type v, size_type count );
+  bool add( time_type ts, value_type v, size_type count );
   
-  bool add( time_type ts_now, const data_type& v, size_type count );
+  bool add( time_type ts, const data_type& v, size_type count );
   
-  bool add( time_type ts_now, std::initializer_list<value_type> v );
+  bool add( time_type ts, std::initializer_list<value_type> v );
   
   bool add( const reduced_data& v );
 
@@ -36,8 +36,6 @@ public:
   reduced_ptr get_current();
   
   time_type next_time() const;
-
-  time_type current_time() const;
 
   time_type get_ts(time_type ts) const;
   
@@ -63,6 +61,8 @@ public:
   size_t size() const;
 
   void clear( time_type ts_now );
+
+  time_type current_time() const;  
   
 private:
   
