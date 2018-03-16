@@ -27,8 +27,6 @@ time_type aggregator_base::now()
   return _sep.now();
 }
 
-
-
 bool aggregator_base::add(time_type ts_now, value_type v, size_type count)
 {
   if ( !_enabled )
@@ -101,7 +99,7 @@ aggregator_base::aggregated_ptr aggregator_base::force_pop()
 {
   auto ag = this->aggregate2_(_sep.force_pop());
   this->reduce_(ag->data);
-  return std::move(ag);
+  return ag;
 }
 
 aggregator_base::aggregated_ptr aggregator_base::aggregate_current()
@@ -109,7 +107,7 @@ aggregator_base::aggregated_ptr aggregator_base::aggregate_current()
   if ( auto ag = this->aggregate2_(_sep.get_current()) )
   {
     this->reduce_(ag->data);
-    return std::move(ag);
+    return ag;
   }
   return nullptr;
 }

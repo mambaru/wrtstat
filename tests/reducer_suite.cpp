@@ -63,6 +63,7 @@ void filled_reducer(T& t)
   ro.reducer_limit = Limit;
   ro.reducer_levels = Levels;
   reducer r(ro);
+  t << is_false<expect>( r.filled() ) << FAS_FL;
   int value = 0;
   std::vector<int> values;
 

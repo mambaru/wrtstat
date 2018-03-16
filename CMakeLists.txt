@@ -1,41 +1,38 @@
 cmake_minimum_required(VERSION 2.8)
-
 project(wrtstat)
 
-if ( NOT EXISTS CMAKE_CXX_STANDARD )
-  set(CMAKE_CXX_STANDARD 11)
-endif()
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(WRTSTAT)
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb ")
-SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -ggdb -DNDEBUG -march=native  ") 
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ggdb -DNDEBUG -march=native ") 
-
-if ( BUILD_TESTING)
-  if( PARANOID_WARNING )
-    if ( UNIX )
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align \
-                         -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization\
-                         -Wformat=2 -Winit-self -Wmissing-declarations \
-                         -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual \
-                         -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo \
-                         -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wlogical-op -Wnoexcept -Wstrict-null-sentinel")
-    endif()
-  endif()
-
-  enable_testing()
-  add_subdirectory(tests)
-  add_subdirectory(examples)
-endif()
-
-include_directories(.)
-
-add_library(
-  wrtstat
+set(
+  source_list
   wrtstat/reducer.cpp
   wrtstat/separator.cpp
   wrtstat/aggregator.cpp
   wrtstat/manager/aggregator_map.cpp
   wrtstat/manager/aggregator_hashmap.cpp
 )
+
+add_library(wrtstat ${source_list})
+
+include_directories(.)
+
+if ( BUILD_TESTING )
+  enable_testing()
+  add_subdirectory(tests)
+  add_subdirectory(examples)
+endif()
+
+set(CPACK_PACKAGE_NAME "wrtstat")
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "7")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/Readme.md")
+set(CPACK_PACKAGE_CONTACT "migashko@gmail.com")
+
+install(DIRECTORY wrtstat DESTINATION include FILES_MATCHING PATTERN "*.hpp" )
+install(TARGETS wrtstat LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+include(CPack)
 
 

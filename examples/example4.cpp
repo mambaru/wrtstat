@@ -13,7 +13,7 @@ void test(std::function<void()>)
 
 int main()
 {
-  std::srand( std::time(0));
+  std::srand( static_cast<unsigned int>(std::time(0)) );
   wrtstat::wrtstat_mt::options_type opt;
   opt.aggregation_step_ts = 1000000;
   opt.resolution = 1000000;

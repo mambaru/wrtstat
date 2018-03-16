@@ -4,7 +4,6 @@
 .cproject
 .project
 *.o
-*.cmake
 */debug
 */release
 */build
@@ -21,3 +20,4 @@ CMakeCache.txt
 *build_info.h
 config.h
 Makefile
+Testing

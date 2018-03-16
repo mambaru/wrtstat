@@ -1,9 +1,19 @@
-syntaxError:./tests/aggregator_suite.cpp:49
-syntaxError:./tests/reducer_suite.cpp:42
-syntaxError:./tests/wrtstat_suite.cpp:27
+syntaxError:./tests/aggregator_suite.cpp
+syntaxError:./tests/separator_suite.cpp
+syntaxError:./tests/wrtstat_suite.cpp
+syntaxError:./tests/reducer_suite.cpp
+
 unusedFunction:./wrtstat/reducer.cpp:64
 unusedFunction:./wrtstat/separator.cpp:20
-unusedFunction:./wrtstat/aggregator.cpp:15
 unusedFunction:./wrtstat/reducer.cpp:38
 unusedFunction:./wrtstat/reducer.cpp:33
+unusedFunction:./wrtstat/separator.cpp:106
+unusedFunction:./wrtstat/aggregator.cpp:15
+unusedFunction:./wrtstat/separator.cpp:101
+unusedFunction:./wrtstat/separator.cpp:158
+
+
+
+
+
 
