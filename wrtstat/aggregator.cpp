@@ -27,8 +27,6 @@ time_type aggregator_base::now()
   return _sep.now();
 }
 
-
-
 bool aggregator_base::add(time_type ts_now, value_type v, size_type count)
 {
   if ( !_enabled )

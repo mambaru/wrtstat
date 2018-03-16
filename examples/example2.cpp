@@ -44,7 +44,7 @@ int main()
     
     std::cout << "lossy_count: " << c.lossy_count() << std::endl;
     auto d = c.detach();
-    for ( int i : d->data )
+    for ( long i : d->data )
       std::cout << i << " ";
     std::cout << std::endl;
     for (int i = 1; i < LEVEL2+1; ++i)

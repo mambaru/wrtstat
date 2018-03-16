@@ -12,7 +12,6 @@ std::vector<std::string> names;
 void test();
 void test()
 {
-  for(;;)
   for (int k = 0 ; k < 1000 ; ++k)
   {
     for (int i = 0 ; i < 1000 ; ++i)

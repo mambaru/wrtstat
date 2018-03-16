@@ -7,7 +7,7 @@
 
 int main()
 {
-  ::srand( std::time(0) );
+  ::srand( static_cast<unsigned int>(std::time(0)) );
   wrtstat::pool pool( 1000, 1000000 );
   wrtstat::aggregator_options opt;
   opt.aggregation_step_ts = 5;
@@ -47,14 +47,14 @@ int main()
   }
   std::cout << "count: " << count << std::endl;
   std::cout << "time: " << span << std::endl;
-  std::cout << "rate: " << std::size_t(count/(span/1000000.0)) << std::endl;
+  std::cout << "rate: " << std::size_t(count/(double(span)/1000000.0)) << std::endl;
   std::cout << "-------------------" << std::endl;
   while (auto d = ag2.pop())
   {
-    std::cout <<   "50%:"  << d->perc50  << "(" << long(100000.0/(d->perc50/1000000.0))
-              << ") 80%:"  << d->perc80  << "(" << long(100000.0/(d->perc80/1000000.0))
-              << ") 100%:" << d->perc100 << "(" << long(100000.0/(d->perc100/1000000.0))
-              << ") min:" << d->min << "(" << long(100000.0/(d->min/1000000.0))
+    std::cout <<   "50%:"  << d->perc50  << "(" << long(100000.0/(double(d->perc50)/1000000.0))
+              << ") 80%:"  << d->perc80  << "(" << long(100000.0/(double(d->perc80)/1000000.0))
+              << ") 100%:" << d->perc100 << "(" << long(100000.0/(double(d->perc100)/1000000.0))
+              << ") min:" << d->min << "(" << long(100000.0/(double(d->min)/1000000.0))
               << ")" << std::endl; 
   }
 

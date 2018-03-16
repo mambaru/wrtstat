@@ -8,7 +8,7 @@ int main()
 {
   std::unordered_map<int, int> m;
   m.reserve(SIZE);
-  long long c = 0;
+  long c = 0;
   time_t t = std::numeric_limits<time_t>::max();
   for (int k = 0; k < 10; ++k)
   {

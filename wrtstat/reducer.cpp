@@ -193,7 +193,7 @@ void reducer::reduce()
   
 void reducer::add_( value_type v) 
 {
-  _average += (v - _average) / (_average_count + 1);
+  _average += ( static_cast<double>(v) - _average) / static_cast<double>( _average_count + 1 );
   ++_average_count;
     
   this->minmax(v);
