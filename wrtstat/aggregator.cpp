@@ -99,7 +99,7 @@ aggregator_base::aggregated_ptr aggregator_base::force_pop()
 {
   auto ag = this->aggregate2_(_sep.force_pop());
   this->reduce_(ag->data);
-  return std::move(ag);
+  return ag;
 }
 
 aggregator_base::aggregated_ptr aggregator_base::aggregate_current()
@@ -107,7 +107,7 @@ aggregator_base::aggregated_ptr aggregator_base::aggregate_current()
   if ( auto ag = this->aggregate2_(_sep.get_current()) )
   {
     this->reduce_(ag->data);
-    return std::move(ag);
+    return ag;
   }
   return nullptr;
 }

@@ -20,7 +20,7 @@ std::unique_ptr<reducer> reducer::clone()
   cln->_average = _average;
   for (const auto& d : this->_data )
     cln->_data.push_back( data_ptr( new data_type(*d) ) );
-  return std::move(cln);
+  return cln;
 }
   
 size_t reducer::lossy_count() const 
@@ -154,7 +154,7 @@ reducer::reduced_ptr reducer::detach()
   res->max = _max;
   res->min = _min;
   this->clear();
-  return std::move(res);
+  return res;
 }
   
 bool reducer::empty() const
