@@ -1,20 +1,3 @@
-
-if (NOT CMAKE_BUILD_TYPE)
-  message(STATUS "No build type selected, default to Release")
-  set(CMAKE_BUILD_TYPE "Release")
-endif()
-
-if(UNIX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Werror -pedantic -std=c++11 -pthread")
-  message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG ")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO  "-O2 -g -DNDEBUG")
-  set(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
-endif(UNIX)
-
-include_directories(${CMAKE_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/../faslib)
-
 add_executable(example1 example1.cpp)
 add_executable(example2 example2.cpp)
 add_executable(example3 example3.cpp)
@@ -24,7 +7,6 @@ add_executable(example6 example6.cpp)
 add_executable(example7 example7.cpp)
 add_executable(example8 example8.cpp)
 add_executable(example9 example9.cpp)
-
 
 target_link_libraries(example1 wrtstat)
 target_link_libraries(example2 wrtstat)
