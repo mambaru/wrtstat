@@ -7,12 +7,11 @@
 
 namespace wrtstat {
 
-template< typename MeterType /*typename D, typename MeterType = composite_meter<D>*/ >
+template< typename MeterType>
 class multi_meter
 {
 public:
-  //typedef D duration_type;
-  typedef multi_meter</*D,*/ MeterType> self_type;
+  typedef multi_meter<MeterType> self_type;
   typedef std::shared_ptr<self_type> self_ptr;
 
   typedef MeterType meter_type;
@@ -27,6 +26,11 @@ public:
     _meters.clear();
   }
 
+  void reserve(size_t s)
+  {
+    _meters.reserve(s);
+  }
+  
   void push_back(meter_ptr p)
   {
     if ( p!=nullptr )

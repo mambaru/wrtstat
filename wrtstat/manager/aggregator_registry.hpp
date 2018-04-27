@@ -1,6 +1,5 @@
 #pragma once
 
-#include <wrtstat/manager/manager_options.hpp>
 #include <wrtstat/manager/dict.hpp>
 #include <wrtstat/manager/pool.hpp>
 #include <mutex>

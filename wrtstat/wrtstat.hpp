@@ -16,8 +16,7 @@
 
 namespace wrtstat {
 
-/*template<typename Manager>*/
-class wrtstat/*_base*/
+class wrtstat
 {
 public:
   typedef aggregator_registry manager_type;
@@ -167,7 +166,6 @@ public:
   {
     return aggregator::now_t<D>();
   }
-
   
 private:
 
@@ -219,6 +217,7 @@ private:
                         size_type size)
   {
     auto meter = std::make_shared< multi_meter< composite_meter<D> > >();
+    meter->reserve( _prefixes.size() );
     for ( auto prefix : _prefixes )
     {
       id_t time_id = static_cast<id_t>(-1);
@@ -244,6 +243,7 @@ private:
                         A... args)
   {
     auto meter = std::make_shared< multi_meter<MeterType> >();
+    meter->reserve( _prefixes.size() );
     for ( auto prefix : _prefixes )
     {
       id_t meter_id = this->create_aggregator_(prefix + meter_name, ts_now );
@@ -251,32 +251,11 @@ private:
       meter->push_back(m);
     }
     return meter;
-
   }
 
 public:
   manager_ptr _m;
   std::vector<std::string> _prefixes;
 };
-
-/*
-class wrtstat_st: public wrtstat_base<manager_st>
-{
-public:
-  typedef wrtstat_base::options_type options_type;
-  explicit wrtstat_st(const options_type& opt = options_type() ) 
-    : wrtstat_base<manager_st>(opt, 0, 1)
-  {}
-
-};
-
-class wrtstat_mt: public wrtstat_base<manager_mt>
-{
-public:
-  typedef wrtstat_base::options_type options_type;
-  explicit wrtstat_mt(const options_type& opt = options_type() ) 
-    : wrtstat_base<manager_mt>(opt, 0, 1)
-  {}
-};*/
 
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wrtstat/manager/manager_options.hpp>
+#include <wrtstat/aggregator_options.hpp>
 
 namespace wrtstat {
 

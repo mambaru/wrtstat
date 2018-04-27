@@ -1,7 +1,5 @@
 #pragma once
 #include <wrtstat/manager/aggregator_map.hpp>
-#include <wrtstat/manager/aggregator_hashmap_options.hpp>
-
 
 namespace wrtstat {
 

@@ -2,7 +2,6 @@
 #include <wrtstat/aggregator.hpp>
 #include <wrtstat/allocator.hpp>
 #include <wrtstat/manager/pool.hpp>
-#include <wrtstat/manager/aggregator_map_options.hpp>
 #include <wrtstat/manager/mutex/empty_mutex.hpp>
 #include <iostream>
 #include <algorithm>
