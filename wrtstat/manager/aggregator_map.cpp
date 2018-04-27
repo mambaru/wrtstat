@@ -2,9 +2,9 @@
 
 namespace wrtstat {
 
-aggregator_map::aggregator_map(const options_type& opt )
+aggregator_map::aggregator_map(const options_type& opt, size_t pool_size )
   : _opt(opt)
-  , _pool(opt.reducer_limit, opt.pool_size)
+  , _pool(opt.reducer_limit, pool_size)
 {
 }
 

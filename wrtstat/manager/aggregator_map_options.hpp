@@ -4,10 +4,11 @@
                   
 namespace wrtstat {
 
+  /*
 struct aggregator_map_options: aggregator_options
 {
   size_t pool_size = 0;
 };
-
+*/
 
 }

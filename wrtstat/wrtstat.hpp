@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wrtstat/wrtstat_options.hpp>
-#include <wrtstat/manager/manager.hpp>
+#include <wrtstat/manager/aggregator_registry.hpp>
 #include <wrtstat/manager/dict.hpp>
 #include <wrtstat/meters/time_meter.hpp>
 #include <wrtstat/meters/size_meter.hpp>
@@ -16,11 +16,11 @@
 
 namespace wrtstat {
 
-template<typename Manager>
-class wrtstat_base
+/*template<typename Manager>*/
+class wrtstat/*_base*/
 {
 public:
-  typedef Manager manager_type;
+  typedef aggregator_registry manager_type;
   typedef typename manager_type::aggregated_ptr aggregated_ptr;
   typedef typename manager_type::value_adder_t value_adder_t;
   typedef typename manager_type::data_adder_t data_adder_t;
@@ -30,8 +30,8 @@ public:
   typedef std::shared_ptr<manager_type> manager_ptr;
   typedef std::mutex mutex_type;
 
-  explicit wrtstat_base(const options_type& opt = options_type(), id_t init = 0, id_t step = 1 ) 
-    : _m( std::make_shared<manager_type>(opt, init, step) )
+  explicit wrtstat(const options_type& opt = options_type(), id_t init = 0, id_t step = 1 ) 
+    : _m( std::make_shared<manager_type>(opt, opt.pool_size, init, step) )
     , _prefixes(opt.prefixes)
     
   { 
@@ -259,6 +259,7 @@ public:
   std::vector<std::string> _prefixes;
 };
 
+/*
 class wrtstat_st: public wrtstat_base<manager_st>
 {
 public:
@@ -276,6 +277,6 @@ public:
   explicit wrtstat_mt(const options_type& opt = options_type() ) 
     : wrtstat_base<manager_mt>(opt, 0, 1)
   {}
-};
+};*/
 
 }

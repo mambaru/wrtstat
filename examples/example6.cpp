@@ -4,7 +4,7 @@
 #include <vector>
 using namespace wrtstat;
 reduced_data rd;
-wrtstat_mt rt;
+::wrtstat::wrtstat rt;
 std::mutex mutex;
 
 std::vector<std::string> names;

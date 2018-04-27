@@ -5,9 +5,10 @@
 namespace wrtstat {
 
 struct wrtstat_options
-  : manager_options
+  : aggregator_options
 {
   std::vector<std::string> prefixes;
+  size_t pool_size = 0;
 };
 
 }

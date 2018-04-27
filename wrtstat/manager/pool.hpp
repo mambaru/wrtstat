@@ -1,14 +1,18 @@
 #pragma once
 #include <wrtstat/types.hpp>
 #include <wrtstat/allocator.hpp>
+#include <wrtstat/manager/mutex/rwlock.hpp>
 #include <vector>
+#include <mutex>
 
 namespace wrtstat {
 
+template<typename MutexType>
 class pool
 {
 public:
   typedef std::vector<data_ptr> data_pool;
+  typedef rwlock<MutexType> mutex_type;
   
 public:
   pool(size_type item_size, size_type pool_size)
@@ -27,20 +31,33 @@ public:
   pool(const pool&) = delete;
   pool& operator=(const pool&) = delete;
   
+  bool empty() const
+  {
+    read_lock<mutex_type> lk(_mutex);
+    return _pool.empty();
+  }
+
+  bool filled() const
+  {
+    read_lock<mutex_type> lk(_mutex);
+    return _pool.size() == _pool_size;
+  }
+
+  
   data_ptr create()
   {
     data_ptr d;
-    if ( _pool.empty() )
+    if ( this->empty() )
     {
       d = data_ptr(new data_type);
       d->resize(_item_size, value_type() );
     }
     else
     {
+      std::lock_guard<mutex_type> lk(_mutex);
       d = std::move(_pool.back());
       _pool.pop_back();
     }
-    d->clear();
     return d;
   }
   
@@ -49,7 +66,7 @@ public:
     if ( d == nullptr )
       return nullptr;
 
-    if ( _pool.size() == _pool_size )
+    if ( this->filled() )
       return d;
 
     if ( d->capacity() > _item_size )
@@ -62,6 +79,7 @@ public:
 
     d->clear();
 
+    std::lock_guard<mutex_type> lk(_mutex);
     _pool.push_back( std::move(d) );
     return nullptr;
   }
@@ -70,6 +88,7 @@ private:
   size_type _item_size;
   size_type _pool_size;
   data_pool _pool;
+  mutable mutex_type _mutex;
 };
 
 /*

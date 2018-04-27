@@ -14,10 +14,10 @@ void test(std::function<void()>)
 int main()
 {
   std::srand( static_cast<unsigned int>(std::time(0)) );
-  wrtstat::wrtstat_mt::options_type opt;
+  wrtstat::wrtstat::options_type opt;
   opt.aggregation_step_ts = 1000000;
   opt.resolution = 1000000;
-  wrtstat::wrtstat_mt mng(opt);
+  wrtstat::wrtstat mng(opt);
   wrtstat::id_t id = mng.create_aggregator("my_name", std::time(0)*1000000);
   auto meter_proto = mng.create_time_meter<std::chrono::nanoseconds>(id, std::time(0)*1000000, 100000);
   for (int i = 0; i < 1000; ++i)

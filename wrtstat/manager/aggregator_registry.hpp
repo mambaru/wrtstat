@@ -13,14 +13,13 @@
 
 namespace wrtstat {
 
-template<typename Aggregator, typename Mutex>
-class manager_base
+class aggregator_registry
 {
 public:
-  typedef rwlock<Mutex> mutex_type;
-  typedef Aggregator aggregator_type;
+  typedef rwlock<std::mutex> mutex_type;
+  typedef aggregator aggregator_type;
   typedef typename aggregated_data::ptr aggregated_ptr;
-  typedef manager_options options_type;
+  typedef aggregator_options options_type;
   typedef typename aggregator_type::value_adder_t value_adder_t;
   typedef typename aggregator_type::data_adder_t data_adder_t;
   typedef typename aggregator_type::reduced_adder_t reduced_adder_t;
@@ -28,10 +27,10 @@ public:
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::deque<aggregator_ptr> aggregator_list;
 
-  explicit manager_base(const options_type& opt, id_t init, id_t step)
+  explicit aggregator_registry(const options_type& opt, size_t pool_size, id_t init, id_t step)
     : _opt(opt)
     , _dict(init, step)
-    , _pool(opt.reducer_limit, opt.data_pool)
+    , _pool(opt.reducer_limit, pool_size)
   { }
 
   size_t size() const 
@@ -206,10 +205,11 @@ private:
   aggregator_options _opt;
   aggregator_list _agarr;
   dict _dict;
-  pool _pool;
+  pool<mutex_type> _pool;
   bool _enabled = true;
 };
 
+/*
 class manager_st: public manager_base<aggregator, empty_mutex>
 {
   typedef manager_base<aggregator, empty_mutex> super;
@@ -225,5 +225,5 @@ public:
   typedef super::options_type options_type;
   explicit manager_mt( const options_type& opt, id_t init, id_t step): manager_base(opt, init, step) {};
 };
-
+*/
 }

@@ -54,6 +54,7 @@ public:
   time_type now();
 
 protected:
+  
   template<typename T>
   value_adder_t create_value_adder( std::weak_ptr<T> wthis );
 
