@@ -19,7 +19,7 @@ public:
 
   aggregator_hashmap& operator=(aggregator_hashmap&& agh);
   
-  bool add( const std::string& name, const reduced_data& v, aggregated_handler handler);
+  bool push( const std::string& name, const reduced_data& v, aggregated_handler handler);
   
 private:
   size_t get_pos_( const std::string& name) const;

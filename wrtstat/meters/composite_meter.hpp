@@ -83,4 +83,29 @@ private:
   size_meter_ptr _write_meter;
 };
 
+template<typename D>
+class composite_meter_factory: composite_meter<D>
+{
+  typedef composite_meter<D> super;
+public:
+  typedef typename super::meter_fun_t meter_fun_t;
+  typedef typename super::time_meter_ptr time_meter_ptr;
+  typedef typename super::size_meter_ptr size_meter_ptr;
+
+  
+  composite_meter_factory( const time_meter_ptr& tm, const size_meter_ptr& rm, const size_meter_ptr& wm, time_type resolution)
+    : super(tm, rm, wm)
+    , _resolution(resolution)
+  {}
+  
+  std::shared_ptr< composite_meter<D> > create(size_type size) const
+  {
+    time_type now_ts = aggregator::now(_resolution);
+    return super::clone(now_ts, size);
+  }
+  
+private:
+  time_type _resolution;
+};
+
 }

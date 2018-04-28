@@ -51,7 +51,8 @@ public:
   void add( const reduced_data& v );
 
   reduced_ptr detach();
-  reduced_ptr get_current();
+  
+  reduced_ptr get_reduced();
 
   bool empty() const;
 

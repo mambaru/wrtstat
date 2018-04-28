@@ -52,14 +52,14 @@ public:
   }
 
   template<typename... A>
-  self_ptr clone(time_type now, A... args/*size_t count, size_t size*/) const
+  self_ptr clone(time_type now, A... args) const
   {
     auto m = std::make_shared<self_type>();
     m->_meters.reserve(this->_meters.size());
     for (auto p : _meters )
     {
       if ( p!=nullptr )
-        m->_meters.push_back( p->clone(now, args.../*count, size*/) );
+        m->_meters.push_back( p->clone(now, args...) );
     }
     return  m;
   }
@@ -67,5 +67,26 @@ public:
 private:
   meter_list _meters;
 };
+
+template< typename MeterType>
+class multi_meter_factory: multi_meter<MeterType>
+{
+  typedef multi_meter<MeterType> super;
+public:
+  typedef typename super::meter_fun_t meter_fun_t;
+  typedef typename super::time_meter_ptr time_meter_ptr;
+  typedef typename super::size_meter_ptr size_meter_ptr;
+
+  template<typename... A>
+  std::shared_ptr< multi_meter<MeterType> > create(A... args) const
+  {
+    time_type now_ts = aggregator::now(_resolution);
+    return super::clone(now_ts, args...);
+  }
+  
+private:
+  time_type _resolution;
+};
+
 
 }

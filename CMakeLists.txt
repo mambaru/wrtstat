@@ -11,6 +11,7 @@ set(
   wrtstat/aggregator.cpp
   wrtstat/manager/aggregator_map.cpp
   wrtstat/manager/aggregator_hashmap.cpp
+  wrtstat/wrtstat.cpp
 )
 
 add_library(wrtstat ${source_list})

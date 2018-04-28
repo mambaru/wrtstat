@@ -39,6 +39,15 @@ bool aggregator_base::add(time_type ts_now, value_type v, size_type count)
   return true;
 }
 
+bool aggregator_base::push( time_type ts_now, value_type v, size_type count, aggregated_handler handler)
+{
+  if ( !_enabled )
+    return true;
+
+  return _sep.push(ts_now, v, count, std::bind(&aggregator_base::push_handler_,  this, std::placeholders::_1, handler));
+}
+
+
 bool aggregator_base::add(time_type ts_now, const data_type& v, size_type count)
 {
   if ( !_enabled )
@@ -51,6 +60,14 @@ bool aggregator_base::add(time_type ts_now, const data_type& v, size_type count)
   return true;
 }
 
+bool aggregator_base::push( time_type ts_now, const data_type& v, size_type count, aggregated_handler handler)
+{
+  if ( !_enabled )
+    return true;
+
+  return _sep.push(ts_now, v, count, std::bind(&aggregator_base::push_handler_,  this, std::placeholders::_1, handler));
+}
+
 bool aggregator_base::add( const reduced_data& v)
 {
   if ( !_enabled )
@@ -61,12 +78,14 @@ bool aggregator_base::add( const reduced_data& v)
   return true;
 }
 
-bool aggregator_base::add( const reduced_data& v, aggregated_handler handler)
+bool aggregator_base::push( const reduced_data& v, aggregated_handler handler)
 {
   if ( !_enabled )
     return true;
 
-  bool result = _sep.add(v, [this, handler](aggregated_ptr ag)
+  return _sep.push(v, std::bind(&aggregator_base::push_handler_,  this, std::placeholders::_1, handler));
+  /*
+  bool result = _sep.push(v, [this, handler](aggregated_ptr ag)
   {
     if ( handler!=nullptr )
     {
@@ -77,6 +96,17 @@ bool aggregator_base::add( const reduced_data& v, aggregated_handler handler)
   });
     
   return result;
+  */
+}
+
+void aggregator_base::push_handler_( aggregated_ptr ag, aggregated_handler handler)
+{
+  if ( handler!=nullptr )
+  {
+    ag = this->aggregate2_( std::move(ag) );
+    this->reduce_(ag->data);
+    handler(std::move(ag));
+  }
 }
 
 bool aggregator_base::separate(time_type ts_now, bool force)
@@ -118,8 +148,7 @@ void aggregator_base::enable(bool value)
 }
 
 template<typename T>
-//aggregator_base::meter_fun_t aggregator_base::create_meter( std::weak_ptr<T> wthis )
-aggregator_base::value_adder_t aggregator_base::create_value_adder( std::weak_ptr<T> wthis )
+aggregator_base::simple_adder_t aggregator_base::create_simple_adder( std::weak_ptr<T> wthis )
 {
   std::weak_ptr<int> wid = this->_id;
   return [wid, wthis](time_type ts_now, time_type v, size_type count)
@@ -135,7 +164,22 @@ aggregator_base::value_adder_t aggregator_base::create_value_adder( std::weak_pt
 }
 
 template<typename T>
-//aggregator_base::handler_fun_t aggregator_base::create_handler( std::weak_ptr<T> wthis )
+aggregator_base::simple_pusher_t aggregator_base::create_simple_pusher( std::weak_ptr<T> wthis, aggregated_handler handler )
+{
+  std::weak_ptr<int> wid = this->_id;
+  return [wid, wthis, handler](time_type ts_now, time_type v, size_type count)
+  {
+    if ( auto pthis = wthis.lock() )
+    {
+      if (auto id = wid.lock() )
+      {
+        pthis->push(ts_now, v, count, handler);
+      }
+    }
+  };
+}
+
+template<typename T>
 aggregator_base::data_adder_t aggregator_base::create_data_adder( std::weak_ptr<T> wthis )
 {
   std::weak_ptr<int> wid = this->_id;
@@ -150,9 +194,24 @@ aggregator_base::data_adder_t aggregator_base::create_data_adder( std::weak_ptr<
     }
   };
 }
-  
+
 template<typename T>
-//aggregator_base::aggregator_fun_t aggregator_base::create_aggregator( std::weak_ptr<T> wthis )
+aggregator_base::data_pusher_t aggregator_base::create_data_pusher( std::weak_ptr<T> wthis, aggregated_handler handler )
+{
+  std::weak_ptr<int> wid = this->_id;
+  return [wid, wthis, handler](time_type ts_now, data_type&& v, size_type count)
+  {
+    if ( auto pthis = wthis.lock() )
+    {
+      if (auto id = wid.lock() )
+      {
+        pthis->push(ts_now, std::move(v), count, handler);
+      }
+    }
+  };
+}
+
+template<typename T>
 aggregator_base::reduced_adder_t aggregator_base::create_reduced_adder( std::weak_ptr<T> wthis )
 {
   std::weak_ptr<int> wid = this->_id;
@@ -163,6 +222,22 @@ aggregator_base::reduced_adder_t aggregator_base::create_reduced_adder( std::wea
       if (auto id = wid.lock() )
       {
         pthis->add(reduced);
+      }
+    }
+  };
+}
+
+template<typename T>
+aggregator_base::reduced_pusher_t aggregator_base::create_reduced_pusher( std::weak_ptr<T> wthis, aggregated_handler handler )
+{
+  std::weak_ptr<int> wid = this->_id;
+  return [wid, wthis, handler]( const reduced_data& reduced)
+  {
+    if ( auto pthis = wthis.lock() )
+    {
+      if (auto id = wid.lock() )
+      {
+        pthis->push(reduced, handler);
       }
     }
   };
@@ -274,9 +349,9 @@ aggregator::aggregator(time_type ts_now, const options_type& opt, const allocato
 {
 }
   
-aggregator::value_adder_t aggregator::create_value_adder( )
+aggregator::simple_adder_t aggregator::create_simple_adder( )
 {
-  return aggregator_base::create_value_adder<aggregator>( this->shared_from_this() );
+  return aggregator_base::create_simple_adder<aggregator>( this->shared_from_this() );
 }
 
 aggregator::data_adder_t aggregator::create_data_adder( )
@@ -287,6 +362,22 @@ aggregator::data_adder_t aggregator::create_data_adder( )
 aggregator::reduced_adder_t aggregator::create_reduced_adder( )
 {
   return aggregator_base::create_reduced_adder<aggregator>( this->shared_from_this() );
+}
+
+// pusher
+aggregator::simple_pusher_t aggregator::create_simple_pusher(aggregated_handler handler )
+{
+  return aggregator_base::create_simple_pusher<aggregator>( this->shared_from_this(), handler  );
+}
+
+aggregator::data_pusher_t aggregator::create_data_pusher(aggregated_handler handler )
+{
+  return aggregator_base::create_data_pusher<aggregator>( this->shared_from_this(), handler  );
+}
+
+aggregator::reduced_pusher_t aggregator::create_reduced_pusher(aggregated_handler handler )
+{
+  return aggregator_base::create_reduced_pusher<aggregator>( this->shared_from_this(), handler  );
 }
 
 aggregator_mt::aggregator_mt(time_type ts_now, const options_type& opt, const allocator& a)
@@ -312,10 +403,22 @@ bool aggregator_mt::add( const reduced_data& v)
   return aggregator_base::add(v);
 }
 
-bool aggregator_mt::add( const reduced_data& v, aggregated_handler handler)
+bool aggregator_mt::push( time_type ts_now, value_type v, size_type count, aggregated_handler handler)
 {
   std::lock_guard<mutex_type> lk(_mutex);
-  return aggregator_base::add(v, handler);
+  return aggregator_base::push(ts_now, v, count, handler);
+}
+
+bool aggregator_mt::push( time_type ts_now, const data_type& v, size_type count, aggregated_handler handler)
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  return aggregator_base::push(ts_now, v, count, handler);
+}
+
+bool aggregator_mt::push( const reduced_data& v, aggregated_handler handler)
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  return aggregator_base::push(v, handler);
 }
 
 aggregator_mt::aggregated_ptr aggregator_mt::pop()
@@ -348,10 +451,10 @@ void aggregator_mt::enable(bool value)
   return aggregator_base::enable(value);
 }
 
-aggregator_mt::value_adder_t aggregator_mt::create_value_adder( )
+aggregator_mt::simple_adder_t aggregator_mt::create_simple_adder( )
 {
   std::lock_guard<mutex_type> lk(_mutex);
-  return aggregator_base::create_value_adder<aggregator_mt>( this->shared_from_this() );
+  return aggregator_base::create_simple_adder<aggregator_mt>( this->shared_from_this() );
 }
 
 aggregator_mt::data_adder_t aggregator_mt::create_data_adder( )
@@ -364,6 +467,26 @@ aggregator_mt::reduced_adder_t aggregator_mt::create_reduced_adder( )
 {
   std::lock_guard<mutex_type> lk(_mutex);
   return aggregator_base::create_reduced_adder<aggregator_mt>( this->shared_from_this() );
+}
+
+//
+
+aggregator_mt::simple_pusher_t aggregator_mt::create_simple_pusher(aggregated_handler handler )
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  return aggregator_base::create_simple_pusher<aggregator_mt>( this->shared_from_this(), handler  );
+}
+
+aggregator_mt::data_pusher_t aggregator_mt::create_data_pusher(aggregated_handler handler )
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  return aggregator_base::create_data_pusher<aggregator_mt>( this->shared_from_this(), handler);
+}
+  
+aggregator_mt::reduced_pusher_t aggregator_mt::create_reduced_pusher(aggregated_handler handler )
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  return aggregator_base::create_reduced_pusher<aggregator_mt>( this->shared_from_this(), handler );
 }
 
 size_t aggregator_mt::size() const

@@ -62,7 +62,28 @@ bool separator::add( const reduced_data& v )
   return true;
 }
 
-bool separator::add( const reduced_data& v, aggregated_handler handler )
+bool separator::push( time_type ts, value_type v, size_type count, aggregated_handler handler )
+{
+  ts = this->get_ts(ts);
+  this->separate(ts, handler);
+  if ( ts < _next_time - _step_ts )
+    return false;
+  _reducer.add(v, count);
+  return true;
+}
+
+bool separator::push( time_type ts, const data_type& v, size_type count, aggregated_handler handler )
+{
+  ts = this->get_ts(ts);
+  this->separate(ts, handler);
+  if ( ts < _next_time - _step_ts )
+    return false;
+  _reducer.add(v, count);
+  return true;
+}
+
+  
+bool separator::push( const reduced_data& v, aggregated_handler handler )
 {
   time_type ts = this->get_ts(v.ts);
   this->separate( ts, handler);
@@ -71,6 +92,8 @@ bool separator::add( const reduced_data& v, aggregated_handler handler )
   _reducer.add( v );
   return true;
 }
+
+
 
 separator::reduced_ptr separator::pop()
 {
@@ -92,7 +115,7 @@ separator::reduced_ptr separator::force_pop()
 
 separator::reduced_ptr separator::get_current()
 {
-  auto r = _reducer.get_current();
+  auto r = _reducer.get_reduced();
   if ( r != nullptr )
     r->ts = _next_time  - _step_ts;
   return r;
@@ -169,10 +192,10 @@ time_type separator::now(time_type resolution)
 {
   switch (resolution)
   {
-    case 1 : return separator::now_t<std::chrono::seconds>();
-    case 1000 : return separator::now_t<std::chrono::milliseconds>();
-    case 1000000 : return separator::now_t<std::chrono::microseconds>();
     case 1000000000 : return separator::now_t<std::chrono::nanoseconds>();
+    case 1000000 : return separator::now_t<std::chrono::microseconds>();
+    case 1000 : return separator::now_t<std::chrono::milliseconds>();
+    case 1 : return separator::now_t<std::chrono::seconds>();
     default:
       return 0;
   };

@@ -8,7 +8,7 @@ aggregator_map::aggregator_map(const options_type& opt, size_t pool_size )
 {
 }
 
-bool aggregator_map::add( const std::string& name, const reduced_data& v, aggregated_handler handler)
+bool aggregator_map::push( const std::string& name, const reduced_data& v, aggregated_handler handler)
 {
   auto itr = _aggregator_map.find(name);
   if ( itr == _aggregator_map.end() )
@@ -24,7 +24,7 @@ bool aggregator_map::add( const std::string& name, const reduced_data& v, aggreg
       )  
     ).first;
   }
-  return itr->second->add(v, std::move(handler) );
+  return itr->second->push(v, std::move(handler) );
 }
 
 }

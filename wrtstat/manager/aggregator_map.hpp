@@ -21,7 +21,7 @@ public:
   
   explicit aggregator_map(const options_type& opt = options_type(), size_t pool_size = 0 );
 
-  bool add( const std::string& name, const reduced_data& v, aggregated_handler handler);
+  bool push( const std::string& name, const reduced_data& v, aggregated_handler handler);
   
 private:
   aggregator_map_t _aggregator_map;

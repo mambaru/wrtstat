@@ -36,8 +36,8 @@ void test()
       {
         rd.ts = aggregator::now_t<std::chrono::microseconds>();
         const std::string& name = names[size_t(i*j)];
-        rt.add(name, rd, [&name]( aggregated_ptr ag){
-          rt2.add( name, *ag, [&name](aggregated_ptr ag1){
+        rt.push(name, rd, [&name]( aggregated_ptr ag){
+          rt2.push( name, *ag, [&name](aggregated_ptr ag1){
             std::cout << name << "=" << ag1->count << std::endl;
           });
           std::cout << "ready,";

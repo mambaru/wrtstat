@@ -27,7 +27,11 @@ public:
   
   bool add( const reduced_data& v );
 
-  bool add( const reduced_data& v, aggregated_handler handler );
+  bool push( time_type ts, value_type v, size_type count, aggregated_handler handler );
+
+  bool push( time_type ts, const data_type& v, size_type count, aggregated_handler handler );
+
+  bool push( const reduced_data& v, aggregated_handler handler );
 
   reduced_ptr pop();
 

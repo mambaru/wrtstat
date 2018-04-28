@@ -37,13 +37,13 @@ aggregator_hashmap& aggregator_hashmap::operator=(aggregator_hashmap&& agh)
   return *this;
 }
   
-bool aggregator_hashmap::add( const std::string& name, const reduced_data& v, aggregated_handler handler)
+bool aggregator_hashmap::push( const std::string& name, const reduced_data& v, aggregated_handler handler)
 {
   size_t pos = this->get_pos_(name);
   auto& ag = _aggregator_list[pos];
   auto& mtx = _mutex_list[pos];
   std::lock_guard<mutex_type> lk( *mtx );
-  return ag->add(name, v, std::move(handler) );
+  return ag->push(name, v, std::move(handler) );
 }
   
 size_t aggregator_hashmap::get_pos_( const std::string& name) const

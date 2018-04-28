@@ -27,7 +27,8 @@ size_t reducer::lossy_count() const
 { 
   if ( _data.size() < 2 )
     return _lossy_count;
-  return _lossy_count + _opt.reducer_limit*( _data.size() - 2 ) + _data.back()->size();  
+  return _lossy_count + _opt.reducer_limit*( _data.size() - 2 ) + _data.back()->size();
+
 }
   
 size_t reducer::total_count() const 
@@ -125,15 +126,16 @@ void reducer::add( std::initializer_list<value_type> values )
   
 void reducer::add( const reduced_data& v )
 {
+  // Не используем _lossy_count += v.lossy;
+  // а считаем как разницу v.count и v.data.size()
   this->add( v.data, v.count);
-  _lossy_count += v.lossy;
   if ( v.min != 0 )
     this->minmax( v.min );
   if ( v.max != 0 )
     this->minmax( v.max );
 }
 
-reducer::reduced_ptr reducer::get_current()
+reducer::reduced_ptr reducer::get_reduced()
 {
   auto tmp = this->clone();
   return tmp->detach();

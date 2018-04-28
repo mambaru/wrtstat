@@ -7,6 +7,7 @@
 #include <wrtstat/manager/mutex/rwlock.hpp>
 #include <wrtstat/manager/mutex/spinlock.hpp>
 #include <wrtstat/aggregator.hpp>
+#include <wrtstat/types.hpp>
 #include <deque>
 #include <array>
 
@@ -19,9 +20,15 @@ public:
   typedef aggregator aggregator_type;
   typedef typename aggregated_data::ptr aggregated_ptr;
   typedef aggregator_options options_type;
-  typedef typename aggregator_type::value_adder_t value_adder_t;
+  
+  typedef typename aggregator_type::simple_adder_t simple_adder_t;
   typedef typename aggregator_type::data_adder_t data_adder_t;
   typedef typename aggregator_type::reduced_adder_t reduced_adder_t;
+  typedef typename aggregator_type::simple_pusher_t simple_pusher_t;
+  typedef typename aggregator_type::data_pusher_t data_pusher_t;
+  typedef typename aggregator_type::reduced_pusher_t reduced_pusher_t;
+  
+  typedef typename aggregator_type::aggregated_handler aggregated_handler;
   
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::deque<aggregator_ptr> aggregator_list;
@@ -32,7 +39,7 @@ public:
     , _pool(opt.reducer_limit, pool_size)
   { }
 
-  size_t size() const 
+  size_t aggregators_count() const 
   {
     read_lock<mutex_type> lk(_mutex);
     return _agarr.size();
@@ -48,7 +55,7 @@ public:
   bool add( const std::string& name, const reduced_data& v)
   {
     if ( auto p = this->create_get_aggregator( name, v.ts ) )
-      return p->add(v, nullptr);
+      return p->add(v);
     return false;  
   }
 
@@ -74,8 +81,10 @@ public:
 
   id_t create_aggregator(const std::string& name, time_type now)
   {
-    std::lock_guard<mutex_type> lk(_mutex);
+    if ( name.empty() )
+      return bad_id;
     
+    std::lock_guard<mutex_type> lk(_mutex);
     id_t id = _dict.create_id( name );
     size_t pos = _dict.id2pos(id);
     if ( pos < _agarr.size() && _agarr[pos]!=nullptr )
@@ -95,6 +104,8 @@ public:
   
   aggregator_ptr create_get_aggregator(const std::string& name, time_type now)
   {
+    if ( name.empty() )
+      return nullptr;
     std::lock_guard<mutex_type> lk(_mutex);
     id_t id = _dict.create_id( name );
     size_t pos = _dict.id2pos(id);
@@ -115,6 +126,9 @@ public:
   
   aggregator_ptr get_aggregator(id_t id) const
   {
+    if ( id == bad_id )
+      return nullptr;
+    
     read_lock<mutex_type> lk(_mutex);
     size_t pos = _dict.id2pos(id);
     if ( pos >= _agarr.size() )
@@ -126,10 +140,10 @@ public:
     return _agarr[ pos ];
   }
 
-  value_adder_t create_value_adder( id_t id )
+  simple_adder_t create_simple_adder( id_t id )
   {
     if ( auto ag = this->get_aggregator(id) )
-      return ag->create_value_adder();
+      return ag->create_simple_adder();
     return nullptr;
   }
 
@@ -147,34 +161,58 @@ public:
     return nullptr;
   }
 
-  value_adder_t create_value_adder(const std::string& name, time_type ts_now)
+  simple_adder_t create_value_adder(const std::string& name, time_type ts_now)
   {
-    return this->create_value_adder(
-      this->create_aggregator( 
-        name, 
-        ts_now
-      )
-    );
+    return this->create_simple_adder( this->create_aggregator(name, ts_now) );
   }
 
   data_adder_t create_data_adder(const std::string& name, time_type ts_now)
   {
-    return this->create_data_adder(
-      this->create_aggregator( 
-        name, 
-        ts_now)
-    );
+    return this->create_data_adder( this->create_aggregator(name, ts_now));
   }
   
   reduced_adder_t create_reduced_adder( const std::string& name, time_type ts_now )
   {
-    return this->create_reduced_adder(
-      this->create_aggregator( 
-        name, 
-        ts_now)
-    );
+    return this->create_reduced_adder(this->create_aggregator(name, ts_now));
+  }
+  
+///
+  simple_pusher_t create_simple_pusher( id_t id, aggregated_handler handler )
+  {
+    if ( auto ag = this->get_aggregator(id) )
+      return ag->create_simple_pusher(handler);
+    return nullptr;
   }
 
+  data_pusher_t create_data_pusher( id_t id, aggregated_handler handler )
+  {
+    if ( auto ag = this->get_aggregator(id) )
+      return ag->create_data_pusher(handler);
+    return nullptr;
+  }
+  
+  reduced_pusher_t create_reduced_pusher( id_t id, aggregated_handler handler )
+  {
+    if ( auto ag = this->get_aggregator(id) )
+      return ag->create_reduced_pusher(handler);
+    return nullptr;
+  }
+
+  simple_pusher_t create_simple_pusher(const std::string& name, time_type ts_now, aggregated_handler handler)
+  {
+    return this->create_simple_pusher( this->create_aggregator(name, ts_now), handler );
+  }
+
+  data_pusher_t create_data_pusher(const std::string& name, time_type ts_now, aggregated_handler handler)
+  {
+    return this->create_data_pusher( this->create_aggregator(name, ts_now), handler);
+  }
+  
+  reduced_pusher_t create_reduced_pusher( const std::string& name, time_type ts_now, aggregated_handler handler )
+  {
+    return this->create_reduced_pusher(this->create_aggregator(name, ts_now), handler);
+  }
+  
   void enable(bool value)
   {
     std::lock_guard<mutex_type> lk(_mutex);

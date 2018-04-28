@@ -12,19 +12,19 @@ int main()
   rd.ts = time(0);
   rd.data = {1,2,3,4,5,5};
   
-  am.add("hello", rd, [](aggregator_map::aggregated_ptr){
+  am.push("hello", rd, [](aggregator_map::aggregated_ptr){
     std::cout << "hello1" << std::endl;
   });
   
   sleep(1);
   rd.ts = time(0);
-  am.add("hello", rd, [](aggregator_map::aggregated_ptr){
+  am.push("hello", rd, [](aggregator_map::aggregated_ptr){
     std::cout << "hello2" << std::endl;
   });
   
   sleep(1);
   rd.ts = time(0);
-  am.add("hello", rd, [](aggregator_map::aggregated_ptr){
+  am.push("hello", rd, [](aggregator_map::aggregated_ptr){
     std::cout << "hello3" << std::endl;
   });
   

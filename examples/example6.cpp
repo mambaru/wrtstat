@@ -1,10 +1,10 @@
-#include <wrtstat/wrtstat.hpp>
+#include <wrtstat/meter_manager.hpp>
 #include <chrono>
 #include <thread>
 #include <vector>
 using namespace wrtstat;
 reduced_data rd;
-::wrtstat::wrtstat rt;
+::wrtstat::meter_manager rt;
 std::mutex mutex;
 
 std::vector<std::string> names;
