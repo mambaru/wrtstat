@@ -26,13 +26,6 @@ public:
   typedef data_adder_t data_pusher_t;
   typedef reduced_adder_t reduced_pusher_t;
   
-  /*
-  typedef std::function< void(time_type now, time_type value, size_type count, aggregated_handler) > value_pusher_t;
-  typedef std::function< void(time_type now, data_type&& value, size_type count, aggregated_handler) > data_pusher_t;
-  typedef std::function< void(const reduced_data&, aggregated_handler) > reduced_pusher_t;
-  */
-
-  
   aggregator_base(time_type ts_now, const aggregator_options& opt, const allocator& a = allocator() );
 
   const separator& get_separator() const;

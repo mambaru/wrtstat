@@ -4,7 +4,7 @@
 #include <vector>
 using namespace wrtstat;
 reduced_data rd;
-::wrtstat::meter_manager rt;
+::wrtstat::meter_manager rt1;
 std::mutex mutex;
 
 std::vector<std::string> names;
@@ -20,7 +20,7 @@ void test()
       for (int j = 0 ; j < 1000 ; ++j)
       {
         rd.ts = std::time(0);
-        rt.add(names[ std::size_t(i*j) ], rd );
+        rt1.add(names[ std::size_t(i*j) ], rd );
       }
       auto finish = std::chrono::system_clock::now();
       auto span = std::chrono::duration_cast<std::chrono::microseconds>( finish - start ).count();

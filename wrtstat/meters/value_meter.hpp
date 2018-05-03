@@ -18,8 +18,10 @@ public:
   typedef std::shared_ptr<mutex_type> mutex_ptr;
   typedef std::weak_ptr<mutex_type> mutex_wptr;
 
-  value_meter( const size_meter& ) = delete;
+  value_meter( const value_meter& ) = delete;
   value_meter& operator=( const value_meter& ) = delete;
+
+  value_meter() = default;
 
 
   value_meter(const meter_fun_t& fun, time_type ts_now, value_type val, size_type cnt = 1)
@@ -31,6 +33,11 @@ public:
   }
 
   ~value_meter()
+  {
+    this->push_();
+  };
+
+  void push_()
   {
     if ( _meter_fun == nullptr || _now == 0)
       return;
@@ -54,6 +61,15 @@ public:
     _count = 0;
     _value = 0;
   }
+  
+  void reset(meter_fun_t fun, time_type ts_now, value_type val,  size_type cnt )
+  {
+    this->push_();
+    _now = ts_now;
+    _meter_fun = fun;
+    _value = val;
+    _count = cnt;
+  }
 private:
   time_type  _now;
   value_type _value;
@@ -61,24 +77,31 @@ private:
   meter_fun_t _meter_fun;
 };
 
-class value_meter_factory: value_meter
+class value_meter_factory//: value_meter
 {
-  typedef value_meter super;
+  //typedef value_meter super;
 public:
-  typedef typename super::meter_fun_t meter_fun_t;
+  typedef value_meter::meter_fun_t meter_fun_t;
   
   value_meter_factory( const meter_fun_t& fun, time_type resolution)
-    : super(fun, 0, 0, 0)
+    : _meter_fun(fun)
     , _resolution(resolution)
   {}
   
   std::shared_ptr< value_meter > create(size_type value, size_type count) const
   {
-    time_type now_ts = aggregator::now(_resolution);
-    return super::clone(now_ts, value, count);
+    //return super::clone(aggregator::now(_resolution), value, count);
+    return this->create(aggregator::now(_resolution), value, count);
   }
-  
+
+  std::shared_ptr< value_meter > create(time_type now_ts,  size_type value, size_type count) const
+  {
+    //return super::clone(now_ts, value, count);
+    return std::make_shared<value_meter>(_meter_fun, now_ts, value, count);
+  }
+
 private:
+  meter_fun_t _meter_fun;
   time_type _resolution;
 };
 
