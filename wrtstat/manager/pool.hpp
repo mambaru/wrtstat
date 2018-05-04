@@ -3,7 +3,9 @@
 #include <wrtstat/allocator.hpp>
 #include <wrtstat/manager/mutex/rwlock.hpp>
 #include <vector>
+#include <deque>
 #include <mutex>
+#include <iostream>
 
 namespace wrtstat {
 
@@ -11,14 +13,16 @@ template<typename MutexType>
 class pool
 {
 public:
-  typedef std::vector<data_ptr> data_pool;
+  typedef std::deque<data_ptr> data_pool;
   typedef rwlock<MutexType> mutex_type;
   
 public:
   pool(size_type item_size, size_type pool_size)
-    : _item_size( item_size )
+    : _item_size(item_size)
     , _pool_size(pool_size)
-  {}
+  {
+    //_pool.reserve(pool_size);
+  }
 
   allocator get_allocator()
   { 
@@ -51,6 +55,7 @@ public:
     {
       d = data_ptr(new data_type);
       d->resize(_item_size, value_type() );
+      d->clear();
     }
     else
     {

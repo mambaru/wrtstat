@@ -1,7 +1,6 @@
 #pragma once
 
-#include <wrtstat/types.hpp>
-#include <wrtstat/meters/factory_pool.hpp>
+#include <wrtstat/aggregator.hpp>
 #include <chrono>
 #include <memory>
 #include <iostream>
@@ -20,6 +19,9 @@ public:
 
   size_meter( const size_meter& ) = delete;
   size_meter& operator=( const size_meter& ) = delete;
+
+  size_meter( size_meter&& ) = default;
+  size_meter& operator=( size_meter&& ) = default;
 
   size_meter()= default;
 
@@ -76,26 +78,36 @@ class size_meter_factory/*: size_meter*/
 {
   //typedef size_meter super;
 public:
+  typedef size_meter meter_type;
   typedef size_meter::meter_fun_t meter_fun_t;
-  typedef factory_pool< size_meter > pool_type;
-  typedef std::shared_ptr<pool_type> pool_ptr;
-
+  
   size_meter_factory( const meter_fun_t& fun, time_type resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
   {
-    _pool = std::make_shared<pool_type>(0);
-  }
   
-  std::shared_ptr< size_meter > create(size_type size) const
+  }
+
+  size_meter create(size_type size) const
   {
     return this->create(aggregator::now(_resolution), size);
   }
 
-  std::shared_ptr< size_meter > create(time_type now_ts, size_type size) const
+  size_meter create(time_type now_ts, size_type size) const
   {
-    //return std::make_shared<size_meter>(_meter_fun, now_ts, size);
-    return _pool->make(_meter_fun, now_ts, size);
+    return size_meter(_meter_fun, now_ts, size);
+  }
+
+  
+  std::shared_ptr< size_meter > create_shared(size_type size) const
+  {
+    return this->create_shared(aggregator::now(_resolution), size);
+  }
+
+  std::shared_ptr< size_meter > create_shared(time_type now_ts, size_type size) const
+  {
+    return std::make_shared<size_meter>(_meter_fun, now_ts, size);
+    //return _pool->make(_meter_fun, now_ts, size);
     //return super::clone(now_ts, size);
     /*auto p = _pool->make(_meter_fun, now_ts, size);
     if (p==nullptr) abort();
@@ -105,7 +117,6 @@ public:
 private:
   meter_fun_t _meter_fun;
   time_type _resolution;
-  pool_ptr _pool;
 };
 
 }

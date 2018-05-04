@@ -17,7 +17,7 @@ class aggregator_registry
 {
 public:
   typedef rwlock<std::mutex> mutex_type;
-  typedef aggregator aggregator_type;
+  typedef aggregator_mt aggregator_type;
   typedef typename aggregated_data::ptr aggregated_ptr;
   typedef aggregator_options options_type;
   
@@ -31,6 +31,7 @@ public:
                               size_type readed, size_type writed) > composite_adder_t;
   typedef composite_adder_t composite_pusher_t;
   typedef typename aggregator_type::aggregated_handler aggregated_handler;
+  //typedef std::function<void(const std::string& name, aggregated_data::ptr)> aggregated_handler;
   
   typedef std::shared_ptr<aggregator_type> aggregator_ptr;
   typedef std::deque<aggregator_ptr> aggregator_list;
@@ -135,8 +136,6 @@ public:
     size_t pos = _dict.id2pos(id);
     if ( pos >= _agarr.size() )
     {
-      std::cout << "get_aggregator" << std::endl;
-      abort();
       return nullptr;
     }
     return _agarr[ pos ];
@@ -163,7 +162,24 @@ public:
     return nullptr;
   }
   
-  composite_adder_t create_composite_adder( id_t time_id, id_t read_id, id_t write_id )
+  template<typename TH, typename RH, typename WH>
+  std::function< void( time_type, time_type, size_type, size_type, size_type) >
+    make_composite_handler_(TH time_adder, RH read_adder, WH write_adder, bool summary_size  )
+  {
+    return [time_adder, read_adder, write_adder, summary_size]
+      (time_type now, time_type span, size_type count, 
+       size_type readed, size_type writed)
+      {
+        if ( time_adder!=nullptr )
+          time_adder(now, span, count);
+        if ( read_adder!=nullptr )
+          read_adder(now, static_cast<time_type>(readed), summary_size ? readed : count);
+        if ( write_adder!=nullptr )
+          write_adder(now, static_cast<time_type>(writed), summary_size ? writed : count);
+      };
+  }
+  
+  composite_adder_t create_composite_adder( id_t time_id, id_t read_id, id_t write_id, bool summary_size )
   {
     simple_adder_t time_adder;
     simple_adder_t read_adder;
@@ -181,7 +197,8 @@ public:
     if (time_adder==nullptr && read_adder==nullptr && write_adder==nullptr)
       return nullptr;
     
-    return 
+    return this->make_composite_handler_(time_adder, read_adder, write_adder, summary_size);
+    /*
       [time_adder, read_adder, write_adder]
       (time_type now, time_type span, size_type count, 
        size_type readed, size_type writed)
@@ -192,7 +209,7 @@ public:
           read_adder(now, static_cast<time_type>(readed), readed);
         if ( write_adder!=nullptr )
           write_adder(now, static_cast<time_type>(writed), writed);
-      };
+      };*/
   }
 
   simple_adder_t create_value_adder(const std::string& name, time_type ts_now)
@@ -214,54 +231,80 @@ public:
     const std::string& time_name, 
     const std::string& read_name, 
     const std::string& write_name, 
+    bool summary_size,
     time_type ts_now )
   {
     return this->create_composite_adder(
       this->create_aggregator(time_name, ts_now),
       this->create_aggregator(read_name, ts_now),
-      this->create_aggregator(write_name, ts_now)
+      this->create_aggregator(write_name, ts_now),
+      summary_size
     );
   }
 ///
+  
+  std::function<void(aggregated_data::ptr)>
+    make_handler_( id_t id, aggregated_handler handler )
+  {
+    if (id == bad_id || handler==nullptr)
+      return nullptr;
+    // TDOD: убрать
+    return handler;
+    /*
+    return [id, handler, this]( aggregated_data::ptr ag)
+    {
+      handler( this->get_name(id), std::move(ag) );
+    };
+    */
+  }
+  
   simple_pusher_t create_simple_pusher( id_t id, aggregated_handler handler )
   {
     if ( auto ag = this->get_aggregator(id) )
-      return ag->create_simple_pusher(handler);
+      return ag->create_simple_pusher(make_handler_(id, handler));
     return nullptr;
   }
 
   data_pusher_t create_data_pusher( id_t id, aggregated_handler handler )
   {
     if ( auto ag = this->get_aggregator(id) )
-      return ag->create_data_pusher(handler);
+      return ag->create_data_pusher(make_handler_(id, handler));
     return nullptr;
   }
   
   reduced_pusher_t create_reduced_pusher( id_t id, aggregated_handler handler )
   {
     if ( auto ag = this->get_aggregator(id) )
-      return ag->create_reduced_pusher(handler);
+      return ag->create_reduced_pusher(make_handler_(id, handler));
     return nullptr;
   }
 
-  composite_pusher_t create_composite_pusher( id_t time_id, id_t read_id, id_t write_id, aggregated_handler handler )
+  composite_pusher_t create_composite_pusher( 
+    id_t time_id, id_t read_id, id_t write_id, 
+    aggregated_handler time_handler,
+    aggregated_handler read_handler,
+    aggregated_handler write_handler,
+    bool summary_size
+  )
   {
     simple_pusher_t time_pusher;
     simple_pusher_t read_pusher;
     simple_pusher_t write_pusher;
     
     if ( auto ag = this->get_aggregator(time_id) )
-      time_pusher = ag->create_simple_pusher(handler);
+      time_pusher = ag->create_simple_pusher(time_handler);
 
     if ( auto ag = this->get_aggregator(read_id) )
-      read_pusher = ag->create_simple_pusher(handler);
+      read_pusher = ag->create_simple_pusher(read_handler);
 
     if ( auto ag = this->get_aggregator(write_id) )
-      write_pusher = ag->create_simple_pusher(handler);
+      write_pusher = ag->create_simple_pusher(write_handler);
 
     if (time_pusher==nullptr && read_pusher==nullptr && write_pusher==nullptr)
       return nullptr;
     
+    return this->make_composite_handler_(time_pusher, read_pusher, write_pusher, summary_size);
+    /*
     return 
       [time_pusher, read_pusher, write_pusher]
       (time_type now, time_type span, size_type count, 
@@ -274,20 +317,21 @@ public:
         if ( write_pusher!=nullptr )
           write_pusher(now, static_cast<time_type>(writed), writed);
       };
+      */
   }
 
 //
-  simple_pusher_t create_simple_pusher(const std::string& name, time_type ts_now, aggregated_handler handler)
+  simple_pusher_t create_simple_pusher(const std::string& name, aggregated_handler handler, time_type ts_now)
   {
     return this->create_simple_pusher( this->create_aggregator(name, ts_now), handler );
   }
 
-  data_pusher_t create_data_pusher(const std::string& name, time_type ts_now, aggregated_handler handler)
+  data_pusher_t create_data_pusher(const std::string& name, aggregated_handler handler, time_type ts_now)
   {
     return this->create_data_pusher( this->create_aggregator(name, ts_now), handler);
   }
   
-  reduced_pusher_t create_reduced_pusher( const std::string& name, time_type ts_now, aggregated_handler handler )
+  reduced_pusher_t create_reduced_pusher( const std::string& name, aggregated_handler handler, time_type ts_now )
   {
     return this->create_reduced_pusher(this->create_aggregator(name, ts_now), handler);
   }
@@ -296,15 +340,18 @@ public:
     const std::string& time_name, 
     const std::string& read_name, 
     const std::string& write_name, 
-    time_type ts_now,
-    aggregated_handler handler
+    aggregated_handler time_handler,
+    aggregated_handler read_handler,
+    aggregated_handler write_handler,
+    bool summary_size,
+    time_type ts_now
   )
   {
     return this->create_composite_pusher(
       this->create_aggregator(time_name, ts_now),
       this->create_aggregator(read_name, ts_now),
       this->create_aggregator(write_name, ts_now),
-      handler
+      time_handler, read_handler, write_handler, summary_size
     );
   }
 

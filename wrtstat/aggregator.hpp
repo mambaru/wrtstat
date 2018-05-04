@@ -143,6 +143,9 @@ public:
   typedef aggregator_base::simple_adder_t simple_adder_t;
   typedef aggregator_base::data_adder_t data_adder_t;
   typedef aggregator_base::reduced_adder_t reduced_adder_t;
+  typedef aggregator_base::simple_pusher_t simple_pusher_t;
+  typedef aggregator_base::data_pusher_t data_pusher_t;
+  typedef aggregator_base::reduced_pusher_t reduced_pusher_t;
 
 
   aggregator_mt(time_type ts_now, const options_type& opt, const allocator& a = allocator() );

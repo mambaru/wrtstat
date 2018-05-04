@@ -43,7 +43,7 @@ bool aggregator_base::push( time_type ts_now, value_type v, size_type count, agg
 {
   if ( !_enabled )
     return true;
-
+  
   return _sep.push(ts_now, v, count, std::bind(&aggregator_base::push_handler_,  this, std::placeholders::_1, handler));
 }
 

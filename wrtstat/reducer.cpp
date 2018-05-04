@@ -166,9 +166,11 @@ bool reducer::empty() const
   
 void reducer::reduce()
 {
+  
   if ( _data.empty() )
     return;
 
+  //std::cout << "_opt.reducer_limit=" << _data[0]->size() << std::endl;
   std::sort( _data.back()->begin(), _data.back()->end() );
     
   if ( _data.size() == 1 )
@@ -199,10 +201,11 @@ void reducer::add_( value_type v)
   ++_average_count;
     
   this->minmax(v);
-    
+  
   // Если заполнен текущий уровень 
   if ( _data.empty() || _data.back()->size() == _opt.reducer_limit  )
   {
+    
     // Создаем новый уровень 
     if ( _data.size() == _opt.reducer_levels || _opt.reducer_limit == 0)
     {

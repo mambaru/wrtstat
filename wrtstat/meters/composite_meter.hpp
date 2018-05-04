@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
+#include <wrtstat/aggregator.hpp>
 #include <memory>
-#include <wrtstat/meters/factory_pool.hpp>
+
 
 namespace wrtstat {
 
@@ -22,11 +23,13 @@ public:
   
   composite_meter( const composite_meter& ) = delete;
   composite_meter& operator=( const composite_meter& ) = delete;
+  composite_meter( composite_meter&& ) = default;
+  composite_meter& operator=( composite_meter&& ) = default;
 
+  
   composite_meter()= default;  
   
-  composite_meter(const meter_fun_t& fun, time_type ts_now, size_type count = 1, 
-                  size_type readed = 0, size_type writed = 0)
+  composite_meter(const meter_fun_t& fun, time_type ts_now, size_type count, size_type readed, size_type writed)
     : _now(ts_now)
     , _count(count)
     , _readed(readed)
@@ -111,32 +114,40 @@ template<typename D>
 class composite_meter_factory
 {
 public:
+  typedef composite_meter<D> meter_type;
   typedef typename composite_meter<D>::meter_fun_t meter_fun_t;
-  typedef factory_pool< composite_meter<D> > pool_type;
-  typedef std::shared_ptr<pool_type> pool_ptr;
   
   composite_meter_factory( const meter_fun_t& fun, time_type resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
   {
-    _pool = std::make_shared<pool_type>(0);
   }
-  
-  std::shared_ptr< composite_meter<D> > create(size_type count, size_type readed = 0, size_type writed = 0) const
+
+  composite_meter<D> create(size_type count, size_type readed, size_type writed) const
   {
     return this->create(aggregator::now(_resolution), count, readed, writed);
   }
 
-  std::shared_ptr< composite_meter<D> > create(time_t ts_now, size_type count, size_type readed = 0, size_type writed = 0) const
+  composite_meter<D> create(time_t ts_now, size_type count, size_type readed, size_type writed) const
   {
-    //return std::make_shared<time_meter<D>>(_meter_fun, ts_now, count);
-    return _pool->make(_meter_fun, ts_now, count, readed, writed);
+    return composite_meter<D>(_meter_fun, ts_now, count, readed, writed);
+    
+  }
+
+  std::shared_ptr< composite_meter<D> > create_shared(size_type count, size_type readed, size_type writed) const
+  {
+    return this->create_shared(aggregator::now(_resolution), count, readed, writed);
+  }
+
+  std::shared_ptr< composite_meter<D> > create_shared(time_t ts_now, size_type count, size_type readed, size_type writed) const
+  {
+    return std::make_shared<composite_meter<D> >(_meter_fun, ts_now, count, readed, writed);
+    //return _pool->make(_meter_fun, ts_now, count, readed, writed);
   }
  
 private:
   meter_fun_t _meter_fun;
   time_type _resolution;
-  pool_ptr _pool;
 };
 
   /*
