@@ -17,13 +17,13 @@ public:
   typedef std::shared_ptr<mutex_type> mutex_ptr;
   typedef std::weak_ptr<mutex_type> mutex_wptr;
 
+  size_meter()= delete;
+  size_meter( size_meter&& ) = default;
+  size_meter& operator=( size_meter&& ) = default;
   size_meter( const size_meter& ) = delete;
   size_meter& operator=( const size_meter& ) = delete;
 
-  size_meter( size_meter&& ) = default;
-  size_meter& operator=( size_meter&& ) = default;
-
-  size_meter()= default;
+  
 
   size_meter(const meter_fun_t& fun, time_type ts_now, size_type s)
     : _now(ts_now)

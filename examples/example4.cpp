@@ -23,7 +23,7 @@ int main()
   for (int i = 0; i < 1000; ++i)
   {
     //auto handler = mng.create_handler<std::chrono::microseconds>(id, 10);
-    auto meter = meter_proto->clone(std::time(0)*1000000, 1);
+    auto meter = meter_proto.clone(std::time(0)*1000000, 1);
     test([meter](){});
   }
   

@@ -18,7 +18,7 @@ public:
   typedef std::shared_ptr<mutex_type> mutex_ptr;
   typedef std::weak_ptr<mutex_type> mutex_wptr;
 
-  value_meter() = default;
+  value_meter() = delete;
   value_meter( value_meter&& ) = default;
   value_meter& operator=( value_meter&& ) = default;
   

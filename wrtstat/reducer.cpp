@@ -3,6 +3,7 @@
 
 namespace wrtstat {
   
+#error опртимизировать сортировку с nth_element
 reducer::reducer(const reducer_options& opt, const allocator& a  )
   : _opt( opt )
   , _allocator( a )

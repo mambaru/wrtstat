@@ -23,13 +23,11 @@ public:
   typedef std::shared_ptr<mutex_type> mutex_ptr;
   typedef std::weak_ptr<mutex_type> mutex_wptr;
 
-  time_meter()= default;  
+  time_meter()= delete;
   time_meter( const time_meter& ) = delete;
   time_meter& operator=( const time_meter& ) = delete;
   time_meter( time_meter&& ) = default;
   time_meter& operator=( time_meter&& ) = default;
-
-  
   
   time_meter(const meter_fun_t& fun, time_type ts_now, size_type cnt = 1 )
     : _now(ts_now)

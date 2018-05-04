@@ -20,15 +20,12 @@ public:
   typedef std::function< void(time_type now, value_type span, size_type count, 
                               size_type readed, size_type writed) > meter_fun_t;
                               
-  
+  composite_meter()= delete; 
   composite_meter( const composite_meter& ) = delete;
   composite_meter& operator=( const composite_meter& ) = delete;
   composite_meter( composite_meter&& ) = default;
   composite_meter& operator=( composite_meter&& ) = default;
 
-  
-  composite_meter()= default;  
-  
   composite_meter(const meter_fun_t& fun, time_type ts_now, size_type count, size_type readed, size_type writed)
     : _now(ts_now)
     , _count(count)
