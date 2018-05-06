@@ -3,7 +3,6 @@
 
 namespace wrtstat {
   
-#error опртимизировать сортировку с nth_element
 reducer::reducer(const reducer_options& opt, const allocator& a  )
   : _opt( opt )
   , _allocator( a )
@@ -164,14 +163,34 @@ bool reducer::empty() const
 {
   return _empty;
 }
-  
+ 
+ /*
+  * x  x
+  *  x  x
+  *   x  x
+  * 012345
+  */
+value_type reducer::nth_element_(size_t l, size_t i)
+{
+  if ( i < _data.size() )
+  {
+    std::nth_element(_data[l]->begin(), _data[l]->begin()+std::ptrdiff_t(i),  _data[l]->end());
+    return _data[l]->at(i);
+  }
+  else
+  {
+    std::cout << std::ptrdiff_t(i / l + i%l) << std::endl;
+    std::nth_element(_data[l]->begin() + std::ptrdiff_t(i / l + i%l), _data[l]->begin()+std::ptrdiff_t(i),  _data[l]->end());
+    return _data[l]->at(i);
+  }
+}
+
 void reducer::reduce()
 {
   
   if ( _data.empty() )
     return;
 
-  //std::cout << "_opt.reducer_limit=" << _data[0]->size() << std::endl;
   std::sort( _data.back()->begin(), _data.back()->end() );
     
   if ( _data.size() == 1 )
@@ -185,9 +204,13 @@ void reducer::reduce()
     if ( l == _data.size() ) // первую строку не трогаем 
       l=1;
     else if ( i < _data[l]->size() ) // незаполненный 
-      _data[0]->at(i)=_data[l++]->at(i);
+      //_data[0]->at(i)=_data[l++]->at(i);
+      _data[0]->at(i)=nth_element_(l++, i);
     else if (_data.size() > 2 )
-      _data[0]->at(i) = _data[(l++)-1]->at(i);
+      //_data[0]->at(i) = _data[(l++)-1]->at(i);
+      _data[0]->at(i)=nth_element_((l++)-1, i);
+    else
+      abort();
   }
   
   for ( size_t i = 1; i < _data.size(); ++i)
@@ -215,9 +238,10 @@ void reducer::add_( value_type v)
       return;
     }
       
-    if ( !_data.empty() )
-      std::sort( _data.back()->begin(), _data.back()->end() );
+    /*if ( !_data.empty() )
+      std::sort( _data.back()->begin(), _data.back()->end() );*/
     _data.push_back( _allocator.create() );
+    _data.back()->reserve(_opt.reducer_limit);
   }
     
   _data.back()->push_back(v);

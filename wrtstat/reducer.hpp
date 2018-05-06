@@ -57,10 +57,12 @@ public:
   bool empty() const;
 
   void reduce();
-  
+
+  std::unique_ptr<reducer> clone();  
 private:
   
-  std::unique_ptr<reducer> clone();
+
+  value_type nth_element_(size_t l, size_t i);
 
   void add_( value_type v);
 

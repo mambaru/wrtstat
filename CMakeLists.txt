@@ -22,6 +22,7 @@ if ( BUILD_TESTING )
   enable_testing()
   add_subdirectory(tests)
   add_subdirectory(examples)
+  add_subdirectory(benchmarks)
 endif()
 
 set(CPACK_PACKAGE_NAME "wrtstat")
