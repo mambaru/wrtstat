@@ -43,9 +43,9 @@ public:
 
   time_type get_ts(time_type ts) const;
   
-  bool separate(time_type ts_now, aggregated_handler handler);
+  //bool separate(time_type ts_now, aggregated_handler handler);
   
-  bool separate(time_type ts_now, bool force);
+  bool separate(time_type ts_now, aggregated_handler handler, bool force);
   
   bool ready() const;
 

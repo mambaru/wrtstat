@@ -38,7 +38,7 @@ public:
   bool push( time_type ts_now, const data_type& v, size_type count, aggregated_handler handler);
   bool push( const reduced_data& v, aggregated_handler handler);
   
-  bool separate(time_type ts_now, bool force);
+  bool separate(time_type ts_now, aggregated_handler handler, bool force);
   
   aggregated_ptr pop();
 
@@ -101,7 +101,7 @@ private:
 
 public:
   separator _sep;
-  size_t _reduced_size = 0;
+  size_t _outgoing_reduced_size = 0;
   bool _enabled = true;
   aggregated_list _ag_list;
   std::shared_ptr<int> _id;
@@ -170,7 +170,7 @@ public:
   
   aggregated_ptr aggregate_current();
 
-  bool separate(time_type ts_now, bool force);
+  bool separate(time_type ts_now, aggregated_handler handler, bool force);
 
   void enable(bool value);
 

@@ -9,6 +9,7 @@ add_executable(example6 example6.cpp)
 add_executable(example7 example7.cpp)
 add_executable(example8 example8.cpp)
 add_executable(example9 example9.cpp)
+add_executable(example_j example_j.cpp)
 
 target_link_libraries(example1 wrtstat)
 target_link_libraries(example2 wrtstat)
@@ -19,4 +20,5 @@ target_link_libraries(example6 wrtstat boost_system)
 target_link_libraries(example7 wrtstat)
 target_link_libraries(example8 wrtstat)
 target_link_libraries(example9 wrtstat)
+target_link_libraries(example_j wrtstat)
 

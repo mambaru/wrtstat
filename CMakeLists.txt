@@ -12,6 +12,7 @@ set(
   wrtstat/manager/aggregator_map.cpp
   wrtstat/manager/aggregator_hashmap.cpp
   wrtstat/manager/aggregator_registry.cpp
+  wrtstat/json/load.cpp
   #wrtstat/wrtstat.cpp
 )
 

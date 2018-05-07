@@ -22,10 +22,11 @@ const separator::reducer_type& separator::get_reducer() const
   return this->_reducer;
 }
 
+
 bool separator::add( time_type ts, value_type v, size_type count )
 {
   ts = this->get_ts(ts);
-  this->separate(ts, false);
+  this->separate(ts, nullptr, false);
   if ( ts < _next_time - _step_ts )
     return false;
   _reducer.add(v, count);
@@ -35,7 +36,7 @@ bool separator::add( time_type ts, value_type v, size_type count )
 bool separator::add( time_type ts, const data_type& v, size_type count )
 {
   ts = this->get_ts(ts);
-  this->separate(ts, false);
+  this->separate(ts, nullptr, false);
   if ( ts < _next_time - _step_ts )
     return false;
   _reducer.add(v, count);
@@ -45,7 +46,7 @@ bool separator::add( time_type ts, const data_type& v, size_type count )
 bool separator::add( time_type ts, std::initializer_list<value_type> v )
 {
   ts = this->get_ts(ts);
-  this->separate(ts, false);
+  this->separate(ts, nullptr, false);
   if ( ts < _next_time - _step_ts )
     return false;
   _reducer.add( std::move(v) );
@@ -55,17 +56,18 @@ bool separator::add( time_type ts, std::initializer_list<value_type> v )
 bool separator::add( const reduced_data& v )
 {
   time_type ts = this->get_ts(v.ts);
-  this->separate( ts, false);
+  this->separate( ts, nullptr, false);
   if ( ts < _next_time - _step_ts )
     return false;
   _reducer.add( v );
   return true;
 }
 
+
 bool separator::push( time_type ts, value_type v, size_type count, aggregated_handler handler )
 {
   ts = this->get_ts(ts);
-  this->separate(ts, handler);
+  this->separate(ts, handler, false);
   if ( ts < _next_time - _step_ts )
     return false;
   _reducer.add(v, count);
@@ -75,7 +77,7 @@ bool separator::push( time_type ts, value_type v, size_type count, aggregated_ha
 bool separator::push( time_type ts, const data_type& v, size_type count, aggregated_handler handler )
 {
   ts = this->get_ts(ts);
-  this->separate(ts, handler);
+  this->separate(ts, handler, false);
   if ( ts < _next_time - _step_ts )
     return false;
   _reducer.add(v, count);
@@ -86,7 +88,7 @@ bool separator::push( time_type ts, const data_type& v, size_type count, aggrega
 bool separator::push( const reduced_data& v, aggregated_handler handler )
 {
   time_type ts = this->get_ts(v.ts);
-  this->separate( ts, handler);
+  this->separate( ts, handler, false);
   if ( ts < _next_time - _step_ts )
     return false;
   _reducer.add( v );
@@ -139,11 +141,11 @@ time_type separator::get_ts(time_type ts) const
   return now_ts;
 }
   
-bool separator::separate(time_type ts_now, aggregated_handler handler)
+bool separator::separate(time_type ts_now, aggregated_handler handler, bool force)
 {
   ts_now = this->get_ts(ts_now);
   
-  if ( ts_now < _next_time )
+  if ( !force && ts_now < _next_time )
     return false;
   
   while ( _next_time <= ts_now )
@@ -153,12 +155,15 @@ bool separator::separate(time_type ts_now, aggregated_handler handler)
       res->ts = _next_time - _step_ts;
       if ( handler!=nullptr) 
         handler( std::move(res) );
+      else
+        _sep_list.push_back( std::move(res) );
     }
     _next_time += _step_ts;
   }
   return true;
 }
-  
+ 
+/*
 bool separator::separate(time_type ts_now, bool force)
 {
   ts_now = this->get_ts(ts_now);
@@ -177,6 +182,7 @@ bool separator::separate(time_type ts_now, bool force)
   }
   return true;
 }
+*/
   
 bool separator::ready() const
 {

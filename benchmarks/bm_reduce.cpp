@@ -3,6 +3,14 @@
 #include <wrtstat/aggregator.hpp>
 #include <wrtstat/manager/pool.hpp>
 #include <wrtstat/manager/mutex/empty_mutex.hpp>
+
+
+void reset_data(wrtstat::aggregated_data::ptr);
+void reset_data(wrtstat::aggregated_data::ptr d)
+{
+  d.reset();
+}
+
 int main(int argc, char* argv[])
 {
   using namespace wrtstat;
@@ -18,7 +26,7 @@ int main(int argc, char* argv[])
   size_t count = static_cast<size_t>(atoi(argv[4]));
   
   pool<std::mutex> p(opt.reducer_limit*2, opt.reducer_levels*2);
-  reducer r(opt, p.get_allocator());
+  reducer r(opt/*, p.get_allocator()*/);
   std::srand(1);
   
   std::cout << "start " << std::endl;
@@ -36,7 +44,8 @@ int main(int argc, char* argv[])
         r.add(std::rand()%10000, 1);
       }
     }
-    r.detach();
+    auto d = r.detach();
+    reset_data( std::move(d));
     auto finish_once = std::chrono::steady_clock::now();
     auto span_once = std::chrono::duration_cast<std::chrono::microseconds>( finish_once - start_once ).count();
     if ( span_once < span_min )

@@ -7,7 +7,7 @@ namespace wrtstat {
 
 aggregator_base::aggregator_base(time_type ts_now, const aggregator_options& opt, const allocator& a )
   : _sep(ts_now, opt, a)
-  , _reduced_size(opt.outgoing_reduced_size)
+  , _outgoing_reduced_size(opt.outgoing_reduced_size)
   , _id( std::make_shared<int>(1) )
 {
 }
@@ -114,9 +114,9 @@ void aggregator_base::push_handler_( aggregated_ptr ag, aggregated_handler handl
   }
 }
 
-bool aggregator_base::separate(time_type ts_now, bool force)
+bool aggregator_base::separate(time_type ts_now, aggregated_handler handler, bool force)
 {
-  bool res = _sep.separate(ts_now, force);
+  bool res = _sep.separate(ts_now, handler, force);
   this->aggregate0_();
   return res;
 }
@@ -276,17 +276,17 @@ value_type aggregator_base::nth_(size_type perc, size_type& off, data_type& d)
 
 void aggregator_base::reduce_(data_type& d) const
 {
-  if ( _reduced_size==0 || d.size() <= _reduced_size)
+  if ( _outgoing_reduced_size==0 || d.size() <= _outgoing_reduced_size)
     return;
 
   size_type i = 0;
   auto beg = d.begin();
   auto end = d.end();
-  if ( _reduced_size*2 > d.size() )
+  if ( _outgoing_reduced_size*2 > d.size() )
   {
     // 300 ~ 400
     // Удаляем каждый N элемент
-    size_type step = d.size() / ( d.size() - _reduced_size );
+    size_type step = d.size() / ( d.size() - _outgoing_reduced_size );
     end = std::remove_if( beg, end, [&i, step](const value_type&) {
       return (i++)%step==0;
     });
@@ -295,7 +295,7 @@ void aggregator_base::reduce_(data_type& d) const
   {
     // 50 - 400
     // Оставляем каждый N элемент
-    size_type step = d.size() / _reduced_size;
+    size_type step = d.size() / _outgoing_reduced_size;
     end = std::remove_if( beg, end, [&i, step](const value_type&) {
       return (i++)%step!=0;
     });
@@ -444,10 +444,10 @@ aggregator_mt::aggregated_ptr aggregator_mt::aggregate_current()
   return aggregator_base::aggregate_current();
 }
 
-bool aggregator_mt::separate(time_type ts_now, bool force)
+bool aggregator_mt::separate(time_type ts_now, aggregated_handler handler, bool force)
 {
   std::lock_guard<mutex_type> lk(_mutex);
-  return aggregator_base::separate(ts_now, force);
+  return aggregator_base::separate(ts_now, handler, force);
 }
 
 void aggregator_mt::enable(bool value)

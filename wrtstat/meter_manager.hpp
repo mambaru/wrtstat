@@ -36,49 +36,12 @@ public:
     , _resolution(opt.resolution)
     , _handler(opt.handler)
     , _prefixes(opt.prefixes)
-    
   { 
     if ( _prefixes.empty() ) 
       _prefixes.push_back("");
   }
-  
-  
+
 // time_meter
-  aggregated_data::handler make_handler_( id_t id )
-  {
-    if (id == bad_id || _handler==nullptr)
-      return nullptr;
-    std::string name;
-    return [name, id, this] ( aggregated_data::ptr ag) mutable
-    {
-      if (id != bad_id)
-      {
-        if ( name.empty() ) 
-        {
-          name = this->get_name(id);
-          if ( name.empty() ) 
-          {
-            id = bad_id;
-            return;
-          }
-        }
-        this->_handler( name, std::move(ag) );
-      }
-    };
-  }
-
-  aggregated_data::handler make_handler_( const std::string& name)
-  {
-    if ( auto h = _handler )
-    {
-      return [name, h]( aggregated_data::ptr ag)
-      {
-        h( name, std::move(ag) );
-      };
-    }
-    return nullptr;
-  }
-
   template<typename D >
   time_meter<D> create_time_meter(id_t id, time_type ts_now, size_type cnt)
   {
@@ -349,8 +312,43 @@ public:
   {
     return aggregator::now_t<D>();
   }
+private:
+  aggregated_data::handler make_handler_( id_t id )
+  {
+    if (id == bad_id || _handler==nullptr)
+      return nullptr;
+    std::string name;
+    return [name, id, this] ( aggregated_data::ptr ag) mutable
+    {
+      if (id != bad_id)
+      {
+        if ( name.empty() ) 
+        {
+          name = this->get_name(id);
+          if ( name.empty() ) 
+          {
+            id = bad_id;
+            return;
+          }
+        }
+        this->_handler( name, std::move(ag) );
+      }
+    };
+  }
 
-public:
+  aggregated_data::handler make_handler_( const std::string& name)
+  {
+    if ( auto h = _handler )
+    {
+      return [name, h]( aggregated_data::ptr ag)
+      {
+        h( name, std::move(ag) );
+      };
+    }
+    return nullptr;
+  }
+  
+private:
   resolutions _resolution = resolutions::none;
   named_aggregated_handler _handler;
   std::vector<std::string> _prefixes;

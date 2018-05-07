@@ -23,7 +23,7 @@ UNIT(aggregator1, "")
   }
   
 
-  ag.separate(100, true);
+  ag.separate(100, nullptr, true);
   t << equal<expect, size_t>( ag.size(), 10 ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
   {
@@ -66,7 +66,7 @@ UNIT(aggregator2, "")
     t << equal<expect, size_t>( ag->size(), i/10 ) << FAS_FL;
   }
 
-  ag->separate(100, true);
+  ag->separate(100, nullptr, true);
   t << equal<expect, size_t>( ag->size(), 10 ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
   {

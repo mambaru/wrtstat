@@ -24,7 +24,7 @@ UNIT(separator0, "")
     t << equal<expect>( sep.current_time(), (i/10)*10 ) << "i=" << i << FAS_FL;
     t << equal<expect>( sep.next_time(), (i/10)*10 + 10 ) << "i=" << i << FAS_FL;
   }
-  sep.separate(100, true);
+  sep.separate(100, nullptr, true);
   t << equal<expect>( sep.size(), 10ul ) << FAS_FL;
   t << is_true<expect>( sep.ready() ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
@@ -57,7 +57,7 @@ UNIT(separator1, "")
     t << equal<expect>( sep.current_time(), (i/10)*10 ) << "i=" << i << FAS_FL;
     t << equal<expect>( sep.next_time(), (i/10)*10 + 10 ) << "i=" << i << FAS_FL;
   }
-  sep.separate(110, true);
+  sep.separate(110, nullptr, true);
   t << equal<expect>( sep.size(), 10ul ) << FAS_FL;
   t << is_true<expect>( sep.ready() ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
@@ -94,7 +94,7 @@ UNIT(separator2, "")
       t << equal<expect>( sep.next_time(), (now/opt.aggregation_step_ts + 1)*opt.aggregation_step_ts ) << "i=" << i << FAS_FL;
     }
   }
-  sep.separate(0, true);
+  sep.separate(0, nullptr, true);
   t << equal<expect>( sep.size(), 1000ul ) << FAS_FL;
   t << is_true<expect>( sep.ready() ) << FAS_FL;
   for (int i = 0 ; i < 1000; i++)
