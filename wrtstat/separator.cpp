@@ -133,7 +133,7 @@ time_type separator::current_time() const
 
 time_type separator::get_ts(time_type ts) const
 {
-  time_type now_ts = ( ts!=0 || _resolution==0 ) ? ts : separator::now(_resolution);
+  time_type now_ts = ( ts!=0 || _resolution==resolutions::none ) ? ts : separator::now(_resolution);
   now_ts /= _step_ts;
   now_ts *= _step_ts;
   return now_ts;
@@ -199,6 +199,11 @@ time_type separator::now(time_type resolution)
     default:
       return 0;
   };
+}
+
+time_type separator::now(resolutions resolution)
+{
+  return separator::now(static_cast<time_type>(resolution) );
 }
 
 time_type separator::now()

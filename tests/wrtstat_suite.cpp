@@ -13,7 +13,8 @@ UNIT(wrtstat1, "")
   stat.create_multi_meter<std::chrono::microseconds>(
     "a1", "a2", "a3", 
     wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 
-    static_cast<wrtstat::size_type >(255)
+    static_cast<wrtstat::size_type >(255),
+    0, 0, true
   );
   
   stat.create_multi_meter< wrtstat::size_meter >( "s1", wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 12);
@@ -30,7 +31,7 @@ UNIT(wrtstat2, "")
   using namespace fas::testing;
   
   wrtstat::meter_manager::options_type opt;
-  opt.resolution = 0;
+  opt.resolution = wrtstat::resolutions::none;
   wrtstat::meter_manager stat(opt);
   wrtstat::id_t id = stat.create_aggregator( "test1", 0 );
   // bool add(id_t id, time_type ts_now, value_type v, size_type cnt)
@@ -54,7 +55,7 @@ UNIT(wrtstat3, "")
   using namespace fas::testing;
   t << flush;
   wrtstat::meter_manager::options_type opt;
-  opt.resolution = 1000000;
+  opt.resolution = wrtstat::resolutions::microseconds;
   opt.aggregation_step_ts = 1000000;
   /*opt.reducer_limit = 256;
   opt.reducer_levels = 256;
@@ -80,7 +81,7 @@ UNIT(wrtstat3, "")
   auto start = std::chrono::steady_clock::now();
   for (size_t i = 0 ; i < COUNT; ++i)
   {
-    auto m = meter->create(1UL, size_t(std::rand()%100), 0UL);
+    auto m = meter.create(1UL, size_t(std::rand()%100), 0UL);
     //auto m = meter->create(1UL, 0UL, 0UL);
     for (int j=0;j<10; ++j)
       test_map[i]++;
@@ -96,8 +97,8 @@ UNIT(wrtstat3, "")
 }
 
 BEGIN_SUITE(wrtstat, "")
-  /*ADD_UNIT(wrtstat1)
-  ADD_UNIT(wrtstat2)*/
+  ADD_UNIT(wrtstat1)
+  ADD_UNIT(wrtstat2)
   ADD_UNIT(wrtstat3)
 END_SUITE(wrtstat)
 

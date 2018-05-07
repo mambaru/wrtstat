@@ -1,8 +1,6 @@
 #include <iostream>
-#include <wrtstat/reducer.hpp>
 #include <wrtstat/aggregator.hpp>
-#include <wrtstat/manager/pool.hpp>
-#include <wrtstat/manager/mutex/empty_mutex.hpp>
+
 int main(int argc, char* argv[])
 {
   using namespace wrtstat;
@@ -11,14 +9,15 @@ int main(int argc, char* argv[])
     std::cout << "Usage:\n\t" << argv[0] << " limit levels mode counts" << std::endl;
     return -1;
   }
-  reducer_options opt;
+  aggregator_options opt;
   opt.reducer_limit = static_cast<size_t>(atoi(argv[1]));
   opt.reducer_levels = static_cast<size_t>(atoi(argv[2]));
   opt.reducer_mode = static_cast<reducer_options::mode>(atoi(argv[3]));
+  opt.aggregation_step_ts = 5000000;
   size_t count = static_cast<size_t>(atoi(argv[4]));
   
   pool<std::mutex> p(opt.reducer_limit*2, opt.reducer_levels*2);
-  reducer r(opt, p.get_allocator());
+  aggregator r(aggregator::now(1000000), opt, p.get_allocator());
   std::srand(1);
   
   std::cout << "start " << std::endl;
@@ -32,11 +31,10 @@ int main(int argc, char* argv[])
     {
       for (size_t j = 0; j < opt.reducer_limit; ++j )
       {
-        aggregator::now(1000000);
-        r.add(std::rand()%10000, 1);
+        r.add(aggregator::now(1000000), std::rand()%10000, 1);
       }
     }
-    r.detach();
+    r.force_pop();
     auto finish_once = std::chrono::steady_clock::now();
     auto span_once = std::chrono::duration_cast<std::chrono::microseconds>( finish_once - start_once ).count();
     if ( span_once < span_min )

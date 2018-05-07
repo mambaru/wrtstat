@@ -47,9 +47,9 @@ public:
   void set_size(size_t s) { _size = s; }
   size_type get_size() const { return _size; }
 
-  self_ptr clone(time_type ts_now, size_type s) const
+  size_meter clone(time_type ts_now, size_type s) const
   {
-    return std::make_shared<self>(_meter_fun, ts_now, s);
+    return self(_meter_fun, ts_now, s);
   }
 
   void reset() 
@@ -81,7 +81,7 @@ public:
   typedef size_meter meter_type;
   typedef size_meter::meter_fun_t meter_fun_t;
   
-  size_meter_factory( const meter_fun_t& fun, time_type resolution)
+  size_meter_factory( const meter_fun_t& fun, resolutions resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
   {
@@ -116,7 +116,7 @@ public:
 
 private:
   meter_fun_t _meter_fun;
-  time_type _resolution;
+  resolutions _resolution;
 };
 
 }

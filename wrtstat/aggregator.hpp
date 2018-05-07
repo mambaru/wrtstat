@@ -60,6 +60,8 @@ public:
 
   static time_type now(time_type resolution);
   
+  static time_type now(resolutions resolution);
+  
   time_type now();
 
 protected:

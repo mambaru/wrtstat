@@ -11,7 +11,7 @@ struct separator_options
   time_type aggregation_step_ts = 1;
   // resolution 0, 1, 1000, 1000000, 1000000000
   // При resolution==0 отметку времени всегда нужно передавать, а нулевое значение тоже значение 
-  time_type resolution = 1;
+  resolutions resolution = resolutions::seconds;
   // смещает начальное значение для того чтобы аггрегация не шла лавиной
   // значение аналогично step_ts, обычно достаточно чтобы было равным step_ts
   time_type soiled_start_ts = 0;

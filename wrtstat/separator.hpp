@@ -60,6 +60,8 @@ public:
   
   static time_type now(time_type resolution);
   
+  static time_type now(resolutions resolution);
+  
   time_type now();
 
   size_t size() const;
@@ -73,7 +75,7 @@ private:
   reducer_type _reducer;
   const time_type _step_ts;
   time_type _next_time;
-  time_type _resolution;
+  resolutions _resolution;
   std::list<reduced_ptr> _sep_list;
 };
 

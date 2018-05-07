@@ -13,7 +13,7 @@ UNIT(separator0, "")
   separator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 8;
-  opt.resolution = 0;
+  opt.resolution = resolutions::none;
   opt.aggregation_step_ts = 10;
   separator sep(0, opt);
   time_t tc = sep.current_time();
@@ -48,7 +48,7 @@ UNIT(separator1, "")
   separator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 8;
-  opt.resolution = 0;
+  opt.resolution = resolutions::none;
   opt.aggregation_step_ts = 10;
   separator sep(0, opt);
   for (int i = 10 ; i < 110; i++)
@@ -81,7 +81,7 @@ UNIT(separator2, "")
   separator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 8;
-  opt.resolution = 1000000000;
+  opt.resolution = resolutions::nanoseconds;
   opt.aggregation_step_ts = 1000;
   separator sep(0, opt);
   for (int j = 0 ; j < 10; ++j)

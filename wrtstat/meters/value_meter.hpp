@@ -52,9 +52,9 @@ public:
   void set_count(size_t cnt) { _count = cnt; }
   size_type get_count() const { return _count; }
 
-  self_ptr clone(time_type ts_now, size_type val,  size_type cnt) const
+  value_meter clone(time_type ts_now, value_type val,  size_type cnt) const
   {
-    return std::make_shared<self>(_meter_fun, ts_now, val, cnt);
+    return value_meter(_meter_fun, ts_now, val, cnt);
   }
 
   void reset() 
@@ -86,7 +86,7 @@ public:
   typedef value_meter meter_type;
   typedef value_meter::meter_fun_t meter_fun_t;
   
-  value_meter_factory( const meter_fun_t& fun, time_type resolution)
+  value_meter_factory( const meter_fun_t& fun, resolutions resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
   {}
@@ -113,7 +113,7 @@ public:
 
 private:
   meter_fun_t _meter_fun;
-  time_type _resolution;
+  resolutions _resolution;
 };
 
 }

@@ -21,6 +21,11 @@ time_type aggregator_base::now(time_type resolution)
 {
   return separator::now(resolution);
 }
+
+time_type aggregator_base::now(resolutions resolution)
+{
+  return separator::now(resolution);
+}
   
 time_type aggregator_base::now()
 {

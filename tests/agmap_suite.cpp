@@ -12,7 +12,7 @@ UNIT(agmap1, "")
   using namespace wrtstat;
 
   aggregator_options opt;
-  opt.resolution = 1000000000;
+  opt.resolution = resolutions::nanoseconds;
   opt.soiled_start_ts = 1000000000;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 10;

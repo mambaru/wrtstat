@@ -70,9 +70,9 @@ public:
     _meter_fun( _now, static_cast<value_type>(span), _count );
   }
 
-  self_ptr clone(time_type ts_now, size_type cnt) const
+  time_meter<D> clone(time_type ts_now, size_type cnt) const
   {
-    return std::make_shared<self>(_meter_fun, ts_now, cnt);
+    return time_meter<D>(_meter_fun, ts_now, cnt);
   }
 
 private:
@@ -89,7 +89,7 @@ public:
   typedef time_meter<D> meter_type;
   typedef typename time_meter<D>::meter_fun_t meter_fun_t;
   
-  time_meter_factory( const meter_fun_t& fun, time_type resolution)
+  time_meter_factory( const meter_fun_t& fun, resolutions resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
   {
@@ -117,7 +117,7 @@ public:
  
 private:
   meter_fun_t _meter_fun;
-  time_type _resolution;
+  resolutions _resolution;
 };
 
 }

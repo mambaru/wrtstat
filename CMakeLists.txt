@@ -11,6 +11,7 @@ set(
   wrtstat/aggregator.cpp
   wrtstat/manager/aggregator_map.cpp
   wrtstat/manager/aggregator_hashmap.cpp
+  wrtstat/manager/aggregator_registry.cpp
   #wrtstat/wrtstat.cpp
 )
 

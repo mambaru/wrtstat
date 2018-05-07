@@ -62,12 +62,14 @@ public:
 private:
   
 
-  value_type nth_element_(size_t l, size_t i);
+  void nth_element_(size_t l, size_t i);
+  value_type get_nth_(size_t l, size_t i);
 
   void add_( value_type v);
 
 private:
   const reducer_options _opt;
+  reducer_options::mode _current_mode = reducer_options::mode::sorting;
   bool _empty = true;
   value_type _min = std::numeric_limits<value_type>::max();
   value_type _max = std::numeric_limits<value_type>::min();

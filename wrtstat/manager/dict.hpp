@@ -1,5 +1,6 @@
 #pragma once
 #include <wrtstat/manager/mutex/rwlock.hpp>
+#include <wrtstat/types.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <string>

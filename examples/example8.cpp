@@ -62,7 +62,7 @@ int main()
   opt.outgoing_reduced_size = 1024;
   opt.aggregation_step_ts = 1000000;
   //opt.random_startup_offset = 1000000;
-  opt.resolution = 1000000;
+  opt.resolution = resolutions::microseconds;
   opt.soiled_start_ts = 1000000;
   //opt.pool_size = 128;
   //opt.soiled_start = 0;

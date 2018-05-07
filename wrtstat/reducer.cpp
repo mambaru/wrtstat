@@ -3,10 +3,34 @@
 
 namespace wrtstat {
   
+namespace{
+static const size_t MagicModeNumber = 16UL;
+}
+  
 reducer::reducer(const reducer_options& opt, const allocator& a  )
   : _opt( opt )
   , _allocator( a )
-{}
+{
+  /*
+  if ( _opt.reducer_limit == 0 ) const_cast<reducer_options&>(_opt).reducer_limit = 1024;
+  if ( _opt.reducer_levels == 0 ) const_cast<reducer_options&>(_opt).reducer_levels = 16;
+  */
+  
+  // Если число уровней меньше 1/16, то в nth режим никогда не переключится 
+  if ( opt.reducer_mode == reducer_options::mode::adapt )
+  {
+    if ( _opt.reducer_levels == 0 || _opt.reducer_limit/_opt.reducer_levels  > MagicModeNumber )
+      const_cast<reducer_options&>(_opt).reducer_mode = reducer_options::mode::sorting;
+    else if ( opt.initial_mode == reducer_options::mode::adapt )
+      _current_mode = reducer_options::mode::nth;
+    else
+      _current_mode = reducer_options::mode::sorting;
+  }
+  else if ( opt.reducer_mode == reducer_options::mode::nth )
+    _current_mode = reducer_options::mode::nth;
+  // по умолчанию _current_mode=sorting
+      
+}
 
 std::unique_ptr<reducer> reducer::clone()
 {
@@ -170,19 +194,25 @@ bool reducer::empty() const
   *   x  x
   * 012345
   */
-value_type reducer::nth_element_(size_t l, size_t i)
+void reducer::nth_element_(size_t l, size_t i)
 {
-  if ( i < _data.size() )
+  if ( i < l )
   {
+    //std::cout << "nth_element_(0, " << l << ", " << i << ")" << std::endl;
     std::nth_element(_data[l]->begin(), _data[l]->begin()+std::ptrdiff_t(i),  _data[l]->end());
-    return _data[l]->at(i);
   }
   else
   {
-    std::cout << std::ptrdiff_t(i / l + i%l) << std::endl;
-    std::nth_element(_data[l]->begin() + std::ptrdiff_t(i / l + i%l), _data[l]->begin()+std::ptrdiff_t(i),  _data[l]->end());
-    return _data[l]->at(i);
+    //std::cout << "nth_element_(" << std::ptrdiff_t(i - l) << ", " << i << ", " << _data[l]->size() << ") " << i << " "<< l << std::endl;
+    std::nth_element(_data[l]->begin() + std::ptrdiff_t(i - l), _data[l]->begin() + std::ptrdiff_t(i),  _data[l]->end());
   }
+}
+
+value_type reducer::get_nth_(size_t l, size_t i)
+{
+  if ( _current_mode == reducer_options::mode::nth )
+    this->nth_element_(l, i);
+  return _data[l]->at(i);
 }
 
 void reducer::reduce()
@@ -191,7 +221,8 @@ void reducer::reduce()
   if ( _data.empty() )
     return;
 
-  std::sort( _data.back()->begin(), _data.back()->end() );
+  if ( _current_mode == reducer_options::mode::sorting )
+    std::sort( _data.back()->begin(), _data.back()->end() );
     
   if ( _data.size() == 1 )
     return;
@@ -199,18 +230,52 @@ void reducer::reduce()
   // Расчетное становится реальным
   _lossy_count = this->lossy_count();
     
-  for ( size_t i = 1, l = 1; i < _opt.reducer_limit; ++i )
+  size_t current_levels = _data.size();
+  for ( size_t i = 0, l = current_levels; i < _opt.reducer_limit; ++i )
   {
-    if ( l == _data.size() ) // первую строку не трогаем 
+    if ( l == current_levels ) // первую строку не трогаем 
+    {
+      //std::cout << "-1-" << std::endl;
+      if ( _current_mode == reducer_options::mode::nth )
+        this->nth_element_(0, i);
       l=1;
-    else if ( i < _data[l]->size() ) // незаполненный 
-      //_data[0]->at(i)=_data[l++]->at(i);
-      _data[0]->at(i)=nth_element_(l++, i);
-    else if (_data.size() > 2 )
-      //_data[0]->at(i) = _data[(l++)-1]->at(i);
-      _data[0]->at(i)=nth_element_((l++)-1, i);
+    }
+    else if (l == current_levels - 1 )
+    {
+      //std::cout << "-3-" << std::endl;
+      if ( i < _data[l]->size() )
+        _data[0]->at(i)=get_nth_(l++, i);
+    }
     else
+    {
+      //std::cout << "-2-" << std::endl;
+      _data[0]->at(i)=get_nth_(l++, i);
+      
+      //_data[0]->at(i)=get_nth_((l++)-1, i);
+    }
+    
+    /*
+    else if ( i < _data[l]->size() ) // незаполненный 
+      _data[0]->at(i)=get_nth_(l++, i);
+    else if (_data.size() > 2 )
+      _data[0]->at(i)=get_nth_((l++)-1, i);
+    else
+    {
+      std::cout << std::endl;
+      std::cout << _opt.reducer_limit << std::endl;
+      std::cout << i << std::endl;
+      std::cout << l << std::endl;
+      std::cout << _data.size() << std::endl;
+      std::cout << _data[l]->size() << std::endl;
       abort();
+    }*/
+  }
+  
+  if (_opt.reducer_mode == reducer_options::mode::adapt)
+  {
+    _current_mode = _data.size()==0 || _opt.reducer_limit / _data.size() > MagicModeNumber
+      ? reducer_options::mode::sorting
+      : reducer_options::mode::nth;
   }
   
   for ( size_t i = 1; i < _data.size(); ++i)
@@ -238,8 +303,8 @@ void reducer::add_( value_type v)
       return;
     }
       
-    /*if ( !_data.empty() )
-      std::sort( _data.back()->begin(), _data.back()->end() );*/
+    if ( _current_mode == reducer_options::mode::sorting && !_data.empty() )
+      std::sort( _data.back()->begin(), _data.back()->end() );
     _data.push_back( _allocator.create() );
     _data.back()->reserve(_opt.reducer_limit);
   }

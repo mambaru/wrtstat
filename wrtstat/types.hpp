@@ -16,4 +16,13 @@ typedef std::time_t time_type;
 typedef std::size_t id_t;
 static const id_t bad_id = static_cast<id_t>(-1);
 
+enum class resolutions
+{
+  none = 0,
+  seconds = 1, 
+  milliseconds = 1000,
+  microseconds = 1000000,
+  nanoseconds = 1000000000
+};
+
 }

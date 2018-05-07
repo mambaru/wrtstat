@@ -12,8 +12,6 @@ class multi_meter
 {
 public:
   typedef multi_meter<MeterType> self_type;
-  typedef std::shared_ptr<self_type> self_ptr;
-
   typedef MeterType meter_type;
   typedef std::vector< meter_type > meter_list;
 
@@ -57,19 +55,19 @@ public:
       p.set_read_size(size);
   }
 
-  /*
+  
   template<typename... A>
-  self_type clone(time_type now, A... args) const
+  multi_meter<MeterType> clone(time_type now, A... args) const
   {
-    self_type m;
+    multi_meter<MeterType> m;
     m._meters.reserve(this->_meters.size());
     for (auto& p : _meters )
     {
       m._meters.push_back( std::move( p.clone(now, args...) ) );
     }
-    return  m;
+    return  std::move(m);
   }
-  */
+  
   
 private:
   meter_list _meters;
@@ -103,6 +101,17 @@ public:
     return m;
   }
   
+  template<typename... A>
+  std::shared_ptr<multi_meter<meter_type> > create_shared(A... args) const
+  {
+    std::shared_ptr<multi_meter<meter_type> > m = std::make_shared< multi_meter<meter_type> >();
+    m->reserve(_factory_list.size());
+    for (auto& f : _factory_list)
+    {
+      m->push_back( f.create(args...) );
+    }
+    return m;
+  }
 private:
   std::vector<factory_type> _factory_list;
 };
