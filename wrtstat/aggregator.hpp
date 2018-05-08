@@ -66,6 +66,7 @@ public:
 
 protected:
   
+  /*
   template<typename T>
   simple_adder_t create_simple_adder( std::weak_ptr<T> wthis );
 
@@ -74,6 +75,7 @@ protected:
   
   template<typename T>
   reduced_adder_t create_reduced_adder( std::weak_ptr<T> wthis );
+  */
 
   template<typename T>
   simple_pusher_t create_simple_pusher( std::weak_ptr<T> wthis, aggregated_handler handler );
@@ -116,11 +118,11 @@ public:
   
   aggregator(time_type ts_now, const options_type& opt, const allocator& a = allocator());
   
-  simple_adder_t create_simple_adder( );
+  /*simple_adder_t create_simple_adder( );
 
   data_adder_t create_data_adder( );
   
-  reduced_adder_t create_reduced_adder( );
+  reduced_adder_t create_reduced_adder( );*/
 
   simple_pusher_t create_simple_pusher(aggregated_handler handler);
 
@@ -174,11 +176,13 @@ public:
 
   void enable(bool value);
 
+  /*
   simple_adder_t create_simple_adder( );
 
   data_adder_t create_data_adder( );
   
   reduced_adder_t create_reduced_adder( );
+  */
 
   simple_pusher_t create_simple_pusher(aggregated_handler handler);
 

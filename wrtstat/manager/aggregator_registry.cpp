@@ -93,6 +93,7 @@ namespace wrtstat {
     return _agarr[ pos ];
   }
 
+  /*
   aggregator_registry::simple_adder_t aggregator_registry::create_simple_adder( id_t id )
   {
     if ( auto ag = this->get_aggregator(id) )
@@ -112,22 +113,6 @@ namespace wrtstat {
     if ( auto ag = this->get_aggregator(id) )
       return ag->create_reduced_adder();
     return nullptr;
-  }
-  
-  aggregator_registry::composite_adder_t
-    aggregator_registry::make_composite_handler_(simple_adder_t time_adder, simple_adder_t read_adder, simple_adder_t write_adder, bool summary_size  )
-  {
-    return [time_adder, read_adder, write_adder, summary_size]
-      (time_type now, time_type span, size_type count, 
-       size_type readed, size_type writed)
-      {
-        if ( time_adder!=nullptr )
-          time_adder(now, span, count);
-        if ( read_adder!=nullptr )
-          read_adder(now, static_cast<time_type>(readed), summary_size ? readed : count);
-        if ( write_adder!=nullptr )
-          write_adder(now, static_cast<time_type>(writed), summary_size ? writed : count);
-      };
   }
   
   aggregator_registry::composite_adder_t aggregator_registry::create_composite_adder( id_t time_id, id_t read_id, id_t write_id, bool summary_size )
@@ -180,6 +165,24 @@ namespace wrtstat {
       summary_size
     );
   }
+  */
+  
+  aggregator_registry::composite_adder_t
+    aggregator_registry::make_composite_handler_(simple_adder_t time_adder, simple_adder_t read_adder, simple_adder_t write_adder, bool summary_size  )
+  {
+    return [time_adder, read_adder, write_adder, summary_size]
+      (time_type now, time_type span, size_type count, 
+       size_type readed, size_type writed)
+      {
+        if ( time_adder!=nullptr )
+          time_adder(now, span, count);
+        if ( read_adder!=nullptr )
+          read_adder(now, static_cast<time_type>(readed), summary_size ? readed : count);
+        if ( write_adder!=nullptr )
+          write_adder(now, static_cast<time_type>(writed), summary_size ? writed : count);
+      };
+  }
+
   
   aggregator_registry::simple_pusher_t aggregator_registry::create_simple_pusher( id_t id, aggregated_handler handler )
   {

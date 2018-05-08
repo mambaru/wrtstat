@@ -45,20 +45,25 @@ public:
   template<typename D >
   time_meter<D> create_time_meter(id_t id, time_type ts_now, size_type cnt)
   {
+    return time_meter<D>(super::create_simple_pusher(id, make_handler_(id) ), ts_now, cnt);
+    /*
     if (_handler!=nullptr)
       return time_meter<D>(super::create_simple_pusher(id, make_handler_(id) ), ts_now, cnt);
     else
       return time_meter<D>(super::create_simple_adder(id), ts_now, cnt );
+    */
   }
 
   template<typename D >
   time_meter_factory<D>
   create_time_meter_factory(id_t id)
   {
-    if (_handler!=nullptr)
+    return time_meter_factory<D>(super::create_simple_pusher(id, make_handler_(id) ), _resolution );
+    /*if (_handler!=nullptr)
       return time_meter_factory<D>(super::create_simple_pusher(id, make_handler_(id) ), _resolution );
     else
       return time_meter_factory<D>(super::create_simple_adder(id), _resolution );
+    */
   }
 
   template<typename D >
@@ -79,19 +84,26 @@ public:
   size_meter
     create_size_meter(id_t id, time_type ts_now, size_type size)
   {
+    return size_meter(super::create_simple_pusher(id, make_handler_(id) ), ts_now, size);
+    
+    /*
     if (_handler!=nullptr)
       return size_meter(super::create_simple_pusher(id, make_handler_(id) ), ts_now, size);
     else
       return size_meter(super::create_simple_adder(id), ts_now, size);
+    */
   }
 
   size_meter_factory
     create_size_meter_factory(id_t id)
   {
+    return size_meter_factory(super::create_simple_pusher(id, make_handler_(id) ), _resolution);
+    /*
     if (_handler!=nullptr)
       return size_meter_factory(super::create_simple_pusher(id, make_handler_(id) ), _resolution);
     else
       return size_meter_factory(super::create_simple_adder(id), _resolution);
+    */
   }
   
   size_meter create_size_meter(const std::string& name, time_type ts_now, size_type size)
@@ -107,18 +119,24 @@ public:
 // value_meter
   value_meter create_value_meter(id_t id, time_type ts_now, value_type value, size_type cnt)
   {
+    return value_meter(super::create_simple_pusher(id, make_handler_(id)), ts_now, value, cnt );
+    /*
     if (_handler!=nullptr)
       return value_meter(super::create_simple_pusher(id, make_handler_(id)), ts_now, value, cnt );
     else
       return value_meter(super::create_simple_adder(id), ts_now, value, cnt );
+    */
   }
 
   value_meter_factory create_value_meter_factory(id_t id)
   {
+    return value_meter_factory(super::create_simple_pusher(id, make_handler_(id)), _resolution );
+    /*
     if (_handler!=nullptr)
       return value_meter_factory(super::create_simple_pusher(id, make_handler_(id)), _resolution );
     else
       return value_meter_factory(super::create_simple_adder(id), _resolution );
+    */
   }
   
   value_meter create_value_meter(const std::string& name, time_type ts_now, value_type value, size_type count)
@@ -136,6 +154,18 @@ public:
   composite_meter<D> create_composite_meter(id_t time_id, id_t read_id, id_t write_id, time_type ts_now, 
                                             size_type count, size_type readed, size_type writed, bool summary_size)
   {
+    return composite_meter<D>(
+        super::create_composite_pusher(
+          time_id, read_id, write_id, 
+          make_handler_(time_id), 
+          make_handler_(read_id),
+          make_handler_(write_id), 
+          summary_size
+        ), 
+        ts_now, count, readed,  writed
+    );
+    
+    /*
     if (_handler!=nullptr)
       return composite_meter<D>(
         super::create_composite_pusher(time_id, read_id, write_id, make_handler_(time_id), make_handler_(read_id), make_handler_(write_id), summary_size), 
@@ -144,6 +174,7 @@ public:
       return composite_meter<D>(
         super::create_composite_adder(time_id, read_id, write_id, summary_size), 
         ts_now, count, readed,  writed);
+        */
 
   }
 
@@ -156,6 +187,17 @@ public:
                             size_type count, size_type readed, size_type writed, bool summary_size
                           )
   {
+    return composite_meter<D>(
+        super::create_composite_pusher(
+          time_name, read_name, write_name, 
+          make_handler_(time_name), 
+          make_handler_(read_name), 
+          make_handler_(write_name), 
+          summary_size, ts_now
+        ), 
+        ts_now, count, readed,  writed
+    );
+    /*
     if (_handler!=nullptr)
       return composite_meter<D>(
         super::create_composite_pusher(time_name, read_name, write_name, make_handler_(time_name), make_handler_(read_name), make_handler_(write_name), summary_size, ts_now), 
@@ -164,18 +206,29 @@ public:
       return composite_meter<D>(
         super::create_composite_adder(time_name, read_name, write_name, summary_size, ts_now), 
         ts_now, count, readed,  writed);
+        */
   }
 
-    template<typename D >
+  template<typename D >
   composite_meter_factory<D> 
     create_composite_meter_factory(id_t time_id, id_t read_id, id_t write_id, bool summary_size)
   {
+    return composite_meter_factory<D>(
+        super::create_composite_pusher(
+          time_id, read_id, write_id, 
+          make_handler_(time_id), make_handler_(read_id), make_handler_(write_id), 
+          summary_size
+        ), 
+        _resolution 
+    );
+    /*
     if (_handler!=nullptr)
       return composite_meter_factory<D>(
         super::create_composite_pusher(time_id, read_id, write_id, make_handler_(time_id), make_handler_(read_id), make_handler_(write_id), summary_size), _resolution );
     else
       return composite_meter_factory<D>(
         super::create_composite_adder(time_id, read_id, write_id, summary_size), _resolution );
+        */
   }
 
   template<typename D >
@@ -187,6 +240,19 @@ public:
                             bool summary_size
                           )
   {
+    return composite_meter_factory<D>(
+        super::create_composite_pusher(
+          time_name, read_name, write_name, 
+          make_handler_(time_name), 
+          make_handler_(read_name),
+          make_handler_(write_name), 
+          summary_size, 
+          aggregator::now(_resolution)
+        ), 
+        _resolution 
+      );
+    
+    /*
     if (_handler!=nullptr)
       return composite_meter_factory<D>(
         super::create_composite_pusher(
@@ -202,6 +268,7 @@ public:
           time_name, read_name, write_name, summary_size, 
           aggregator::now(_resolution)
         ), _resolution);
+        */
   }
 
 // multi_meter
@@ -257,7 +324,8 @@ public:
     {
       id_t meter_id = super::create_aggregator(prefix + meter_name, ts_now );
       meter.push_back(
-        MeterType(_handler!=nullptr ? super::create_simple_pusher(meter_id, make_handler_(meter_id)) : super::create_simple_adder(meter_id), ts_now, args... )
+        //MeterType(_handler!=nullptr ? super::create_simple_pusher(meter_id, make_handler_(meter_id)) : super::create_simple_adder(meter_id), ts_now, args... )
+        MeterType( super::create_simple_pusher(meter_id, make_handler_(meter_id)), ts_now, args... )
       );
     }
     return meter;
@@ -312,7 +380,9 @@ public:
   {
     return aggregator::now_t<D>();
   }
+  
 private:
+  
   aggregated_data::handler make_handler_( id_t id )
   {
     if (id == bad_id || _handler==nullptr)

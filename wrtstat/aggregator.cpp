@@ -49,6 +49,8 @@ bool aggregator_base::push( time_type ts_now, value_type v, size_type count, agg
   if ( !_enabled )
     return true;
   
+  if ( handler == nullptr )
+    return this->add(ts_now, v, count);
   return _sep.push(ts_now, v, count, std::bind(&aggregator_base::push_handler_,  this, std::placeholders::_1, handler));
 }
 
@@ -69,6 +71,10 @@ bool aggregator_base::push( time_type ts_now, const data_type& v, size_type coun
 {
   if ( !_enabled )
     return true;
+  
+  if ( handler == nullptr )
+    return this->add(ts_now, v, count);
+
 
   return _sep.push(ts_now, v, count, std::bind(&aggregator_base::push_handler_,  this, std::placeholders::_1, handler));
 }
@@ -88,6 +94,9 @@ bool aggregator_base::push( const reduced_data& v, aggregated_handler handler)
   if ( !_enabled )
     return true;
 
+  if ( handler == nullptr )
+    return this->add(v);
+  
   return _sep.push(v, std::bind(&aggregator_base::push_handler_,  this, std::placeholders::_1, handler));
   /*
   bool result = _sep.push(v, [this, handler](aggregated_ptr ag)
@@ -152,6 +161,7 @@ void aggregator_base::enable(bool value)
   _enabled = value;
 }
 
+/*
 template<typename T>
 aggregator_base::simple_adder_t aggregator_base::create_simple_adder( std::weak_ptr<T> wthis )
 {
@@ -166,7 +176,7 @@ aggregator_base::simple_adder_t aggregator_base::create_simple_adder( std::weak_
       }
     }
   };
-}
+}*/
 
 template<typename T>
 aggregator_base::simple_pusher_t aggregator_base::create_simple_pusher( std::weak_ptr<T> wthis, aggregated_handler handler )
@@ -184,6 +194,7 @@ aggregator_base::simple_pusher_t aggregator_base::create_simple_pusher( std::wea
   };
 }
 
+/*
 template<typename T>
 aggregator_base::data_adder_t aggregator_base::create_data_adder( std::weak_ptr<T> wthis )
 {
@@ -199,6 +210,7 @@ aggregator_base::data_adder_t aggregator_base::create_data_adder( std::weak_ptr<
     }
   };
 }
+*/
 
 template<typename T>
 aggregator_base::data_pusher_t aggregator_base::create_data_pusher( std::weak_ptr<T> wthis, aggregated_handler handler )
@@ -216,6 +228,7 @@ aggregator_base::data_pusher_t aggregator_base::create_data_pusher( std::weak_pt
   };
 }
 
+/*
 template<typename T>
 aggregator_base::reduced_adder_t aggregator_base::create_reduced_adder( std::weak_ptr<T> wthis )
 {
@@ -230,7 +243,7 @@ aggregator_base::reduced_adder_t aggregator_base::create_reduced_adder( std::wea
       }
     }
   };
-}
+}*/
 
 template<typename T>
 aggregator_base::reduced_pusher_t aggregator_base::create_reduced_pusher( std::weak_ptr<T> wthis, aggregated_handler handler )
@@ -353,7 +366,8 @@ aggregator::aggregator(time_type ts_now, const options_type& opt, const allocato
   : aggregator_base(ts_now, opt, a)
 {
 }
-  
+ 
+ /*
 aggregator::simple_adder_t aggregator::create_simple_adder( )
 {
   return aggregator_base::create_simple_adder<aggregator>( this->shared_from_this() );
@@ -368,6 +382,7 @@ aggregator::reduced_adder_t aggregator::create_reduced_adder( )
 {
   return aggregator_base::create_reduced_adder<aggregator>( this->shared_from_this() );
 }
+*/
 
 // pusher
 aggregator::simple_pusher_t aggregator::create_simple_pusher(aggregated_handler handler )
@@ -456,6 +471,7 @@ void aggregator_mt::enable(bool value)
   return aggregator_base::enable(value);
 }
 
+/*
 aggregator_mt::simple_adder_t aggregator_mt::create_simple_adder( )
 {
   std::lock_guard<mutex_type> lk(_mutex);
@@ -473,7 +489,7 @@ aggregator_mt::reduced_adder_t aggregator_mt::create_reduced_adder( )
   std::lock_guard<mutex_type> lk(_mutex);
   return aggregator_base::create_reduced_adder<aggregator_mt>( this->shared_from_this() );
 }
-
+*/
 //
 
 aggregator_mt::simple_pusher_t aggregator_mt::create_simple_pusher(aggregated_handler handler )

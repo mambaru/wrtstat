@@ -56,6 +56,7 @@ public:
   
   aggregator_ptr get_aggregator(id_t id) const;
 
+  /*
   simple_adder_t create_simple_adder( id_t id );
 
   data_adder_t create_data_adder( id_t id );
@@ -76,6 +77,7 @@ public:
     const std::string& write_name, 
     bool summary_size,
     time_type ts_now );
+  */
   
   simple_pusher_t create_simple_pusher( id_t id, aggregated_handler handler );
 
