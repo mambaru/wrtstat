@@ -6,6 +6,7 @@
 
 namespace wrtstat{
 
+/*
 class wrtstat::impl
   : public meter_manager
 {
@@ -146,6 +147,7 @@ std::string wrtstat::get_name(id_t id) const
 {
   return _impl->get_name(id);
 }
+*/
 
 
 }

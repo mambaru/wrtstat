@@ -1,13 +1,7 @@
 #pragma once
 
 #include <wrtstat/wrtstat_options.hpp>
-#include <wrtstat/aggregated_data.hpp>
-#include <wrtstat/reduced_data.hpp>
-#include <wrtstat/meters/multi_meter.hpp>
-#include <wrtstat/meters/value_meter.hpp>
-#include <wrtstat/meters/size_meter.hpp>
-#include <wrtstat/meters/time_meter.hpp>
-#include <wrtstat/meters/composite_meter.hpp>
+#include <wrtstat/meter_manager.hpp>
 #include <memory>
 
 namespace wrtstat{
@@ -17,16 +11,13 @@ using time_multi_meter = multi_meter< time_meter<std::chrono::microseconds> >;
 using value_multi_meter = multi_meter< value_meter >;
 using size_multi_meter = multi_meter< size_meter > ;
 
-typedef std::shared_ptr<composite_multi_meter> composite_multi_meter_ptr;
-typedef std::shared_ptr<time_multi_meter> time_multi_meter_ptr;
-typedef std::shared_ptr<size_multi_meter> size_multi_meter_ptr;
-typedef std::shared_ptr<value_multi_meter> value_multi_meter_ptr;
-
-  
 class wrtstat
+  : public meter_manager
 {
-  class impl;
 public:
+  typedef wrtstat_options options_type;
+  wrtstat(options_type opt):meter_manager(opt){}
+  /*
   typedef std::function< void(time_type now, time_type value, size_type count) > value_adder_t;
   typedef std::function< void(time_type now, data_type&& value, size_type count) > data_adder_t;
   typedef std::function< void(const reduced_data&) > reduced_adder_t;
@@ -61,6 +52,7 @@ public:
 private:
   std::shared_ptr<impl> _impl;
   time_type _resolution;
+  */
 };
 
 }

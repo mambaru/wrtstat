@@ -256,7 +256,7 @@ public:
   
   template<typename D>
   multi_meter_factory< composite_meter_factory<D> >
-    create_multi_meter_factory( 
+    create_composite_multi_meter_factory( 
       const std::string& time_name, 
       const std::string& read_name,
       const std::string& write_name,
@@ -279,16 +279,42 @@ public:
 
   template<typename D>
   multi_meter_factory< time_meter_factory<D> > 
-    create_multi_meter_factory( const std::string& time_name)
+    create_time_multi_meter_factory( const std::string& time_name)
   {
     multi_meter_factory< time_meter_factory<D> > meter;
     meter.reserve( _prefixes.size() );
     for ( auto prefix : _prefixes )
     {
       auto f = this->create_time_meter_factory<D>(prefix + time_name);
-      meter.push_back( std::move(*f) );
+      meter.push_back( std::move(f) );
     }
     return meter;
+  }
+
+  multi_meter_factory< size_meter_factory > 
+    create_size_multi_meter_factory( const std::string& time_name)
+  {
+    multi_meter_factory< size_meter_factory > factory;
+    factory.reserve( _prefixes.size() );
+    for ( auto prefix : _prefixes )
+    {
+      auto f = this->create_size_meter_factory(prefix + time_name);
+      factory.push_back( std::move(f) );
+    }
+    return factory;
+  }
+
+   multi_meter_factory< value_meter_factory > 
+    create_value_multi_meter_factory( const std::string& time_name)
+  {
+    multi_meter_factory< value_meter_factory > factory;
+    factory.reserve( _prefixes.size() );
+    for ( auto prefix : _prefixes )
+    {
+      auto f = this->create_value_meter_factory(prefix + time_name);
+      factory.push_back( std::move(f) );
+    }
+    return factory;
   }
   
   template<typename D>
