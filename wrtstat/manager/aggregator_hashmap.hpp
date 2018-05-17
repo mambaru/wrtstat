@@ -1,5 +1,6 @@
 #pragma once
 #include <wrtstat/manager/aggregator_map.hpp>
+#include <wrtstat/wrtstat_options.hpp>
 
 namespace wrtstat {
 
@@ -9,9 +10,9 @@ class aggregator_hashmap
 public:
   typedef aggregator_map::aggregated_ptr aggregated_ptr;
   typedef aggregator_map::aggregated_handler aggregated_handler;
-  typedef aggregator_options options_type;
+  typedef agmap_options options_type;
 
-  explicit aggregator_hashmap(const options_type& opt = options_type(), size_t hash_size = 4096, size_t pool_size = 0 );
+  explicit aggregator_hashmap(const options_type& opt = options_type());
   
   aggregator_hashmap(aggregator_hashmap&& agh);
   
@@ -24,7 +25,7 @@ public:
 private:
   size_t get_pos_( const std::string& name) const;
   
-  void initialize_(size_t hash_size, size_t pool_size);
+  void initialize_();
   
 private:
   std::hash<std::string> _hash;

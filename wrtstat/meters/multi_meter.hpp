@@ -88,6 +88,11 @@ public:
   {
     _factory_list.push_back(factory);
   }
+  
+  size_t size() const 
+  {
+    return _factory_list.size();
+  }
 
   template<typename... A>
   multi_meter<meter_type> create(A... args) const
