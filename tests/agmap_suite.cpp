@@ -11,7 +11,7 @@ UNIT(agmap1, "")
   using namespace fas::testing;
   using namespace wrtstat;
 
-  aggregator_options opt;
+  agmap_options opt;
   opt.resolution = resolutions::nanoseconds;
   opt.soiled_start_ts = 1000000000;
   opt.reducer_levels = 1;

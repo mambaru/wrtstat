@@ -74,7 +74,7 @@ UNIT(wrtstat3, "")
   
   std::map<size_t, size_t> test_map;
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", true);
-  auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("", "", "size2", true);
+  auto meter = stat.create_composite_multi_meter_factory<std::chrono::nanoseconds>("", "", "size2", true);
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1");
   //auto meter = stat.create_composite_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", false);
   //auto meter = stat.create_time_meter_factory<std::chrono::microseconds>("time1");
