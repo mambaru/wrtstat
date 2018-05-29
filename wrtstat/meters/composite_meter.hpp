@@ -50,7 +50,7 @@ public:
     _writed = 0;
   }
 
-  void reset(meter_fun_t fun, time_type ts_now, size_type count = 1, size_type readed = 0, size_type writed = 0 )
+  void reset(const meter_fun_t& fun, time_type ts_now, size_type count = 1, size_type readed = 0, size_type writed = 0 )
   {
     this->_push();
     _now = ts_now;

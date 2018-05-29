@@ -346,7 +346,7 @@ public:
     return meter;
   }*/
   
-  std::string make_name_(const std::string& prefix, const std::string& name)
+  static std::string make_name_(const std::string& prefix, const std::string& name)
   {
     if (name.empty()) 
       return std::string();
@@ -384,7 +384,7 @@ public:
   
 private:
   
-  aggregated_data::handler make_handler_( id_t id )
+  aggregated_data::handler make_handler_( id_t id ) const
   {
     if (id == bad_id || _handler==nullptr)
       return nullptr;
@@ -407,7 +407,7 @@ private:
     };
   }
 
-  aggregated_data::handler make_handler_( const std::string& name)
+  aggregated_data::handler make_handler_( const std::string& name) const
   {
     if ( auto h = _handler )
     {

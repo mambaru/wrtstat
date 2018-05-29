@@ -49,7 +49,7 @@ public:
     _count = 0;
   }
 
-  void reset(meter_fun_t fun, time_type ts_now, size_type cnt )
+  void reset(const meter_fun_t& fun, time_type ts_now, size_type cnt )
   {
     this->_push();
     _now = ts_now;
@@ -112,7 +112,7 @@ public:
 
   std::shared_ptr< time_meter<D> > create_shared(time_t ts_now, size_type count) const
   {
-    return std::make_shared<time_meter<D>>(_meter_fun, ts_now, count);
+    return std::make_shared<time_meter<D> >(_meter_fun, ts_now, count);
   }
  
 private:

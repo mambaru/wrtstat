@@ -16,7 +16,7 @@ class wrtstat
 {
 public:
   typedef wrtstat_options options_type;
-  wrtstat(options_type opt):meter_manager(opt){}
+  explicit wrtstat(const options_type& opt):meter_manager(opt){}
   /*
   typedef std::function< void(time_type now, time_type value, size_type count) > value_adder_t;
   typedef std::function< void(time_type now, data_type&& value, size_type count) > data_adder_t;

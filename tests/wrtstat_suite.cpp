@@ -1,5 +1,7 @@
 #include <fas/testing.hpp>
 #include <wrtstat/meter_manager.hpp>
+#include <wrtstat/wrtstat.hpp>
+#include <wrtstat/manager/aggregator_registry.hpp>
 #include <chrono>
 #include <map>
 
@@ -94,11 +96,62 @@ UNIT(wrtstat3, "")
   //t << equal<assert>(test, 10) << FAS_FL;
 }
 
+
+UNIT(wrtstat4, "")
+{
+  using namespace fas::testing;
+  t << flush;
+  wrtstat::wrtstat::options_type opt;
+  opt.resolution = wrtstat::resolutions::microseconds;
+  opt.aggregation_step_ts = 1000000;
+  opt.reducer_limit = 256;
+  opt.reducer_levels = 256;
+  opt.pool_size = 256;
+  opt.prefixes={"a~~", "b~~", "c~~", "d~~", "e~~", "f~~"};
+  
+  int test = 0;
+//#error TODO передавать имя!! и убрать удаление счетчиков, иначе ссылка будет не дествительна, а по значению захватывать не эффективно 
+  opt.handler=[&test, &t](const std::string& name, wrtstat::aggregated_data::ptr ag){
+    ++test ;
+    unused_params(t, name, ag);
+    t << message(name) << " count=" << ag->count << " 80%=" << ag->perc80 << " 100%=" << ag->perc100 << " max=" << ag->max << " lossy=" << ag->lossy;
+  };
+  //opt.handler=[](const std::string& , wrtstat::aggregated_data::ptr ) {};
+  wrtstat::meter_manager stat(opt);
+  
+  std::map<size_t, size_t> test_map;
+  //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", true);
+  auto meter = stat.create_composite_multi_meter_factory<std::chrono::nanoseconds>("", "", "size2", true);
+  /*auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1");
+  auto meter = stat.create_composite_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", false);
+  auto meter = stat.create_time_meter_factory<std::chrono::microseconds>("time1");*/
+  auto start = std::chrono::steady_clock::now();
+  for (size_t i = 0 ; i < COUNT; ++i)
+  {
+    auto m = meter.create(1UL, size_t(std::rand()%100), 0UL);
+    //auto m = meter->create(1UL, 0UL, 0UL);
+    for (int j=0;j<10; ++j)
+      test_map[i]++;
+    m.set_write_size(size_t(std::rand()%1000));
+    //m.reset();
+  }
+  
+  auto finish = std::chrono::steady_clock::now();
+  time_t span_mks = std::chrono::duration_cast<std::chrono::microseconds>(finish -start).count();
+  t << message("COUNT=") << COUNT << " tests=" << test << " time=" << span_mks << "mks rate=" << (COUNT*1000000L)/span_mks;
+  t << equal<assert>( stat.aggregators_count(), 7) << FAS_FL;
+  
+  wrtstat::aggregator_registry::options_type opt2;
+  wrtstat::aggregator_registry ar(opt2, 0,0,0);
+  t << equal<assert>( ar.aggregators_count(), 0) << FAS_FL;
+}
+
 }
 
 BEGIN_SUITE(wrtstat, "")
   ADD_UNIT(wrtstat1)
   ADD_UNIT(wrtstat2)
   ADD_UNIT(wrtstat3)
+  ADD_UNIT(wrtstat4)
 END_SUITE(wrtstat)
 

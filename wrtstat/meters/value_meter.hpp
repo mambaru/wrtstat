@@ -64,7 +64,7 @@ public:
     _value = 0;
   }
   
-  void reset(meter_fun_t fun, time_type ts_now, value_type val,  size_type cnt )
+  void reset(const meter_fun_t& fun, time_type ts_now, value_type val,  size_type cnt )
   {
     this->push_();
     _now = ts_now;

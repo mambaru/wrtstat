@@ -58,7 +58,7 @@ public:
     _size = 0;
   }
   
-  void reset(meter_fun_t fun, time_type ts_now, size_type size )
+  void reset(const meter_fun_t& fun, time_type ts_now, size_type size )
   {
     this->_push();
     _now = ts_now;
