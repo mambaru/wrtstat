@@ -5,28 +5,36 @@
 #include <chrono>
 #include <map>
 
-#define COUNT 1000000
+//#define COUNT 1000000
+#define COUNT 1
 namespace {
 
 UNIT(wrtstat1, "")
 {
   using namespace fas::testing;
-  wrtstat::meter_manager stat;
+
+  wrtstat::meter_manager::options_type options;
+  // Если resolutions now_t не совпадает, то 
+  options.resolution = wrtstat::resolutions::microseconds;
+  
+  wrtstat::meter_manager stat(options);
   stat.create_composite_multi_meter<std::chrono::microseconds>(
     "a1", "a2", "a3", true).create( 
-    wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 
+    stat.now(), 
     static_cast<wrtstat::size_type >(255),
     0l, 0l
   );
-  
-  stat.create_size_multi_meter( "s1").create(wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 12);
-  stat.create_value_multi_meter( "v1").create(wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 12, 0u);
-  stat.create_value_multi_meter( "v2").create(wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 12, 1u);
+  t << message("DEBUG"); 
+  t << flush;
+
+  stat.create_size_multi_meter( "s1").create(stat.now(), 12);
+  stat.create_value_multi_meter( "v1").create(stat.now(), 12, 0u);
+  stat.create_value_multi_meter( "v2").create(stat.now(), 12, 1u);
   
   stat.create_time_multi_meter< std::chrono::nanoseconds >("t1")
-      .create( wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 1u);
+      .create( stat.now(), 1u);
   stat.create_time_multi_meter< std::chrono::nanoseconds >( "t2")
-      .create( wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 10u );
+      .create( stat.now(), 10u );
   t << nothing;
 }
 
@@ -89,7 +97,7 @@ UNIT(wrtstat3, "")
     //auto m = meter->create(1UL, 0UL, 0UL);
     for (int j=0;j<10; ++j)
       test_map[i]++;
-    m.set_write_size(size_t(std::rand()%1000));
+    m.set_write_size(std::rand()%1000);
     //m.reset();
   }
   auto finish = std::chrono::steady_clock::now();
@@ -134,7 +142,7 @@ UNIT(wrtstat4, "")
     //auto m = meter->create(1UL, 0UL, 0UL);
     for (int j=0;j<10; ++j)
       test_map[i]++;
-    m.set_write_size(size_t(std::rand()%1000));
+    m.set_write_size(std::rand()%1000);
     //m.reset();
   }
   

@@ -209,7 +209,16 @@ time_type separator::now(time_type resolution)
 
 time_type separator::now(resolutions resolution)
 {
-  return separator::now(static_cast<time_type>(resolution) );
+  switch (resolution)
+  {
+    case resolutions::nanoseconds : return separator::now_t<std::chrono::nanoseconds>();
+    case resolutions::microseconds : return separator::now_t<std::chrono::microseconds>();
+    case resolutions::milliseconds : return separator::now_t<std::chrono::milliseconds>();
+    case resolutions::seconds : return separator::now_t<std::chrono::seconds>();
+    case resolutions::none : 
+    default : break;
+  };
+  return 0;
 }
 
 time_type separator::now()

@@ -195,6 +195,21 @@ public:
     return aggregator::now_t<D>();
   }
   
+  time_type now(time_type resolution) 
+  {
+    return aggregator::now(resolution);
+  }
+
+  time_type now(resolutions resolution)
+  {
+    return aggregator::now(resolution);
+  }
+  
+  time_type now()
+  {
+    return aggregator::now(_resolution);
+  }
+
 private:
 
   static std::string make_name_(const std::string& prefix, const std::string& name)
