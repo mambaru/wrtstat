@@ -23,8 +23,6 @@ public:
   typedef aggregator_registry super;
   typedef aggregator_registry manager_type;
   typedef typename manager_type::aggregated_ptr aggregated_ptr;
-
-  //typedef typename manager_type::aggregated_handler aggregated_handler;
   typedef std::function<void(const std::string& name, aggregated_data::ptr)> named_aggregated_handler;
   typedef wrtstat_options options_type;
 
@@ -46,113 +44,55 @@ public:
 // ----------------------------------
 
   template<typename D >
-  time_meter<D> create_time_meter(id_t id, time_type ts_now, size_type cnt)
+  time_meter<D>
+  create_time_meter(id_t id)
   {
-    return time_meter<D>(super::create_simple_pusher(id, make_handler_(id) ), ts_now, cnt);
-  }
-
-  template<typename D >
-  time_meter_factory<D>
-  create_time_meter_factory(id_t id)
-  {
-    return time_meter_factory<D>(super::create_simple_pusher(id, make_handler_(id) ), _resolution );
+    return time_meter<D>(super::create_simple_pusher(id, make_handler_(id) ), _resolution );
   }
 
   template<typename D >
   time_meter<D>
-    create_time_meter(const std::string& name, time_type ts_now, size_type cnt)
+    create_time_meter(const std::string& name)
   {
-    return this->create_time_meter<D>( this->create_aggregator(name, ts_now), ts_now, cnt);
-  }
-
-  template<typename D >
-  time_meter_factory<D>
-    create_time_meter_factory(const std::string& name)
-  {
-    return this->create_time_meter_factory<D>( this->create_aggregator(name, aggregator::now(_resolution) ) );
+    return this->create_time_meter<D>( this->create_aggregator(name, aggregator::now(_resolution) ) );
   }
   
   template<typename D>
-  multi_meter_factory< time_meter_factory<D> > 
-    create_time_multi_meter_factory( const std::string& time_name)
+  multi_meter< time_meter<D> > 
+    create_time_multi_meter( const std::string& time_name)
   {
-    multi_meter_factory< time_meter_factory<D> > meter;
+    multi_meter< time_meter<D> > meter;
     meter.reserve( _prefixes.size() );
     for ( auto prefix : _prefixes )
     {
-      auto f = this->create_time_meter_factory<D>(prefix + time_name);
+      auto f = this->create_time_meter<D>(prefix + time_name);
       meter.push_back( std::move(f) );
     }
     return meter;
   }
   
-  template<typename D>
-  multi_meter< time_meter<D> > 
-    create_time_multi_meter( const std::string& time_name, time_type ts_now, size_type count)
-  {
-    auto meter = multi_meter< time_meter<D> >();
-    meter.reserve( _prefixes.size() );
-    for ( auto prefix : _prefixes )
-    {
-      id_t meter_id = super::create_aggregator(prefix + time_name, ts_now );
-      meter.push_back(
-        time_meter<D>( super::create_simple_pusher(meter_id, make_handler_(meter_id)), ts_now, count )
-      );
-    }
-    return meter;
-
-  }
-
-
 // ----------------------------------
 // size_meter
 // ----------------------------------
   size_meter
-    create_size_meter(id_t id, time_type ts_now, size_type size)
+    create_size_meter(id_t id)
   {
-    return size_meter(super::create_simple_pusher(id, make_handler_(id) ), ts_now, size);
-  }
-
-  size_meter_factory
-    create_size_meter_factory(id_t id)
-  {
-    return size_meter_factory(super::create_simple_pusher(id, make_handler_(id) ), _resolution);
+    return size_meter(super::create_simple_pusher(id, make_handler_(id) ), _resolution);
   }
   
-  size_meter create_size_meter(const std::string& name, time_type ts_now, size_type size)
+  size_meter create_size_meter(const std::string& name)
   {
-    return this->create_size_meter( this->create_aggregator(name, ts_now), ts_now, size);
+    return this->create_size_meter( this->create_aggregator(name, aggregator::now(_resolution)));
   }
   
-  multi_meter<size_meter>
-    create_size_multi_meter(const std::string& meter_name, 
-                        time_type ts_now, size_type size)
+  multi_meter< size_meter > 
+    create_size_multi_meter( const std::string& time_name)
   {
-    auto meter = multi_meter<size_meter>();
-    meter.reserve( _prefixes.size() );
-    for ( auto prefix : _prefixes )
-    {
-      id_t meter_id = super::create_aggregator(prefix + meter_name, ts_now );
-      meter.push_back(
-        size_meter( super::create_simple_pusher(meter_id, make_handler_(meter_id)), ts_now, size )
-      );
-    }
-    return meter;
-  }
-  
-  size_meter_factory create_size_meter_factory(const std::string& name)
-  {
-    return this->create_size_meter_factory( this->create_aggregator(name, aggregator::now(_resolution)));
-  }
-  
-  multi_meter_factory< size_meter_factory > 
-    create_size_multi_meter_factory( const std::string& time_name)
-  {
-    multi_meter_factory< size_meter_factory > factory;
+    multi_meter< size_meter > factory;
     factory.reserve( _prefixes.size() );
     for ( auto prefix : _prefixes )
     {
-      auto f = this->create_size_meter_factory(prefix + time_name);
+      auto f = this->create_size_meter(prefix + time_name);
       factory.push_back( std::move(f) );
     }
     return factory;
@@ -162,50 +102,24 @@ public:
 // value_meter
 // ----------------------------------
 
-  value_meter create_value_meter(id_t id, time_type ts_now, value_type value, size_type cnt)
+  value_meter create_value_meter(id_t id)
   {
-    return value_meter(super::create_simple_pusher(id, make_handler_(id)), ts_now, value, cnt );
-  }
-
-  value_meter_factory create_value_meter_factory(id_t id)
-  {
-    return value_meter_factory(super::create_simple_pusher(id, make_handler_(id)), _resolution );
+    return value_meter(super::create_simple_pusher(id, make_handler_(id)), _resolution );
   }
   
-  value_meter create_value_meter(const std::string& name, time_type ts_now, value_type value, size_type count)
+  value_meter create_value_meter(const std::string& name)
   {
-    return this->create_value_meter( this->create_aggregator(name, ts_now), ts_now, value, count);
+    return this->create_value_meter( this->create_aggregator(name, aggregator::now(_resolution)));
   }
   
-  multi_meter<value_meter>
-    create_value_multi_meter(const std::string& meter_name, 
-                        time_type ts_now, value_type value, size_type count)
+  multi_meter< value_meter > 
+    create_value_multi_meter( const std::string& time_name)
   {
-    auto meter = multi_meter<value_meter>();
-    meter.reserve( _prefixes.size() );
-    for ( auto prefix : _prefixes )
-    {
-      id_t meter_id = super::create_aggregator(prefix + meter_name, ts_now );
-      meter.push_back(
-        value_meter( super::create_simple_pusher(meter_id, make_handler_(meter_id)), ts_now, value, count )
-      );
-    }
-    return meter;
-  }
-
-  value_meter_factory create_value_meter_factory(const std::string& name)
-  {
-    return this->create_value_meter_factory( this->create_aggregator(name, aggregator::now(_resolution)));
-  }
-  
-  multi_meter_factory< value_meter_factory > 
-    create_value_multi_meter_factory( const std::string& time_name)
-  {
-    multi_meter_factory< value_meter_factory > factory;
+    multi_meter< value_meter > factory;
     factory.reserve( _prefixes.size() );
     for ( auto prefix : _prefixes )
     {
-      auto f = this->create_value_meter_factory(prefix + time_name);
+      auto f = this->create_value_meter(prefix + time_name);
       factory.push_back( std::move(f) );
     }
     return factory;
@@ -214,48 +128,12 @@ public:
 // ----------------------------------
 // composite_meter
 // ----------------------------------
+  
   template<typename D >
-  composite_meter<D> create_composite_meter(id_t time_id, id_t read_id, id_t write_id, time_type ts_now, 
-                                            size_type count, size_type readed, size_type writed, bool summary_size)
+  composite_meter<D> 
+    create_composite_meter(id_t time_id, id_t read_id, id_t write_id, bool summary_size)
   {
     return composite_meter<D>(
-        super::create_composite_pusher(
-          time_id, read_id, write_id, 
-          make_handler_(time_id), 
-          make_handler_(read_id),
-          make_handler_(write_id), 
-          summary_size
-        ), 
-        ts_now, count, readed,  writed
-    );
-  }
-
-  template<typename D >
-  composite_meter<D>
-    create_composite_meter( const std::string& time_name, 
-                            const std::string& read_name,
-                            const std::string& write_name,
-                            time_type ts_now,
-                            size_type count, size_type readed, size_type writed, bool summary_size
-                          )
-  {
-    return composite_meter<D>(
-        super::create_composite_pusher(
-          time_name, read_name, write_name, 
-          make_handler_(time_name), 
-          make_handler_(read_name), 
-          make_handler_(write_name), 
-          summary_size, ts_now
-        ), 
-        ts_now, count, readed,  writed
-    );
-  }
-
-  template<typename D >
-  composite_meter_factory<D> 
-    create_composite_meter_factory(id_t time_id, id_t read_id, id_t write_id, bool summary_size)
-  {
-    return composite_meter_factory<D>(
         super::create_composite_pusher(
           time_id, read_id, write_id, 
           make_handler_(time_id), make_handler_(read_id), make_handler_(write_id), 
@@ -264,17 +142,17 @@ public:
         _resolution 
     );
   }
-
+  
   template<typename D >
-  composite_meter_factory<D>
-    create_composite_meter_factory( 
+  composite_meter<D>
+    create_composite_meter( 
                             const std::string& time_name, 
                             const std::string& read_name,
                             const std::string& write_name,
                             bool summary_size
                           )
   {
-    return composite_meter_factory<D>(
+    return composite_meter<D>(
         super::create_composite_pusher(
           time_name, read_name, write_name, 
           make_handler_(time_name), 
@@ -287,86 +165,21 @@ public:
       );
   }
 
-  template<typename D>
-  multi_meter< composite_meter<D> > 
-    create_composite_multi_meter( const std::string& time_name, 
-                        const std::string& read_name,
-                        const std::string& write_name,
-                        time_type ts_now,
-                        size_type count, 
-                        size_type readed, 
-                        size_type writed, 
-                        bool summary_size
-                      )
-  {
-    auto meter = multi_meter< composite_meter<D> >();
-    meter.reserve( _prefixes.size() );
-    for ( auto prefix : _prefixes )
-    {
-      id_t time_id = static_cast<id_t>(-1);
-      id_t read_id = static_cast<id_t>(-1);
-      id_t write_id = static_cast<id_t>(-1);
-      if ( !time_name.empty() )
-        time_id = super::create_aggregator(prefix + time_name, ts_now );
-      if ( !read_name.empty() )
-        read_id = super::create_aggregator(prefix + read_name, ts_now );
-      if ( !write_name.empty() )
-        write_id = super::create_aggregator(prefix + write_name, ts_now );
-
-      meter.push_back( this->create_composite_meter<D>( time_id, read_id, write_id, ts_now, count, readed, writed, summary_size) );
-    }
-    return meter;
-  }
-  
-  /*
-  template<typename D>
-  multi_meter< time_meter<D> > 
-    create_multi_meter( const std::string& time_name, time_type ts_now, size_type count)
-  {
-    return this->create_multi_meter< time_meter<D> >(time_name, ts_now, count);
-  }
-  */
-
-    /*
-  template< typename MeterType, typename... A>
-  multi_meter<MeterType>
-    create_multi_meter(const std::string& meter_name, 
-                        time_type ts_now,
-                        A... args)
-  {
-    auto meter = multi_meter<MeterType>();
-    meter.reserve( _prefixes.size() );
-    for ( auto prefix : _prefixes )
-    {
-      id_t meter_id = super::create_aggregator(prefix + meter_name, ts_now );
-      meter.push_back(
-        MeterType( super::create_simple_pusher(meter_id, make_handler_(meter_id)), ts_now, args... )
-      );
-    }
-    return meter;
-  }*/
-  
-  static std::string make_name_(const std::string& prefix, const std::string& name)
-  {
-    if (name.empty()) 
-      return std::string();
-    return prefix + name;
-  }
   
   template<typename D>
-  multi_meter_factory< composite_meter_factory<D> >
-    create_composite_multi_meter_factory( 
+  multi_meter< composite_meter<D> >
+    create_composite_multi_meter( 
       const std::string& time_name, 
       const std::string& read_name,
       const std::string& write_name,
       bool summary_size
     )
   {
-    multi_meter_factory< composite_meter_factory<D> > meter;
+    multi_meter< composite_meter<D> > meter;
     meter.reserve( _prefixes.size() );
     for ( auto prefix : _prefixes )
     {
-      auto f = this->create_composite_meter_factory<D>(
+      auto f = this->create_composite_meter<D>(
         make_name_(prefix, time_name), 
         make_name_(prefix, read_name), 
         make_name_(prefix, write_name), 
@@ -375,7 +188,7 @@ public:
     }
     return meter;
   }
-
+  
   template<typename D>
   static time_type now_t() 
   {
@@ -383,6 +196,13 @@ public:
   }
   
 private:
+
+  static std::string make_name_(const std::string& prefix, const std::string& name)
+  {
+    if (name.empty()) 
+      return std::string();
+    return prefix + name;
+  }
   
   aggregated_data::handler make_handler_( id_t id ) const
   {

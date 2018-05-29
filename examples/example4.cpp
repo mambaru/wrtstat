@@ -19,11 +19,11 @@ int main()
   opt.resolution = wrtstat::resolutions::microseconds;
   wrtstat::meter_manager mng(opt);
   wrtstat::id_t id = mng.create_aggregator("my_name", std::time(0)*1000000);
-  auto meter_proto = mng.create_time_meter<std::chrono::nanoseconds>(id, std::time(0)*1000000, 100000);
+  auto meter_proto = mng.create_time_meter<std::chrono::nanoseconds>(id).create(std::time(0)*1000000, 100000);
   for (int i = 0; i < 1000; ++i)
   {
     //auto handler = mng.create_handler<std::chrono::microseconds>(id, 10);
-    auto meter = std::make_shared< wrtstat::time_meter<std::chrono::nanoseconds>>(meter_proto.clone(std::time(0)*1000000, 1));
+    auto meter = std::make_shared< wrtstat::time_point<std::chrono::nanoseconds>>(meter_proto.clone(std::time(0)*1000000, 1));
     test([meter](){});
   }
   
