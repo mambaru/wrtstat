@@ -12,7 +12,7 @@ UNIT(aggregator1, "")
   aggregator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 10;
-  opt.resolution = 0;
+  opt.resolution = resolutions::none;
   opt.aggregation_step_ts = 10;
   std::vector<int> values;
   aggregator ag(0, opt);
@@ -23,7 +23,7 @@ UNIT(aggregator1, "")
   }
   
 
-  ag.separate(100, true);
+  ag.separate(100, nullptr, true);
   t << equal<expect, size_t>( ag.size(), 10 ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
   {
@@ -55,18 +55,18 @@ UNIT(aggregator2, "")
   aggregator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 8;
-  opt.resolution = 0;
+  opt.resolution = resolutions::none;
   opt.aggregation_step_ts = 10;
 
   auto ag = std::make_shared<aggregator_mt>(0, opt);
-  auto meter = ag->create_value_adder();
+  auto meter = ag->create_simple_pusher(nullptr);
   for (int i = 0 ; i < 100; i++)
   {
     meter(i, i, 1);
     t << equal<expect, size_t>( ag->size(), i/10 ) << FAS_FL;
   }
 
-  ag->separate(100, true);
+  ag->separate(100, nullptr, true);
   t << equal<expect, size_t>( ag->size(), 10 ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
   {

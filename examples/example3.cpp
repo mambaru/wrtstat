@@ -1,4 +1,5 @@
 #include <wrtstat/aggregator.hpp>
+#include <wrtstat/manager/mutex/empty_mutex.hpp>
 #include <ctime>
 #include <cstdlib>
 #include <iostream>
@@ -8,11 +9,11 @@
 int main()
 {
   ::srand( static_cast<unsigned int>(std::time(0)) );
-  wrtstat::pool pool( 1000, 1000000 );
+  wrtstat::pool<wrtstat::empty_mutex> pool( 1000, 1000000 );
   wrtstat::aggregator_options opt;
   opt.aggregation_step_ts = 5;
   opt.outgoing_reduced_size = 100;
-  opt.resolution = 0;
+  opt.resolution = wrtstat::resolutions::none;
   opt.reducer_limit = 1000;
   opt.reducer_levels = 1000;
   wrtstat::aggregator ag( 0, opt, pool.get_allocator() );

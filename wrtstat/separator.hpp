@@ -27,7 +27,11 @@ public:
   
   bool add( const reduced_data& v );
 
-  bool add( const reduced_data& v, aggregated_handler handler );
+  bool push( time_type ts, value_type v, size_type count, aggregated_handler handler );
+
+  bool push( time_type ts, const data_type& v, size_type count, aggregated_handler handler );
+
+  bool push( const reduced_data& v, aggregated_handler handler );
 
   reduced_ptr pop();
 
@@ -39,9 +43,9 @@ public:
 
   time_type get_ts(time_type ts) const;
   
-  bool separate(time_type ts_now, aggregated_handler handler);
+  //bool separate(time_type ts_now, aggregated_handler handler);
   
-  bool separate(time_type ts_now, bool force);
+  bool separate(time_type ts_now, aggregated_handler handler, bool force);
   
   bool ready() const;
 
@@ -56,6 +60,8 @@ public:
   
   static time_type now(time_type resolution);
   
+  static time_type now(resolutions resolution);
+  
   time_type now();
 
   size_t size() const;
@@ -69,7 +75,7 @@ private:
   reducer_type _reducer;
   const time_type _step_ts;
   time_type _next_time;
-  time_type _resolution;
+  resolutions _resolution;
   std::list<reduced_ptr> _sep_list;
 };
 

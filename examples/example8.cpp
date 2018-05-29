@@ -10,7 +10,7 @@ aggregator_map rt;
 aggregator_map rt2;
 */
 
-typedef aggregator_hashmap_mt aggregator_map_t;
+typedef aggregator_hashmap aggregator_map_t;
 //typedef aggregator_map aggregator_map_t;
 
 aggregator_map_t rt;
@@ -36,8 +36,8 @@ void test()
       {
         rd.ts = aggregator::now_t<std::chrono::microseconds>();
         const std::string& name = names[size_t(i*j)];
-        rt.add(name, rd, [&name]( aggregated_ptr ag){
-          rt2.add( name, *ag, [&name](aggregated_ptr ag1){
+        rt.push(name, rd, [&name]( aggregated_ptr ag){
+          rt2.push( name, *ag, [&name](aggregated_ptr ag1){
             std::cout << name << "=" << ag1->count << std::endl;
           });
           std::cout << "ready,";
@@ -56,15 +56,15 @@ int main()
   size_t S = 4;
 
   aggregator_map_t::options_type opt;
-  opt.hash_size = 2048;
+  //opt.hash_size = 2048;
   opt.reducer_limit = 2048;
   opt.reducer_levels = 16;
   opt.outgoing_reduced_size = 1024;
   opt.aggregation_step_ts = 1000000;
   //opt.random_startup_offset = 1000000;
-  opt.resolution = 1000000;
+  opt.resolution = resolutions::microseconds;
   opt.soiled_start_ts = 1000000;
-  opt.pool_size = 128;
+  //opt.pool_size = 128;
   //opt.soiled_start = 0;
   rt = aggregator_map_t(opt);
   opt.aggregation_step_ts = 5000000;

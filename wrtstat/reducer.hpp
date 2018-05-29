@@ -51,20 +51,25 @@ public:
   void add( const reduced_data& v );
 
   reduced_ptr detach();
-  reduced_ptr get_current();
+  
+  reduced_ptr get_reduced();
 
   bool empty() const;
 
   void reduce();
-  
+
+  std::unique_ptr<reducer> clone();  
 private:
   
-  std::unique_ptr<reducer> clone();
+
+  void nth_element_(size_t l, size_t i);
+  value_type get_nth_(size_t l, size_t i);
 
   void add_( value_type v);
 
 private:
   const reducer_options _opt;
+  reducer_options::mode _current_mode = reducer_options::mode::sorting;
   bool _empty = true;
   value_type _min = std::numeric_limits<value_type>::max();
   value_type _max = std::numeric_limits<value_type>::min();

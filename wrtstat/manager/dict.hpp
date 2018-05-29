@@ -1,12 +1,12 @@
 #pragma once
 #include <wrtstat/manager/mutex/rwlock.hpp>
+#include <wrtstat/types.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
 #include <memory>
 
 namespace wrtstat {
-
 
 class dict
 {
@@ -92,7 +92,7 @@ public:
 private:
   id_t _counter = 0;
   const id_t _step = 1;
-  std::unordered_map< std::string, id_t> _dict;
+  std::unordered_map<std::string, id_t> _dict;
   std::unordered_map<id_t, std::string> _index;
   std::unordered_set<id_t> _free;
 };

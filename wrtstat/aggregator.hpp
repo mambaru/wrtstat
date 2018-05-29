@@ -12,13 +12,19 @@ class aggregator_base
 public:
   typedef separator::reduced_type reduced_type;
   typedef separator::reduced_ptr reduced_ptr;
-  typedef std::function< void(time_type now, time_type value, size_type count) > value_adder_t;
-  typedef std::function< void(time_type now, data_type&& value, size_type count) > data_adder_t;
-  typedef std::function< void(const reduced_data&) > reduced_adder_t;
+
   typedef aggregator_options options_type;
   typedef aggregated_data::ptr aggregated_ptr;
   typedef aggregated_data::handler aggregated_handler;
   typedef std::list< aggregated_ptr > aggregated_list;
+  
+  typedef std::function< void(time_type now, time_type value, size_type count) > simple_adder_t;
+  typedef std::function< void(time_type now, data_type&& value, size_type count) > data_adder_t;
+  typedef std::function< void(const reduced_data&) > reduced_adder_t;
+  
+  typedef simple_adder_t simple_pusher_t;
+  typedef data_adder_t data_pusher_t;
+  typedef reduced_adder_t reduced_pusher_t;
   
   aggregator_base(time_type ts_now, const aggregator_options& opt, const allocator& a = allocator() );
 
@@ -27,9 +33,12 @@ public:
   bool add(time_type ts_now, value_type v, size_type count);
   bool add(time_type ts_now, const data_type& v, size_type count);
   bool add( const reduced_data& v);
-  bool add( const reduced_data& v, aggregated_handler handler);
-
-  bool separate(time_type ts_now, bool force);
+  
+  bool push( time_type ts_now, value_type v, size_type count, aggregated_handler handler);
+  bool push( time_type ts_now, const data_type& v, size_type count, aggregated_handler handler);
+  bool push( const reduced_data& v, aggregated_handler handler);
+  
+  bool separate(time_type ts_now, aggregated_handler handler, bool force);
   
   aggregated_ptr pop();
 
@@ -51,17 +60,31 @@ public:
 
   static time_type now(time_type resolution);
   
+  static time_type now(resolutions resolution);
+  
   time_type now();
 
 protected:
+  
+  /*
   template<typename T>
-  value_adder_t create_value_adder( std::weak_ptr<T> wthis );
+  simple_adder_t create_simple_adder( std::weak_ptr<T> wthis );
 
   template<typename T>
   data_adder_t create_data_adder( std::weak_ptr<T> wthis );
   
   template<typename T>
   reduced_adder_t create_reduced_adder( std::weak_ptr<T> wthis );
+  */
+
+  template<typename T>
+  simple_pusher_t create_simple_pusher( std::weak_ptr<T> wthis, aggregated_handler handler );
+
+  template<typename T>
+  data_pusher_t create_data_pusher( std::weak_ptr<T> wthis, aggregated_handler handler );
+  
+  template<typename T>
+  reduced_pusher_t create_reduced_pusher( std::weak_ptr<T> wthis, aggregated_handler handler );
 
 private:
 
@@ -75,10 +98,12 @@ private:
   void aggregate1_(aggregated_handler handler);
 
   aggregated_ptr aggregate2_(reduced_ptr d) const;
+  
+  void push_handler_( aggregated_ptr ag, aggregated_handler handler);
 
 public:
   separator _sep;
-  size_t _reduced_size = 0;
+  size_t _outgoing_reduced_size = 0;
   bool _enabled = true;
   aggregated_list _ag_list;
   std::shared_ptr<int> _id;
@@ -93,11 +118,18 @@ public:
   
   aggregator(time_type ts_now, const options_type& opt, const allocator& a = allocator());
   
-  value_adder_t create_value_adder( );
+  /*simple_adder_t create_simple_adder( );
 
   data_adder_t create_data_adder( );
   
-  reduced_adder_t create_reduced_adder( );
+  reduced_adder_t create_reduced_adder( );*/
+
+  simple_pusher_t create_simple_pusher(aggregated_handler handler);
+
+  data_pusher_t create_data_pusher(aggregated_handler handler );
+  
+  reduced_pusher_t create_reduced_pusher(aggregated_handler handler );
+
 };
 
 class aggregator_mt
@@ -112,9 +144,12 @@ public:
   typedef aggregator_base::options_type options_type;
   typedef aggregator_base::aggregated_ptr aggregated_ptr;
   typedef aggregator_base::aggregated_handler aggregated_handler;
-  typedef aggregator_base::value_adder_t value_adder_t;
+  typedef aggregator_base::simple_adder_t simple_adder_t;
   typedef aggregator_base::data_adder_t data_adder_t;
   typedef aggregator_base::reduced_adder_t reduced_adder_t;
+  typedef aggregator_base::simple_pusher_t simple_pusher_t;
+  typedef aggregator_base::data_pusher_t data_pusher_t;
+  typedef aggregator_base::reduced_pusher_t reduced_pusher_t;
 
 
   aggregator_mt(time_type ts_now, const options_type& opt, const allocator& a = allocator() );
@@ -123,9 +158,13 @@ public:
 
   bool add(time_type ts_now, const data_type& v, size_type count);
   
-  bool add( const reduced_data& v, aggregated_handler handler);
-  
   bool add( const reduced_data& v);
+  
+  bool push( time_type ts_now, value_type v, size_type count, aggregated_handler handler);
+
+  bool push( time_type ts_now, const data_type& v, size_type count, aggregated_handler handler);
+
+  bool push( const reduced_data& v, aggregated_handler handler);
 
   aggregated_ptr pop();
 
@@ -133,15 +172,23 @@ public:
   
   aggregated_ptr aggregate_current();
 
-  bool separate(time_type ts_now, bool force);
+  bool separate(time_type ts_now, aggregated_handler handler, bool force);
 
   void enable(bool value);
 
-  value_adder_t create_value_adder( );
+  /*
+  simple_adder_t create_simple_adder( );
 
   data_adder_t create_data_adder( );
   
   reduced_adder_t create_reduced_adder( );
+  */
+
+  simple_pusher_t create_simple_pusher(aggregated_handler handler);
+
+  data_pusher_t create_data_pusher(aggregated_handler handler);
+  
+  reduced_pusher_t create_reduced_pusher(aggregated_handler handler);
 
   template<typename D>
   static time_type now_t() 

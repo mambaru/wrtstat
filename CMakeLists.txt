@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(wrtstat)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(WRTSTAT)
+include(AUX)
 
 set(
   source_list
@@ -11,6 +11,9 @@ set(
   wrtstat/aggregator.cpp
   wrtstat/manager/aggregator_map.cpp
   wrtstat/manager/aggregator_hashmap.cpp
+  wrtstat/manager/aggregator_registry.cpp
+  wrtstat/json/load.cpp
+  #wrtstat/wrtstat.cpp
 )
 
 add_library(wrtstat ${source_list})
@@ -21,6 +24,7 @@ if ( BUILD_TESTING )
   enable_testing()
   add_subdirectory(tests)
   add_subdirectory(examples)
+  add_subdirectory(benchmarks)
 endif()
 
 set(CPACK_PACKAGE_NAME "wrtstat")

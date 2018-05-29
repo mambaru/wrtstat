@@ -13,7 +13,7 @@ UNIT(separator0, "")
   separator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 8;
-  opt.resolution = 0;
+  opt.resolution = resolutions::none;
   opt.aggregation_step_ts = 10;
   separator sep(0, opt);
   time_t tc = sep.current_time();
@@ -24,7 +24,7 @@ UNIT(separator0, "")
     t << equal<expect>( sep.current_time(), (i/10)*10 ) << "i=" << i << FAS_FL;
     t << equal<expect>( sep.next_time(), (i/10)*10 + 10 ) << "i=" << i << FAS_FL;
   }
-  sep.separate(100, true);
+  sep.separate(100, nullptr, true);
   t << equal<expect>( sep.size(), 10ul ) << FAS_FL;
   t << is_true<expect>( sep.ready() ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
@@ -48,7 +48,7 @@ UNIT(separator1, "")
   separator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 8;
-  opt.resolution = 0;
+  opt.resolution = resolutions::none;
   opt.aggregation_step_ts = 10;
   separator sep(0, opt);
   for (int i = 10 ; i < 110; i++)
@@ -57,7 +57,7 @@ UNIT(separator1, "")
     t << equal<expect>( sep.current_time(), (i/10)*10 ) << "i=" << i << FAS_FL;
     t << equal<expect>( sep.next_time(), (i/10)*10 + 10 ) << "i=" << i << FAS_FL;
   }
-  sep.separate(110, true);
+  sep.separate(110, nullptr, true);
   t << equal<expect>( sep.size(), 10ul ) << FAS_FL;
   t << is_true<expect>( sep.ready() ) << FAS_FL;
   for (int i = 0 ; i < 10; i++)
@@ -81,7 +81,7 @@ UNIT(separator2, "")
   separator_options opt;
   opt.reducer_levels = 1;
   opt.reducer_limit  = 8;
-  opt.resolution = 1000000000;
+  opt.resolution = resolutions::nanoseconds;
   opt.aggregation_step_ts = 1000;
   separator sep(0, opt);
   for (int j = 0 ; j < 10; ++j)
@@ -94,7 +94,7 @@ UNIT(separator2, "")
       t << equal<expect>( sep.next_time(), (now/opt.aggregation_step_ts + 1)*opt.aggregation_step_ts ) << "i=" << i << FAS_FL;
     }
   }
-  sep.separate(0, true);
+  sep.separate(0, nullptr, true);
   t << equal<expect>( sep.size(), 1000ul ) << FAS_FL;
   t << is_true<expect>( sep.ready() ) << FAS_FL;
   for (int i = 0 ; i < 1000; i++)
