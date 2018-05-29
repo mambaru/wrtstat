@@ -9,5 +9,5 @@ add_executable(
   ${FAS_TESTING_CPP}
 )
 
-target_link_libraries(test_wrtstat wrtstat boost_system)
+target_link_libraries(test_wrtstat wrtstat)
 add_test( test_wrtstat test_wrtstat)
