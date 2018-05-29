@@ -139,11 +139,11 @@ UNIT(wrtstat4, "")
   auto finish = std::chrono::steady_clock::now();
   time_t span_mks = std::chrono::duration_cast<std::chrono::microseconds>(finish -start).count();
   t << message("COUNT=") << COUNT << " tests=" << test << " time=" << span_mks << "mks rate=" << (COUNT*1000000L)/span_mks;
-  t << equal<assert>( stat.aggregators_count(), 7) << FAS_FL;
+  t << equal<assert>( stat.aggregators_count(), 7ul) << FAS_FL;
   
   wrtstat::aggregator_registry::options_type opt2;
   wrtstat::aggregator_registry ar(opt2, 0,0,0);
-  t << equal<assert>( ar.aggregators_count(), 0) << FAS_FL;
+  t << equal<assert>( ar.aggregators_count(), 0ul) << FAS_FL;
 }
 
 }
