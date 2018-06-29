@@ -2,7 +2,17 @@ cmake_minimum_required(VERSION 2.8)
 project(wrtstat)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(AUX)
+include(mambaru)
+
+if (NOT WRTSTAT_DISABLE_JSON OR BUID_TESTING)
+  get_faslib()
+endif()
+
+if ( WRTSTAT_DISABLE_JSON )
+  add_definitions(-DWRTSTAT_DISABLE_JSON)
+else()
+  get_mambaru(wjson WJSON_DIR "")
+endif()
 
 set(
   source_list
