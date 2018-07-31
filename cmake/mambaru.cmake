@@ -14,9 +14,7 @@ endif()
 if ( WRTSTAT_DISABLE_JSON )
   add_definitions(-DWRTSTAT_DISABLE_JSON)
 else()
-  get_mambaru(wjson WJSON_DIR "")
+  get_mambaru(wjson WJSON_DIR "" "")
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-
