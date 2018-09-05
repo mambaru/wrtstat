@@ -5,26 +5,36 @@
 #include <chrono>
 #include <map>
 
-#define COUNT 1000000
+//#define COUNT 1000000
+#define COUNT 1
 namespace {
 
 UNIT(wrtstat1, "")
 {
   using namespace fas::testing;
-  wrtstat::meter_manager stat;
+
+  wrtstat::meter_manager::options_type options;
+  // Если resolutions now_t не совпадает, то 
+  options.resolution = wrtstat::resolutions::microseconds;
+  
+  wrtstat::meter_manager stat(options);
   stat.create_composite_multi_meter<std::chrono::microseconds>(
-    "a1", "a2", "a3", 
-    wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 
+    "a1", "a2", "a3", true).create( 
+    stat.now(), 
     static_cast<wrtstat::size_type >(255),
-    0, 0, true
+    0l, 0l
   );
+  t << message("DEBUG"); 
+  t << flush;
+
+  stat.create_size_multi_meter( "s1").create(stat.now(), 12);
+  stat.create_value_multi_meter( "v1").create(stat.now(), 12, 0u);
+  stat.create_value_multi_meter( "v2").create(stat.now(), 12, 1u);
   
-  stat.create_size_multi_meter( "s1", wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 12);
-  stat.create_value_multi_meter( "v1", wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 12, 0);
-  stat.create_value_multi_meter( "v2", wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 12, 1);
-  
-  stat.create_time_multi_meter< std::chrono::nanoseconds >( "t1", wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 0);
-  stat.create_time_multi_meter< std::chrono::nanoseconds >( "t2", wrtstat::meter_manager::now_t<std::chrono::microseconds>(), 10 );
+  stat.create_time_multi_meter< std::chrono::nanoseconds >("t1")
+      .create( stat.now(), 1u);
+  stat.create_time_multi_meter< std::chrono::nanoseconds >( "t2")
+      .create( stat.now(), 10u );
   t << nothing;
 }
 
@@ -76,18 +86,18 @@ UNIT(wrtstat3, "")
   
   std::map<size_t, size_t> test_map;
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", true);
-  auto meter = stat.create_composite_multi_meter_factory<std::chrono::nanoseconds>("", "", "size2", true);
+  auto meter = stat.create_composite_multi_meter<std::chrono::nanoseconds>("", "", "size2", true);
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1");
   //auto meter = stat.create_composite_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", false);
   //auto meter = stat.create_time_meter_factory<std::chrono::microseconds>("time1");
   auto start = std::chrono::steady_clock::now();
   for (size_t i = 0 ; i < COUNT; ++i)
   {
-    auto m = meter.create(1UL, size_t(std::rand()%100), 0UL);
+    auto m = meter.create(1UL, std::rand()%100, 0);
     //auto m = meter->create(1UL, 0UL, 0UL);
     for (int j=0;j<10; ++j)
       test_map[i]++;
-    m.set_write_size(size_t(std::rand()%1000));
+    m.set_write_size(std::rand()%1000);
     //m.reset();
   }
   auto finish = std::chrono::steady_clock::now();
@@ -121,18 +131,18 @@ UNIT(wrtstat4, "")
   
   std::map<size_t, size_t> test_map;
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", true);
-  auto meter = stat.create_composite_multi_meter_factory<std::chrono::nanoseconds>("", "", "size2", true);
+  auto meter = stat.create_composite_multi_meter<std::chrono::nanoseconds>("", "", "size2", true);
   /*auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1");
   auto meter = stat.create_composite_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", false);
   auto meter = stat.create_time_meter_factory<std::chrono::microseconds>("time1");*/
   auto start = std::chrono::steady_clock::now();
   for (size_t i = 0 ; i < COUNT; ++i)
   {
-    auto m = meter.create(1UL, size_t(std::rand()%100), 0UL);
+    auto m = meter.create(1UL, std::rand()%100, 0);
     //auto m = meter->create(1UL, 0UL, 0UL);
     for (int j=0;j<10; ++j)
       test_map[i]++;
-    m.set_write_size(size_t(std::rand()%1000));
+    m.set_write_size(std::rand()%1000);
     //m.reset();
   }
   

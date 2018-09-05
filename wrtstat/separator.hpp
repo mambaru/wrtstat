@@ -57,7 +57,15 @@ public:
     static std::chrono::time_point< std::chrono::system_clock, D > beg;
     return std::chrono::duration_cast<D>(std::chrono::system_clock::now() - beg ).count();
   }
-  
+
+  /*
+  template<typename TP>
+  static time_type now_t(TP now_tp) 
+  {
+    static std::chrono::time_point< std::chrono::system_clock, D > beg;
+    return std::chrono::duration_cast<typename TP::duration>(now_tp - beg ).count();
+  }*/
+
   static time_type now(time_type resolution);
   
   static time_type now(resolutions resolution);

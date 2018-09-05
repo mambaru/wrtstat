@@ -7,32 +7,32 @@
 
 namespace wrtstat {
 
-class size_meter
+class size_point
 {
 public:
-  typedef size_meter self;
+  typedef size_point self;
   typedef std::shared_ptr<self> self_ptr;
   typedef std::function< void(time_type now, value_type value, size_type count) > meter_fun_t;
   typedef std::mutex mutex_type;
   typedef std::shared_ptr<mutex_type> mutex_ptr;
   typedef std::weak_ptr<mutex_type> mutex_wptr;
 
-  size_meter()= delete;
-  size_meter( size_meter&& ) = default;
-  size_meter& operator=( size_meter&& ) = default;
-  size_meter( const size_meter& ) = delete;
-  size_meter& operator=( const size_meter& ) = delete;
+  size_point()= delete;
+  size_point( size_point&& ) = default;
+  size_point& operator=( size_point&& ) = default;
+  size_point( const size_point& ) = delete;
+  size_point& operator=( const size_point& ) = delete;
 
   
 
-  size_meter(const meter_fun_t& fun, time_type ts_now, size_type s)
+  size_point(const meter_fun_t& fun, time_type ts_now, value_type s)
     : _now(ts_now)
     , _size(s)
     , _meter_fun(fun)
   {
   }
 
-  ~size_meter()
+  ~size_point()
   {
     this->_push();
   };
@@ -41,13 +41,13 @@ public:
   {
     if ( _meter_fun == nullptr || _now == 0)
       return;
-    _meter_fun( _now, static_cast<value_type>(_size), _size );
+    _meter_fun( _now, _size, static_cast<size_type>(_size) );
   };
 
-  void set_size(size_t s) { _size = s; }
-  size_type get_size() const { return _size; }
+  void set_size(value_type s) { _size = s; }
+  value_type get_size() const { return _size; }
 
-  size_meter clone(time_type ts_now, size_type s) const
+  size_point clone(time_type ts_now, value_type s) const
   {
     return self(_meter_fun, ts_now, s);
   }
@@ -58,7 +58,7 @@ public:
     _size = 0;
   }
   
-  void reset(const meter_fun_t& fun, time_type ts_now, size_type size )
+  void reset(const meter_fun_t& fun, time_type ts_now, value_type size )
   {
     this->_push();
     _now = ts_now;
@@ -69,44 +69,44 @@ public:
 
 private:
   time_type _now;
-  size_type _size;
+  value_type _size;
   meter_fun_t _meter_fun;
 };
 
 
-class size_meter_factory/*: size_meter*/
+class size_meter/*: size_point*/
 {
-  //typedef size_meter super;
+  //typedef size_point super;
 public:
-  typedef size_meter meter_type;
-  typedef size_meter::meter_fun_t meter_fun_t;
+  typedef size_point point_type;
+  typedef size_point::meter_fun_t meter_fun_t;
   
-  size_meter_factory( const meter_fun_t& fun, resolutions resolution)
+  size_meter( const meter_fun_t& fun, resolutions resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
   {
   
   }
 
-  size_meter create(size_type size) const
+  size_point create(value_type size) const
   {
     return this->create(aggregator::now(_resolution), size);
   }
 
-  size_meter create(time_type now_ts, size_type size) const
+  size_point create(time_type now_ts, value_type size) const
   {
-    return size_meter(_meter_fun, now_ts, size);
+    return size_point(_meter_fun, now_ts, size);
   }
 
   
-  std::shared_ptr< size_meter > create_shared(size_type size) const
+  std::shared_ptr< size_point > create_shared(value_type size) const
   {
     return this->create_shared(aggregator::now(_resolution), size);
   }
 
-  std::shared_ptr< size_meter > create_shared(time_type now_ts, size_type size) const
+  std::shared_ptr< size_point > create_shared(time_type now_ts, value_type size) const
   {
-    return std::make_shared<size_meter>(_meter_fun, now_ts, size);
+    return std::make_shared<size_point>(_meter_fun, now_ts, size);
     //return _pool->make(_meter_fun, now_ts, size);
     //return super::clone(now_ts, size);
     /*auto p = _pool->make(_meter_fun, now_ts, size);

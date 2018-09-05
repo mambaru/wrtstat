@@ -55,29 +55,6 @@ public:
   aggregator_ptr get_aggregator(const std::string& name, time_type now);
   
   aggregator_ptr get_aggregator(id_t id) const;
-
-  /*
-  simple_adder_t create_simple_adder( id_t id );
-
-  data_adder_t create_data_adder( id_t id );
-  
-  reduced_adder_t create_reduced_adder( id_t id );
-  
-  composite_adder_t create_composite_adder( id_t time_id, id_t read_id, id_t write_id, bool summary_size );
-
-  simple_adder_t create_value_adder(const std::string& name, time_type ts_now);
-
-  data_adder_t create_data_adder(const std::string& name, time_type ts_now);
-  
-  reduced_adder_t create_reduced_adder( const std::string& name, time_type ts_now );
-  
-  composite_adder_t create_composite_adder( 
-    const std::string& time_name, 
-    const std::string& read_name, 
-    const std::string& write_name, 
-    bool summary_size,
-    time_type ts_now );
-  */
   
   simple_pusher_t create_simple_pusher( id_t id, aggregated_handler handler );
 
@@ -93,7 +70,6 @@ public:
     bool summary_size
   );
 
-//
   simple_pusher_t create_simple_pusher(const std::string& name, aggregated_handler handler, time_type ts_now);
 
   data_pusher_t create_data_pusher(const std::string& name, aggregated_handler handler, time_type ts_now);

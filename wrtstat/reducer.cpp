@@ -198,12 +198,10 @@ void reducer::nth_element_(size_t l, size_t i)
 {
   if ( i < l )
   {
-    //std::cout << "nth_element_(0, " << l << ", " << i << ")" << std::endl;
     std::nth_element(_data[l]->begin(), _data[l]->begin()+std::ptrdiff_t(i),  _data[l]->end());
   }
   else
   {
-    //std::cout << "nth_element_(" << std::ptrdiff_t(i - l) << ", " << i << ", " << _data[l]->size() << ") " << i << " "<< l << std::endl;
     std::nth_element(_data[l]->begin() + std::ptrdiff_t(i - l), _data[l]->begin() + std::ptrdiff_t(i),  _data[l]->end());
   }
 }
@@ -235,40 +233,19 @@ void reducer::reduce()
   {
     if ( l == current_levels ) // первую строку не трогаем 
     {
-      //std::cout << "-1-" << std::endl;
       if ( _current_mode == reducer_options::mode::nth )
         this->nth_element_(0, i);
       l=1;
     }
     else if (l == current_levels - 1 )
     {
-      //std::cout << "-3-" << std::endl;
       if ( i < _data[l]->size() )
         _data[0]->at(i)=get_nth_(l++, i);
     }
     else
     {
-      //std::cout << "-2-" << std::endl;
       _data[0]->at(i)=get_nth_(l++, i);
-      
-      //_data[0]->at(i)=get_nth_((l++)-1, i);
     }
-    
-    /*
-    else if ( i < _data[l]->size() ) // незаполненный 
-      _data[0]->at(i)=get_nth_(l++, i);
-    else if (_data.size() > 2 )
-      _data[0]->at(i)=get_nth_((l++)-1, i);
-    else
-    {
-      std::cout << std::endl;
-      std::cout << _opt.reducer_limit << std::endl;
-      std::cout << i << std::endl;
-      std::cout << l << std::endl;
-      std::cout << _data.size() << std::endl;
-      std::cout << _data[l]->size() << std::endl;
-      abort();
-    }*/
   }
   
   if (_opt.reducer_mode == reducer_options::mode::adapt)

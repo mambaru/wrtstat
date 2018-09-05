@@ -9,10 +9,10 @@
 namespace wrtstat {
 
 template<typename D>
-class time_meter
+class time_point
 {
 public:
-  typedef time_meter<D> self;
+  typedef time_point<D> self;
   typedef std::shared_ptr<self> self_ptr;
 
   typedef std::chrono::steady_clock clock_type;
@@ -23,13 +23,13 @@ public:
   typedef std::shared_ptr<mutex_type> mutex_ptr;
   typedef std::weak_ptr<mutex_type> mutex_wptr;
 
-  time_meter()= delete;
-  time_meter( const time_meter& ) = delete;
-  time_meter& operator=( const time_meter& ) = delete;
-  time_meter( time_meter&& ) = default;
-  time_meter& operator=( time_meter&& ) = default;
+  time_point()= delete;
+  time_point( const time_point& ) = delete;
+  time_point& operator=( const time_point& ) = delete;
+  time_point( time_point&& ) = default;
+  time_point& operator=( time_point&& ) = default;
   
-  time_meter(const meter_fun_t& fun, time_type ts_now, size_type cnt = 1 )
+  time_point(const meter_fun_t& fun, time_type ts_now, size_type cnt = 1 )
     : _now(ts_now)
     , _count(cnt)
     , _meter_fun(fun)
@@ -38,7 +38,7 @@ public:
       _start = clock_type::now();
   }
 
-  ~time_meter()
+  ~time_point()
   {
     this->_push();
   };
@@ -70,9 +70,9 @@ public:
     _meter_fun( _now, static_cast<value_type>(span), _count );
   }
 
-  time_meter<D> clone(time_type ts_now, size_type cnt) const
+  time_point<D> clone(time_type ts_now, size_type cnt) const
   {
-    return time_meter<D>(_meter_fun, ts_now, cnt);
+    return time_point<D>(_meter_fun, ts_now, cnt);
   }
 
 private:
@@ -83,36 +83,36 @@ private:
 };
 
 template<typename D>
-class time_meter_factory
+class time_meter
 {
 public:
-  typedef time_meter<D> meter_type;
-  typedef typename time_meter<D>::meter_fun_t meter_fun_t;
+  typedef time_point<D> point_type;
+  typedef typename time_point<D>::meter_fun_t meter_fun_t;
   
-  time_meter_factory( const meter_fun_t& fun, resolutions resolution)
+  time_meter( const meter_fun_t& fun, resolutions resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
   {
   }
 
-  time_meter<D> create(size_type count) const
+  time_point<D> create(size_type count) const
   {
     return this->create(aggregator::now(_resolution), count);
   }
 
-  time_meter<D> create(time_t ts_now, size_type count) const
+  time_point<D> create(time_t ts_now, size_type count) const
   {
-    return time_meter<D>(_meter_fun, ts_now, count);
+    return time_point<D>(_meter_fun, ts_now, count);
   }
 
-  std::shared_ptr< time_meter<D> > create_shared(size_type count) const
+  std::shared_ptr< time_point<D> > create_shared(size_type count) const
   {
     return this->create_shared(aggregator::now(_resolution), count);
   }
 
-  std::shared_ptr< time_meter<D> > create_shared(time_t ts_now, size_type count) const
+  std::shared_ptr< time_point<D> > create_shared(time_t ts_now, size_type count) const
   {
-    return std::make_shared<time_meter<D> >(_meter_fun, ts_now, count);
+    return std::make_shared<time_point<D> >(_meter_fun, ts_now, count);
   }
  
 private:
