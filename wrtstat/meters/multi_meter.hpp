@@ -7,78 +7,78 @@
 
 namespace wrtstat {
 
-template< typename MeterType>
-class multi_meter
+template< typename PointType>
+class multi_point
 {
 public:
-  typedef multi_meter<MeterType> self_type;
-  typedef MeterType meter_type;
-  typedef std::vector< meter_type > meter_list;
+  typedef multi_point<PointType> self_type;
+  typedef PointType point_type;
+  typedef std::vector< point_type > point_list;
 
-  multi_meter() = default;
-  multi_meter( const multi_meter& ) = delete;
-  multi_meter& operator=( const multi_meter& ) = delete;
-  multi_meter( multi_meter&& ) = default;
-  multi_meter& operator=( multi_meter&& ) = default;
+  multi_point() = default;
+  multi_point( const multi_point& ) = delete;
+  multi_point& operator=( const multi_point& ) = delete;
+  multi_point( multi_point&& ) = default;
+  multi_point& operator=( multi_point&& ) = default;
 
   
-  ~multi_meter()
+  ~multi_point()
   {
-    _meters.clear();
+    _points.clear();
   }
 
   void reserve(size_t s)
   {
-    _meters.reserve(s);
+    _points.reserve(s);
   }
   
-  void push_back(meter_type p)
+  void push_back(point_type p)
   {
-    _meters.push_back( std::move(p) );
+    _points.push_back( std::move(p) );
   }
 
   void reset()
   {
-    for (auto& p : _meters )
+    for (auto& p : _points )
       p.reset();
   }
   
-  void set_write_size(size_type size) 
+  void set_write_size(value_type size) 
   {
-    for (auto& p : _meters )
+    for (auto& p : _points )
       p.set_write_size(size);
   }
 
-  void set_read_size(size_type size) 
+  void set_read_size(value_type size) 
   {
-    for (auto& p : _meters )
+    for (auto& p : _points )
       p.set_read_size(size);
   }
 
   
   template<typename... A>
-  multi_meter<MeterType> clone(time_type now, A... args) const
+  multi_point<point_type> clone(time_type now, A... args) const
   {
-    multi_meter<MeterType> m;
-    m._meters.reserve(this->_meters.size());
-    for (auto& p : _meters )
+    multi_point<point_type> m;
+    m._points.reserve(this->_points.size());
+    for (const auto& p : _points )
     {
-      m._meters.push_back( std::move( p.clone(now, args...) ) );
+      m._points.push_back( std::move( p.clone(now, args...) ) );
     }
     return  std::move(m);
   }
   
   
 private:
-  meter_list _meters;
+  point_list _points;
 };
 
 template< typename MeterFactory>
-class multi_meter_factory
+class multi_meter
 {
 public:
   typedef MeterFactory factory_type;
-  typedef typename factory_type::meter_type meter_type;
+  typedef typename factory_type::point_type point_type;
   
   void reserve(size_t value)
   {
@@ -95,25 +95,25 @@ public:
   }
 
   template<typename... A>
-  multi_meter<meter_type> create(A... args) const
+  multi_point<point_type> create(A... args) const
   {
-    multi_meter<meter_type> m;
+    multi_point<point_type> m;
     m.reserve(_factory_list.size());
-    for (auto& f : _factory_list)
+    for (const auto& f : _factory_list)
     {
-      m.push_back( f.create(args...) );
+      m.push_back( f.create( std::forward<A>(args)...) );
     }
     return m;
   }
   
   template<typename... A>
-  std::shared_ptr<multi_meter<meter_type> > create_shared(A... args) const
+  std::shared_ptr<multi_point<point_type> > create_shared(A... args) const
   {
-    std::shared_ptr<multi_meter<meter_type> > m = std::make_shared< multi_meter<meter_type> >();
+    std::shared_ptr<multi_point<point_type> > m = std::make_shared< multi_point<point_type> >();
     m->reserve(_factory_list.size());
-    for (auto& f : _factory_list)
+    for (const auto& f : _factory_list)
     {
-      m->push_back( f.create(args...) );
+      m->push_back( f.create(std::forward<A>(args)...) );
     }
     return m;
   }
