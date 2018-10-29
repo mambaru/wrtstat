@@ -168,7 +168,12 @@ namespace wrtstat {
   */
   
   aggregator_registry::composite_adder_t
-    aggregator_registry::make_composite_handler_(simple_adder_t time_adder, simple_adder_t read_adder, simple_adder_t write_adder, bool summary_size  )
+    aggregator_registry::make_composite_handler_(
+      simple_adder_t time_adder, 
+      simple_adder_t read_adder, 
+      simple_adder_t write_adder, 
+      bool summary_size  
+    )
   {
     return [time_adder, read_adder, write_adder, summary_size]
       (time_type now, time_type span, size_type count, 
