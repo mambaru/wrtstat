@@ -152,12 +152,12 @@ composite_meter<D>
 {
   return composite_meter<D>(
           super::create_composite_pusher(
-          time_id, read_id, write_id, 
-          make_handler_(time_id), make_handler_(read_id), make_handler_(write_id), 
-          summary_size
-        ), 
-        _resolution 
-    );
+            time_id, read_id, write_id, 
+            make_handler_(time_id), make_handler_(read_id), make_handler_(write_id), 
+            summary_size
+          ), 
+          _resolution 
+        );
 }
   
 template<typename D >
