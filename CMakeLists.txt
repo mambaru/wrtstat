@@ -8,6 +8,7 @@ if ( STANDALONE )
   getlibs(faslib wjson wlog)
 endif()
 
+include_directories(.)
 set(
   source_list
   wrtstat/reducer.cpp
@@ -24,7 +25,6 @@ add_library(wrtstat ${source_list})
 
 if ( BUILD_TESTING )
   enable_testing()
-  include_directories(.)
   target_link_libraries(wrtstat wlog)
   add_subdirectory(tests)
   add_subdirectory(examples)
