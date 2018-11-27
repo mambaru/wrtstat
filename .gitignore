@@ -9,16 +9,13 @@
 */build
 build
 .tup
-btp/server/debug
-btp/server/release
 *.kch
 autom4te.cache
 *.deps
 CMakeFiles
+Testing
 CMakeCache.txt
 *.kate-swp
 *build_info.h
 config.h
-Makefile
-Testing
 docs
