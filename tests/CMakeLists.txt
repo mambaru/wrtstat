@@ -1,3 +1,5 @@
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BIN_OUTPUT_DIR})
+  
 add_executable(
   test_wrtstat
   test_wrtstat.cpp

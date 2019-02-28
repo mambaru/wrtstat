@@ -4,9 +4,7 @@ project(wrtstat)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(ci)
 
-if ( STANDALONE )
-  getlibs(faslib wjson wlog)
-endif()
+rootlibs(faslib wjson wlog)
 
 include_directories(.)
 set(
@@ -25,7 +23,6 @@ add_library(wrtstat ${source_list})
 
 if ( BUILD_TESTING )
   enable_testing()
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BIN_OUTPUT_DIR})                                                                                                                 
   target_link_libraries(wrtstat wlog)
   add_subdirectory(tests)
   add_subdirectory(examples)
