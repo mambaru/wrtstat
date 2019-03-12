@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(wrtstat)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(ci)
+include(cmake/ci.cmake)
 
 rootlibs(faslib wjson wlog)
 
@@ -25,8 +24,10 @@ if ( BUILD_TESTING )
   enable_testing()
   target_link_libraries(wrtstat wlog)
   add_subdirectory(tests)
-  add_subdirectory(examples)
-  add_subdirectory(benchmarks)
+  if ( WITH_SAMPLES )
+    add_subdirectory(examples)
+    add_subdirectory(benchmarks)
+  endif()
 endif()
 
 set(CPACK_PACKAGE_NAME "wrtstat")
