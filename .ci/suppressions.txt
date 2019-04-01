@@ -1,4 +1,0 @@
-syntaxError:./tests/wrtstat_suite.cpp:41
-syntaxError:./tests/aggregator_suite.cpp:50
-syntaxError:./tests/reducer_suite.cpp:42
-syntaxError:./tests/separator_suite.cpp:41
