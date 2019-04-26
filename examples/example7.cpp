@@ -9,7 +9,7 @@ int main()
 {
   aggregator_map am;
   reduced_data rd;
-  rd.ts = time(0);
+  rd.ts = time(nullptr);
   rd.data = {1,2,3,4,5,5};
   
   am.push("hello", rd, [](aggregator_map::aggregated_ptr){
@@ -17,13 +17,13 @@ int main()
   });
   
   sleep(1);
-  rd.ts = time(0);
+  rd.ts = time(nullptr);
   am.push("hello", rd, [](aggregator_map::aggregated_ptr){
     std::cout << "hello2" << std::endl;
   });
   
   sleep(1);
-  rd.ts = time(0);
+  rd.ts = time(nullptr);
   am.push("hello", rd, [](aggregator_map::aggregated_ptr){
     std::cout << "hello3" << std::endl;
   });

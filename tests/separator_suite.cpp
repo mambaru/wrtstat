@@ -8,7 +8,7 @@ UNIT(separator0, "")
   using namespace fas::testing;
   using namespace wrtstat;
 
-  t << equal<expect, time_type>( std::time(0), separator::now_t<std::chrono::seconds>() ) << FAS_FL;
+  t << equal<expect, time_type>( std::time(nullptr), separator::now_t<std::chrono::seconds>() ) << FAS_FL;
   
   separator_options opt;
   opt.reducer_levels = 1;
@@ -43,7 +43,7 @@ UNIT(separator1, "")
   using namespace fas::testing;
   using namespace wrtstat;
 
-  t << equal<expect, time_type>( std::time(0), separator::now_t<std::chrono::seconds>() ) << FAS_FL;
+  t << equal<expect, time_type>( std::time(nullptr), separator::now_t<std::chrono::seconds>() ) << FAS_FL;
   
   separator_options opt;
   opt.reducer_levels = 1;
@@ -74,7 +74,7 @@ UNIT(separator2, "")
   using namespace fas::testing;
   using namespace wrtstat;
 
-  t << equal<expect, time_type>( std::time(0)*1000000000, (separator::now_t<std::chrono::nanoseconds>()/1000000000 * 1000000000) ) 
+  t << equal<expect, time_type>( std::time(nullptr)*1000000000, (separator::now_t<std::chrono::nanoseconds>()/1000000000 * 1000000000) ) 
     << FAS_FL;
   
   separator_options opt;
@@ -83,12 +83,12 @@ UNIT(separator2, "")
   opt.resolution = resolutions::nanoseconds;
   opt.aggregation_step_ts = 1000;
   separator sep(0, opt);
-  time_t now_stub = time(0);
+  time_t now_stub = time(nullptr);
   for (int j = 0 ; j < 10; ++j)
   {
     for (int i = 0 ; i < 100; i++)
     {
-      if ( time(0) > now_stub + 1  )
+      if ( time(nullptr) > now_stub + 1  )
       {
         t << warning("Сработала заглушка. Под valgrind?");
         return; // заглушка для valgrind( очень долго )
