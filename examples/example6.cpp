@@ -19,7 +19,7 @@ void test()
       auto start = std::chrono::system_clock::now();
       for (int j = 0 ; j < 1000 ; ++j)
       {
-        rd.ts = std::time(0);
+        rd.ts = std::time(nullptr);
         rt1.add(names[ std::size_t(i*j) ], rd );
       }
       auto finish = std::chrono::system_clock::now();
