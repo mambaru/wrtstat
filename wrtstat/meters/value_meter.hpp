@@ -42,7 +42,7 @@ public:
   {
     if ( _meter_fun == nullptr || _now == 0)
       return;
-    _meter_fun( _now, static_cast<value_type>(_value), _count );
+    _meter_fun( _now, _value, _count );
   };
 
   void set_value(value_type val) { _value = val; }

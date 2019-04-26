@@ -8,7 +8,7 @@
 
 int main()
 {
-  ::srand( static_cast<unsigned int>(std::time(0)) );
+  ::srand( static_cast<unsigned int>(std::time(nullptr)) );
   wrtstat::pool<wrtstat::empty_mutex> pool( 1000, 1000000 );
   wrtstat::aggregator_options opt;
   opt.aggregation_step_ts = 5;

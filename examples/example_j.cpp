@@ -1,12 +1,15 @@
-#define WLOG_ENABLE_DEBUG_LOG ON
 #include <signal.h>
 #include <iostream>
 #include <fstream>
+
+#define WLOG_ENABLE_DEBUG_LOG ON
+#include <wlog/logging.hpp>
 #include <wrtstat/json/load.hpp>
 #include <wrtstat/wrtstat_options.hpp>
 #include <wrtstat/json/wrtstat_options_json.hpp>
 #include <wjson/json.hpp>
 #include <wjson/strerror.hpp>
+
 #include <unistd.h>
 
 

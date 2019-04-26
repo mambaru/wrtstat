@@ -45,10 +45,10 @@ int main(int argc, char* argv[])
   auto span = std::chrono::duration_cast<std::chrono::microseconds>( finish - start ).count();
   size_t span_mdl = size_t(span)/count; 
   std::cout << "span: " << span_mdl << "mks " << span_mdl/1000 << "ms " << span_mdl/1000000 << "s" << std::endl;
-  std::cout << "rate: " << 1000000UL/size_t(span_mdl) << std::endl;
+  std::cout << "rate: " << 1000000UL/span_mdl << std::endl;
 
   std::cout << "min_span: " << span_min  << "mks " << span_min/1000 << "ms " << span_min/1000000 << "s" << std::endl;
-  std::cout << "max_rate: " << 1000000UL/size_t(span_min) << std::endl;
+  std::cout << "max_rate: " << 1000000L/span_min << std::endl;
 
   return 0;
 }
