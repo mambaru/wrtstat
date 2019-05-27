@@ -35,14 +35,14 @@ public:
   ~size_point()
   {
     this->_push();
-  };
+  }
   
   void _push()
   {
     if ( _meter_fun == nullptr || _now == 0)
       return;
     _meter_fun( _now, _size, static_cast<size_type>(_size) );
-  };
+  }
 
   void set_size(value_type s) { _size = s; }
   value_type get_size() const { return _size; }

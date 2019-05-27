@@ -41,7 +41,7 @@ public:
   ~time_point()
   {
     this->_push();
-  };
+  }
   
   void reset() 
   {

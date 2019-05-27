@@ -40,7 +40,7 @@ public:
   ~composite_point()
   {
     this->_push();
-  };
+  }
   
   void reset() 
   {
