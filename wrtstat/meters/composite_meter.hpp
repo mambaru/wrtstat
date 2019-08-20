@@ -16,11 +16,11 @@ public:
 
   typedef std::chrono::steady_clock clock_type;
   typedef D duration_type;
-  
-  typedef std::function< void(time_type now, value_type span, size_type count, 
+
+  typedef std::function< void(time_type now, value_type span, size_type count,
                               value_type readed, value_type writed) > meter_fun_t;
-                              
-  composite_point()= delete; 
+
+  composite_point()= delete;
   composite_point( const composite_point& ) = delete;
   composite_point& operator=( const composite_point& ) = delete;
   composite_point( composite_point&& ) = default;
@@ -41,8 +41,8 @@ public:
   {
     this->_push();
   }
-  
-  void reset() 
+
+  void reset()
   {
     _now = 0;
     _count = 0;
@@ -63,34 +63,34 @@ public:
       _start = clock_type::now();
     }
   }
-  
-  value_type get_read_size() const 
+
+  value_type get_read_size() const
   {
     return _readed;
   }
-  
-  void set_read_size(value_type size) 
+
+  void set_read_size(value_type size)
   {
     _readed = size;
   }
 
-  value_type get_write_size() const 
+  value_type get_write_size() const
   {
     return _writed;
   }
 
-  void set_write_size(value_type size) 
+  void set_write_size(value_type size)
   {
     _writed = size;
   }
-  
+
   void _push()
   {
     if ( _meter_fun == nullptr || _now == 0 )
       return;
     clock_type::time_point finish = clock_type::now();
     time_type span = std::chrono::template duration_cast<D>( finish - _start ).count();
-    _meter_fun( _now, static_cast<value_type>(span), _count, _readed, _writed );
+    _meter_fun( _now, fas::useless_cast<value_type>(span), _count, _readed, _writed );
   }
 
   composite_point<D> clone(time_type ts_now, size_type count, value_type readed = 0, value_type writed = 0) const
@@ -113,7 +113,7 @@ class composite_meter
 public:
   typedef composite_point<D> point_type;
   typedef typename composite_point<D>::meter_fun_t meter_fun_t;
-  
+
   composite_meter( const meter_fun_t& fun, resolutions resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
@@ -128,7 +128,7 @@ public:
   composite_point<D> create(time_t ts_now, size_type count, value_type readed, value_type writed) const
   {
     return composite_point<D>(_meter_fun, ts_now, count, readed, writed);
-    
+
   }
 
   std::shared_ptr< composite_point<D> > create_shared(size_type count, value_type readed, value_type writed) const
@@ -136,12 +136,12 @@ public:
     return this->create_shared(aggregator::now(_resolution), count, readed, writed);
   }
 
-  std::shared_ptr< composite_point<D> > create_shared(time_t ts_now, size_type count, 
+  std::shared_ptr< composite_point<D> > create_shared(time_t ts_now, size_type count,
                                                       value_type readed, value_type writed) const
   {
     return std::make_shared<composite_point<D> >(_meter_fun, ts_now, count, readed, writed);
   }
- 
+
 private:
   meter_fun_t _meter_fun;
   resolutions _resolution;
