@@ -2,6 +2,7 @@
 
 #include <string>
 #include <wrtstat/aggregator.hpp>
+#include <fas/utility/useless_cast.hpp>
 #include <memory>
 
 
