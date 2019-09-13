@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - wrtstat-coverage.info - wrtstat/separator.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">wrtstat</a> - separator.hpp<span style="font-size: 80%;"> (source / <a href="separator.hpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">wrtstat-coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-09-13</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #pragma once</a>
+<span class="lineNum">       2 </span>            : #include &lt;wrtstat/reducer.hpp&gt;
+<span class="lineNum">       3 </span>            : #include &lt;wrtstat/separator_options.hpp&gt;
+<span class="lineNum">       4 </span>            : #include &lt;list&gt;
+<span class="lineNum">       5 </span>            : #include &lt;ctime&gt;
+<span class="lineNum">       6 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">       7 </span>            : 
+<a name="8"><span class="lineNum">       8 </span>            : namespace wrtstat {</a>
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span><span class="lineCov">         22 : class separator</span>
+<span class="lineNum">      11 </span>            : {
+<span class="lineNum">      12 </span>            : public:
+<span class="lineNum">      13 </span>            :   typedef reducer reducer_type;
+<span class="lineNum">      14 </span>            :   typedef reducer_type::reduced_type reduced_type;
+<span class="lineNum">      15 </span>            :   typedef reducer_type::reduced_ptr  reduced_ptr;
+<span class="lineNum">      16 </span>            :   typedef aggregated_data::handler aggregated_handler;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            :   separator( time_type ts_now, const separator_options&amp; opt, const allocator&amp; a = allocator() );
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            :   const reducer_type&amp; get_reducer() const;
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            :   bool add( time_type ts, value_type v, size_type count );
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            :   bool add( time_type ts, const data_type&amp; v, size_type count );
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            :   bool add( time_type ts, std::initializer_list&lt;value_type&gt; v );
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            :   bool add( const reduced_data&amp; v );
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            :   bool push( time_type ts, value_type v, size_type count, aggregated_handler handler );
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            :   bool push( time_type ts, const data_type&amp; v, size_type count, aggregated_handler handler );
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            :   bool push( const reduced_data&amp; v, aggregated_handler handler );
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            :   reduced_ptr pop();
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            :   reduced_ptr force_pop();
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            :   reduced_ptr get_current();
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            :   time_type next_time() const;
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            :   time_type get_ts(time_type ts) const;
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            :   bool separate(time_type ts_now, aggregated_handler handler, bool force);
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :   bool ready() const;
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            :   bool empty() const;
+<a name="51"><span class="lineNum">      51 </span>            : </a>
+<span class="lineNum">      52 </span>            :   template&lt;typename D&gt;
+<span class="lineNum">      53 </span><span class="lineCov">     118733 :   static time_type now_t()</span>
+<span class="lineNum">      54 </span>            :   {
+<span class="lineNum">      55 </span>            :     static std::chrono::time_point&lt; std::chrono::system_clock, D &gt; beg;
+<span class="lineNum">      56 </span><span class="lineCov">     118733 :     return std::chrono::duration_cast&lt;D&gt;(std::chrono::system_clock::now() - beg ).count();</span>
+<span class="lineNum">      57 </span>            :   }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :   static time_type now(time_type resolution);
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            :   static time_type now(resolutions resolution);
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            :   time_type now();
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :   size_t size() const;
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            :   void clear( time_type ts_now );
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            :   time_type current_time() const;
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : private:
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            :   reducer_type _reducer;
+<span class="lineNum">      74 </span>            :   const time_type _step_ts;
+<span class="lineNum">      75 </span>            :   time_type _next_time;
+<span class="lineNum">      76 </span>            :   resolutions _resolution;
+<span class="lineNum">      77 </span>            :   std::list&lt;reduced_ptr&gt; _sep_list;
+<span class="lineNum">      78 </span>            : };
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

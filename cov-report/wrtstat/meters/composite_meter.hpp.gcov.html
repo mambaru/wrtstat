@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - wrtstat-coverage.info - wrtstat/meters/composite_meter.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">wrtstat/meters</a> - composite_meter.hpp<span style="font-size: 80%;"> (source / <a href="composite_meter.hpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">wrtstat-coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-09-13</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryLo">71.4 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #pragma once</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : #include &lt;string&gt;
+<span class="lineNum">       4 </span>            : #include &lt;wrtstat/aggregator.hpp&gt;
+<span class="lineNum">       5 </span>            : #include &lt;fas/utility/useless_cast.hpp&gt;
+<span class="lineNum">       6 </span>            : #include &lt;memory&gt;
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : namespace wrtstat {
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : template&lt;typename D&gt;
+<span class="lineNum">      12 </span>            : class composite_point
+<span class="lineNum">      13 </span>            : {
+<span class="lineNum">      14 </span>            : public:
+<span class="lineNum">      15 </span>            :   typedef composite_point&lt;D&gt; self;
+<span class="lineNum">      16 </span>            :   typedef std::shared_ptr&lt;composite_point&gt; self_ptr;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            :   typedef std::chrono::steady_clock clock_type;
+<span class="lineNum">      19 </span>            :   typedef D duration_type;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            :   typedef std::function&lt; void(time_type now, value_type span, size_type count,
+<span class="lineNum">      22 </span>            :                               value_type readed, value_type writed) &gt; meter_fun_t;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            :   composite_point()= delete;
+<a name="25"><span class="lineNum">      25 </span>            :   composite_point( const composite_point&amp; ) = delete;</a>
+<span class="lineNum">      26 </span>            :   composite_point&amp; operator=( const composite_point&amp; ) = delete;
+<span class="lineNum">      27 </span><span class="lineCov">          8 :   composite_point( composite_point&amp;&amp; ) = default;</span>
+<a name="28"><span class="lineNum">      28 </span>            :   composite_point&amp; operator=( composite_point&amp;&amp; ) = default;</a>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span><span class="lineCov">          8 :   composite_point(const meter_fun_t&amp; fun, time_type ts_now, size_type count, value_type readed, value_type writed)</span>
+<span class="lineNum">      31 </span>            :     : _now(ts_now)
+<span class="lineNum">      32 </span>            :     , _count(count)
+<span class="lineNum">      33 </span>            :     , _readed(readed)
+<span class="lineNum">      34 </span>            :     , _writed(writed)
+<span class="lineNum">      35 </span><span class="lineCov">          8 :     , _meter_fun(fun)</span>
+<span class="lineNum">      36 </span>            :   {
+<span class="lineNum">      37 </span><span class="lineCov">          8 :     if ( _now != 0 )</span>
+<span class="lineNum">      38 </span><span class="lineCov">          8 :       _start = clock_type::now();</span>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">          8 :   }</span></a>
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span><span class="lineCov">         16 :   ~composite_point()</span>
+<span class="lineNum">      42 </span>            :   {
+<span class="lineNum">      43 </span><span class="lineCov">         16 :     this-&gt;_push();</span>
+<span class="lineNum">      44 </span><span class="lineCov">         16 :   }</span>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            :   void reset()
+<span class="lineNum">      47 </span>            :   {
+<span class="lineNum">      48 </span>            :     _now = 0;
+<span class="lineNum">      49 </span>            :     _count = 0;
+<span class="lineNum">      50 </span>            :     _readed = 0;
+<span class="lineNum">      51 </span>            :     _writed = 0;
+<span class="lineNum">      52 </span>            :   }
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :   void reset(const meter_fun_t&amp; fun, time_type ts_now, size_type count = 1, value_type readed = 0, value_type writed = 0 )
+<span class="lineNum">      55 </span>            :   {
+<span class="lineNum">      56 </span>            :     this-&gt;_push();
+<span class="lineNum">      57 </span>            :     _now = ts_now;
+<span class="lineNum">      58 </span>            :     _meter_fun = fun;
+<span class="lineNum">      59 </span>            :     if ( _now != 0 )
+<span class="lineNum">      60 </span>            :     {
+<span class="lineNum">      61 </span>            :       _count = count;
+<span class="lineNum">      62 </span>            :       _readed = readed;
+<span class="lineNum">      63 </span>            :       _writed = writed;
+<span class="lineNum">      64 </span>            :       _start = clock_type::now();
+<span class="lineNum">      65 </span>            :     }
+<span class="lineNum">      66 </span>            :   }
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            :   value_type get_read_size() const
+<span class="lineNum">      69 </span>            :   {
+<span class="lineNum">      70 </span>            :     return _readed;
+<span class="lineNum">      71 </span>            :   }
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            :   void set_read_size(value_type size)
+<span class="lineNum">      74 </span>            :   {
+<span class="lineNum">      75 </span>            :     _readed = size;
+<span class="lineNum">      76 </span>            :   }
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            :   value_type get_write_size() const
+<span class="lineNum">      79 </span>            :   {
+<span class="lineNum">      80 </span>            :     return _writed;
+<a name="81"><span class="lineNum">      81 </span>            :   }</a>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineCov">          7 :   void set_write_size(value_type size)</span>
+<span class="lineNum">      84 </span>            :   {
+<span class="lineNum">      85 </span><span class="lineCov">          7 :     _writed = size;</span>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">          7 :   }</span></a>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineCov">         16 :   void _push()</span>
+<span class="lineNum">      89 </span>            :   {
+<span class="lineNum">      90 </span><span class="lineCov">         16 :     if ( _meter_fun == nullptr || _now == 0 )</span>
+<span class="lineNum">      91 </span><span class="lineCov">         24 :       return;</span>
+<span class="lineNum">      92 </span><span class="lineCov">          8 :     clock_type::time_point finish = clock_type::now();</span>
+<span class="lineNum">      93 </span><span class="lineCov">          8 :     time_type span = std::chrono::template duration_cast&lt;D&gt;( finish - _start ).count();</span>
+<span class="lineNum">      94 </span><span class="lineCov">          8 :     _meter_fun( _now, fas::useless_cast&lt;value_type&gt;(span), _count, _readed, _writed );</span>
+<span class="lineNum">      95 </span>            :   }
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            :   composite_point&lt;D&gt; clone(time_type ts_now, size_type count, value_type readed = 0, value_type writed = 0) const
+<span class="lineNum">      98 </span>            :   {
+<span class="lineNum">      99 </span>            :     return composite_point&lt;D&gt;(_meter_fun, ts_now, count, readed, writed);
+<span class="lineNum">     100 </span>            :   }
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            : private:
+<span class="lineNum">     103 </span>            :   time_type _now;
+<span class="lineNum">     104 </span>            :   size_type _count;
+<span class="lineNum">     105 </span>            :   value_type _readed;
+<span class="lineNum">     106 </span>            :   value_type _writed;
+<span class="lineNum">     107 </span>            :   meter_fun_t _meter_fun;
+<span class="lineNum">     108 </span>            :   clock_type::time_point _start;
+<span class="lineNum">     109 </span>            : };
+<a name="110"><span class="lineNum">     110 </span>            : </a>
+<span class="lineNum">     111 </span>            : template&lt;typename D&gt;
+<span class="lineNum">     112 </span><span class="lineCov">         40 : class composite_meter</span>
+<span class="lineNum">     113 </span>            : {
+<span class="lineNum">     114 </span>            : public:
+<span class="lineNum">     115 </span>            :   typedef composite_point&lt;D&gt; point_type;
+<a name="116"><span class="lineNum">     116 </span>            :   typedef typename composite_point&lt;D&gt;::meter_fun_t meter_fun_t;</a>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineCov">          8 :   composite_meter( const meter_fun_t&amp; fun, resolutions resolution)</span>
+<span class="lineNum">     119 </span>            :     : _meter_fun(fun)
+<span class="lineNum">     120 </span><span class="lineCov">          8 :     , _resolution(resolution)</span>
+<span class="lineNum">     121 </span>            :   {
+<a name="122"><span class="lineNum">     122 </span><span class="lineCov">          8 :   }</span></a>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineCov">          7 :   composite_point&lt;D&gt; create(size_type count, value_type readed, value_type writed) const</span>
+<span class="lineNum">     125 </span>            :   {
+<span class="lineNum">     126 </span><span class="lineCov">          7 :     return this-&gt;create(aggregator::now(_resolution), count, readed, writed);</span>
+<a name="127"><span class="lineNum">     127 </span>            :   }</a>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">          8 :   composite_point&lt;D&gt; create(time_t ts_now, size_type count, value_type readed, value_type writed) const</span>
+<span class="lineNum">     130 </span>            :   {
+<span class="lineNum">     131 </span><span class="lineCov">          8 :     return composite_point&lt;D&gt;(_meter_fun, ts_now, count, readed, writed);</span>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            :   }
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :   std::shared_ptr&lt; composite_point&lt;D&gt; &gt; create_shared(size_type count, value_type readed, value_type writed) const
+<span class="lineNum">     136 </span>            :   {
+<span class="lineNum">     137 </span>            :     return this-&gt;create_shared(aggregator::now(_resolution), count, readed, writed);
+<span class="lineNum">     138 </span>            :   }
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            :   std::shared_ptr&lt; composite_point&lt;D&gt; &gt; create_shared(time_t ts_now, size_type count,
+<span class="lineNum">     141 </span>            :                                                       value_type readed, value_type writed) const
+<span class="lineNum">     142 </span>            :   {
+<span class="lineNum">     143 </span>            :     return std::make_shared&lt;composite_point&lt;D&gt; &gt;(_meter_fun, ts_now, count, readed, writed);
+<span class="lineNum">     144 </span>            :   }
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : private:
+<span class="lineNum">     147 </span>            :   meter_fun_t _meter_fun;
+<span class="lineNum">     148 </span>            :   resolutions _resolution;
+<span class="lineNum">     149 </span>            : };
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

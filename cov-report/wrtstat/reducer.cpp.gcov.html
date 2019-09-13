@@ -1,0 +1,364 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - wrtstat-coverage.info - wrtstat/reducer.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">wrtstat</a> - reducer.cpp<span style="font-size: 80%;"> (source / <a href="reducer.cpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">wrtstat-coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">143</td>
+            <td class="headerCovTableEntry">158</td>
+            <td class="headerCovTableEntryHi">90.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-09-13</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryMed">88.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &lt;wrtstat/reducer.hpp&gt;</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : namespace wrtstat {
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span>            : namespace{
+<span class="lineNum">       7 </span>            : static const size_t MagicModeNumber = 16UL;
+<a name="8"><span class="lineNum">       8 </span>            : }</a>
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span><span class="lineCov">         48 : reducer::reducer(const reducer_options&amp; opt, const allocator&amp; a  )</span>
+<span class="lineNum">      11 </span>            :   : _opt( opt )
+<span class="lineNum">      12 </span><span class="lineCov">        144 :   , _allocator( a )</span>
+<span class="lineNum">      13 </span>            : {
+<span class="lineNum">      14 </span>            :   // Если число уровней меньше 1/16, то в nth режим никогда не переключится
+<span class="lineNum">      15 </span><span class="lineCov">         48 :   if ( opt.reducer_mode == reducer_options::mode::adapt )</span>
+<span class="lineNum">      16 </span>            :   {
+<span class="lineNum">      17 </span><span class="lineCov">         48 :     if ( _opt.reducer_levels == 0 || _opt.reducer_limit/_opt.reducer_levels  &gt; MagicModeNumber )</span>
+<span class="lineNum">      18 </span><span class="lineCov">          3 :       const_cast&lt;reducer_options&amp;&gt;(_opt).reducer_mode = reducer_options::mode::sorting;</span>
+<span class="lineNum">      19 </span><span class="lineCov">         45 :     else if ( opt.initial_mode == reducer_options::mode::adapt )</span>
+<span class="lineNum">      20 </span><span class="lineCov">         45 :       _current_mode = reducer_options::mode::nth;</span>
+<span class="lineNum">      21 </span>            :     else
+<span class="lineNum">      22 </span><span class="lineNoCov">          0 :       _current_mode = reducer_options::mode::sorting;</span>
+<span class="lineNum">      23 </span>            :   }
+<span class="lineNum">      24 </span><span class="lineNoCov">          0 :   else if ( opt.reducer_mode == reducer_options::mode::nth )</span>
+<span class="lineNum">      25 </span><span class="lineNoCov">          0 :     _current_mode = reducer_options::mode::nth;</span>
+<span class="lineNum">      26 </span>            :   // по умолчанию _current_mode=sorting
+<span class="lineNum">      27 </span>            : 
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">         48 : }</span></a>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span><span class="lineCov">          1 : std::unique_ptr&lt;reducer&gt; reducer::clone()</span>
+<span class="lineNum">      31 </span>            : {
+<span class="lineNum">      32 </span><span class="lineCov">          1 :   std::unique_ptr&lt;reducer&gt; cln = std::unique_ptr&lt;reducer&gt;( new reducer(_opt, _allocator) );</span>
+<span class="lineNum">      33 </span><span class="lineCov">          1 :   cln-&gt;_empty = _empty;</span>
+<span class="lineNum">      34 </span><span class="lineCov">          1 :   cln-&gt;_min = _min;</span>
+<span class="lineNum">      35 </span><span class="lineCov">          1 :   cln-&gt;_max = _max;</span>
+<span class="lineNum">      36 </span><span class="lineCov">          1 :   cln-&gt;_lossy_count = _lossy_count;</span>
+<span class="lineNum">      37 </span><span class="lineCov">          1 :   cln-&gt;_total_count = _total_count;</span>
+<span class="lineNum">      38 </span><span class="lineCov">          1 :   cln-&gt;_average_count = _average_count;</span>
+<span class="lineNum">      39 </span><span class="lineCov">          1 :   cln-&gt;_average = _average;</span>
+<span class="lineNum">      40 </span><span class="lineCov">          1 :   for (const auto&amp; d : this-&gt;_data )</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :     cln-&gt;_data.push_back( data_ptr( new data_type(*d) ) );</span>
+<span class="lineNum">      42 </span><span class="lineCov">          1 :   return cln;</span>
+<a name="43"><span class="lineNum">      43 </span>            : }</a>
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span><span class="lineCov">         70 : size_t reducer::lossy_count() const</span>
+<span class="lineNum">      46 </span>            : {
+<span class="lineNum">      47 </span><span class="lineCov">         70 :   if ( _data.size() &lt; 2 )</span>
+<span class="lineNum">      48 </span><span class="lineCov">         22 :     return _lossy_count;</span>
+<span class="lineNum">      49 </span><span class="lineCov">         48 :   return _lossy_count + _opt.reducer_limit*( _data.size() - 2 ) + _data.back()-&gt;size();</span>
+<span class="lineNum">      50 </span>            : 
+<a name="51"><span class="lineNum">      51 </span>            : }</a>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">         65 : size_t reducer::total_count() const</span>
+<span class="lineNum">      54 </span>            : {
+<span class="lineNum">      55 </span><span class="lineCov">         65 :   return _total_count;</span>
+<a name="56"><span class="lineNum">      56 </span>            : }</a>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 : size_t reducer::levels() const</span>
+<span class="lineNum">      59 </span>            : {
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :   return _opt.reducer_levels;</span>
+<a name="61"><span class="lineNum">      61 </span>            : }</a>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span><span class="lineCov">         41 : value_type reducer::max() const</span>
+<span class="lineNum">      64 </span>            : {
+<span class="lineNum">      65 </span><span class="lineCov">         41 :   return _max == std::numeric_limits&lt;value_type&gt;::min() ? 0 : _max;</span>
+<a name="66"><span class="lineNum">      66 </span>            : }</a>
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineCov">         41 : value_type reducer::min() const</span>
+<span class="lineNum">      69 </span>            : {
+<span class="lineNum">      70 </span><span class="lineCov">         41 :   return _min == std::numeric_limits&lt;value_type&gt;::max() ? 0 : _min;</span>
+<a name="71"><span class="lineNum">      71 </span>            : }</a>
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span><span class="lineCov">         41 : size_t reducer::size() const</span>
+<span class="lineNum">      74 </span>            : {
+<span class="lineNum">      75 </span><span class="lineCov">         41 :   size_t result = 0;</span>
+<span class="lineNum">      76 </span><span class="lineCov">        203 :   for ( auto&amp; p : _data )</span>
+<span class="lineNum">      77 </span>            :   {
+<span class="lineNum">      78 </span><span class="lineCov">        162 :     if ( p!=nullptr )</span>
+<span class="lineNum">      79 </span><span class="lineCov">        162 :       result += p-&gt;size();</span>
+<span class="lineNum">      80 </span>            :   }
+<span class="lineNum">      81 </span><span class="lineCov">         41 :   return result;</span>
+<a name="82"><span class="lineNum">      82 </span>            : }</a>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span><span class="lineCov">         51 : bool reducer::filled() const</span>
+<span class="lineNum">      85 </span>            : {
+<span class="lineNum">      86 </span><span class="lineCov">         51 :   if ( _opt.reducer_levels == 0 || _opt.reducer_limit==0)</span>
+<span class="lineNum">      87 </span><span class="lineCov">          3 :     return true;</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineCov">         48 :   if ( _data.empty() )</span>
+<span class="lineNum">      90 </span><span class="lineCov">         20 :     return false;</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineCov">         28 :   return _data.size()==_opt.reducer_levels &amp;&amp; _data.back()-&gt;size()==_opt.reducer_limit;</span>
+<a name="93"><span class="lineNum">      93 </span>            : }</a>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">       1107 : void reducer::clear()</span>
+<span class="lineNum">      96 </span>            : {
+<span class="lineNum">      97 </span><span class="lineCov">       1107 :   _empty = true;</span>
+<span class="lineNum">      98 </span><span class="lineCov">       1107 :   _min = std::numeric_limits&lt;value_type&gt;::max();</span>
+<span class="lineNum">      99 </span><span class="lineCov">       1107 :   _max = std::numeric_limits&lt;value_type&gt;::min();</span>
+<span class="lineNum">     100 </span><span class="lineCov">       1107 :   _average = 0.0;</span>
+<span class="lineNum">     101 </span><span class="lineCov">       1107 :   _average_count = 0;</span>
+<span class="lineNum">     102 </span><span class="lineCov">       1107 :   _lossy_count = 0;</span>
+<span class="lineNum">     103 </span><span class="lineCov">       1107 :   _total_count = 0;</span>
+<span class="lineNum">     104 </span><span class="lineCov">       1107 :   _data.clear();</span>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">       1107 : }</span></a>
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span><span class="lineCov">       9273 : void reducer::minmax(value_type v)</span>
+<span class="lineNum">     108 </span>            : {
+<span class="lineNum">     109 </span><span class="lineCov">       9273 :   _min = std::min(_min, v);</span>
+<span class="lineNum">     110 </span><span class="lineCov">       9273 :   _max = std::max(_max, v);</span>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">       9273 : }</span></a>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineCov">       7719 : void reducer::add( value_type v, size_t count)</span>
+<span class="lineNum">     114 </span>            : {
+<span class="lineNum">     115 </span><span class="lineCov">       7719 :   _empty = false;</span>
+<span class="lineNum">     116 </span><span class="lineCov">       7719 :   this-&gt;add_(v);</span>
+<span class="lineNum">     117 </span><span class="lineCov">       7719 :   _total_count += count;</span>
+<span class="lineNum">     118 </span><span class="lineCov">       7719 :   if ( count &gt; 1)</span>
+<span class="lineNum">     119 </span><span class="lineCov">        472 :     _lossy_count += count - 1;</span>
+<a name="120"><span class="lineNum">     120 </span><span class="lineCov">       7719 : }</span></a>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineCov">     117718 : void reducer::add( const data_type&amp; values, size_t count)</span>
+<span class="lineNum">     123 </span>            : {
+<span class="lineNum">     124 </span><span class="lineCov">     117718 :   _empty = false;</span>
+<span class="lineNum">     125 </span><span class="lineCov">     119248 :   for (value_type v : values)</span>
+<span class="lineNum">     126 </span><span class="lineCov">       1530 :     this-&gt;add_(v);</span>
+<span class="lineNum">     127 </span><span class="lineCov">     117718 :   _total_count += count;</span>
+<span class="lineNum">     128 </span><span class="lineCov">     117718 :   if ( values.size() &lt; count )</span>
+<span class="lineNum">     129 </span><span class="lineCov">     117714 :     _lossy_count += count - values.size();</span>
+<span class="lineNum">     130 </span>            : 
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">     117718 : }</span></a>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">          4 : void reducer::add( const data_type&amp; values)</span>
+<span class="lineNum">     134 </span>            : {
+<span class="lineNum">     135 </span><span class="lineCov">          4 :   this-&gt;add( values, values.size() );</span>
+<a name="136"><span class="lineNum">     136 </span><span class="lineCov">          4 : }</span></a>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 : void reducer::add( std::initializer_list&lt;value_type&gt; values )</span>
+<span class="lineNum">     139 </span>            : {
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :   for (value_type v : values)</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :     this-&gt;add_(v);</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :   _empty = false;</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :   _total_count += values.size();</span>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineCov">     117714 : void reducer::add( const reduced_data&amp; v )</span>
+<span class="lineNum">     147 </span>            : {
+<span class="lineNum">     148 </span>            :   // Не используем _lossy_count += v.lossy;
+<span class="lineNum">     149 </span>            :   // а считаем как разницу v.count и v.data.size()
+<span class="lineNum">     150 </span><span class="lineCov">     117714 :   this-&gt;add( v.data, v.count);</span>
+<span class="lineNum">     151 </span><span class="lineCov">     117714 :   if ( v.min != 0 )</span>
+<span class="lineNum">     152 </span><span class="lineCov">         12 :     this-&gt;minmax( v.min );</span>
+<span class="lineNum">     153 </span><span class="lineCov">     117714 :   if ( v.max != 0 )</span>
+<span class="lineNum">     154 </span><span class="lineCov">         12 :     this-&gt;minmax( v.max );</span>
+<a name="155"><span class="lineNum">     155 </span><span class="lineCov">     117714 : }</span></a>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">          1 : reducer::reduced_ptr reducer::get_reduced()</span>
+<span class="lineNum">     158 </span>            : {
+<span class="lineNum">     159 </span><span class="lineCov">          1 :   auto tmp = this-&gt;clone();</span>
+<span class="lineNum">     160 </span><span class="lineCov">          1 :   return tmp-&gt;detach();</span>
+<a name="161"><span class="lineNum">     161 </span>            : }</a>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineCov">      13873 : reducer::reduced_ptr reducer::detach()</span>
+<span class="lineNum">     164 </span>            : {
+<span class="lineNum">     165 </span><span class="lineCov">      13873 :   if ( _empty )</span>
+<span class="lineNum">     166 </span><span class="lineCov">      12788 :     return nullptr;</span>
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span><span class="lineCov">       1085 :   auto res = reduced_ptr(new reduced_type);</span>
+<span class="lineNum">     169 </span><span class="lineCov">       1085 :   this-&gt;reduce();</span>
+<span class="lineNum">     170 </span><span class="lineCov">       1085 :   if ( !_data.empty() )</span>
+<span class="lineNum">     171 </span><span class="lineCov">       1081 :     _data.front()-&gt;swap(res-&gt;data);</span>
+<span class="lineNum">     172 </span><span class="lineCov">       1085 :   res-&gt;avg = static_cast&lt;value_type&gt;(_average);</span>
+<span class="lineNum">     173 </span><span class="lineCov">       1085 :   res-&gt;count = _total_count;</span>
+<span class="lineNum">     174 </span><span class="lineCov">       1085 :   res-&gt;lossy = _lossy_count;</span>
+<span class="lineNum">     175 </span><span class="lineCov">       1085 :   res-&gt;max = _max;</span>
+<span class="lineNum">     176 </span><span class="lineCov">       1085 :   res-&gt;min = _min;</span>
+<span class="lineNum">     177 </span><span class="lineCov">       1085 :   this-&gt;clear();</span>
+<span class="lineNum">     178 </span><span class="lineCov">       1085 :   return res;</span>
+<a name="179"><span class="lineNum">     179 </span>            : }</a>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 : bool reducer::empty() const</span>
+<span class="lineNum">     182 </span>            : {
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :   return _empty;</span>
+<span class="lineNum">     184 </span>            : }
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            :  /*
+<span class="lineNum">     187 </span>            :   * x  x
+<span class="lineNum">     188 </span>            :   *  x  x
+<span class="lineNum">     189 </span>            :   *   x  x
+<a name="190"><span class="lineNum">     190 </span>            :   * 012345</a>
+<span class="lineNum">     191 </span>            :   */
+<span class="lineNum">     192 </span><span class="lineCov">        182 : void reducer::nth_element_(size_t l, size_t i)</span>
+<span class="lineNum">     193 </span>            : {
+<span class="lineNum">     194 </span><span class="lineCov">        182 :   if ( i &lt; l )</span>
+<span class="lineNum">     195 </span>            :   {
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :     std::nth_element(_data[l]-&gt;begin(), _data[l]-&gt;begin()+std::ptrdiff_t(i),  _data[l]-&gt;end());</span>
+<span class="lineNum">     197 </span>            :   }
+<span class="lineNum">     198 </span>            :   else
+<span class="lineNum">     199 </span>            :   {
+<span class="lineNum">     200 </span><span class="lineCov">        182 :     std::nth_element(_data[l]-&gt;begin() + std::ptrdiff_t(i - l), _data[l]-&gt;begin() + std::ptrdiff_t(i),  _data[l]-&gt;end());</span>
+<span class="lineNum">     201 </span>            :   }
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">        182 : }</span></a>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineCov">        898 : value_type reducer::get_nth_(size_t l, size_t i)</span>
+<span class="lineNum">     205 </span>            : {
+<span class="lineNum">     206 </span><span class="lineCov">        898 :   if ( _current_mode == reducer_options::mode::nth )</span>
+<span class="lineNum">     207 </span><span class="lineCov">        148 :     this-&gt;nth_element_(l, i);</span>
+<span class="lineNum">     208 </span><span class="lineCov">        898 :   return _data[l]-&gt;at(i);</span>
+<a name="209"><span class="lineNum">     209 </span>            : }</a>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineCov">       1085 : void reducer::reduce()</span>
+<span class="lineNum">     212 </span>            : {
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span><span class="lineCov">       1085 :   if ( _data.empty() )</span>
+<span class="lineNum">     215 </span><span class="lineCov">          4 :     return;</span>
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span><span class="lineCov">       1081 :   if ( _current_mode == reducer_options::mode::sorting )</span>
+<span class="lineNum">     218 </span><span class="lineCov">          1 :     std::sort( _data.back()-&gt;begin(), _data.back()-&gt;end() );</span>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineCov">       1081 :   if ( _data.size() == 1 )</span>
+<span class="lineNum">     221 </span><span class="lineCov">       1052 :     return;</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            :   // Расчетное становится реальным
+<span class="lineNum">     224 </span><span class="lineCov">         29 :   _lossy_count = this-&gt;lossy_count();</span>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineCov">         29 :   size_t current_levels = _data.size();</span>
+<span class="lineNum">     227 </span><span class="lineCov">       1826 :   for ( size_t i = 0, l = current_levels; i &lt; _opt.reducer_limit; ++i )</span>
+<span class="lineNum">     228 </span>            :   {
+<span class="lineNum">     229 </span><span class="lineCov">       1797 :     if ( l == current_levels ) // первую строку не трогаем</span>
+<span class="lineNum">     230 </span>            :     {
+<span class="lineNum">     231 </span><span class="lineCov">        785 :       if ( _current_mode == reducer_options::mode::nth )</span>
+<span class="lineNum">     232 </span><span class="lineCov">         34 :         this-&gt;nth_element_(0, i);</span>
+<span class="lineNum">     233 </span><span class="lineCov">        785 :       l=1;</span>
+<span class="lineNum">     234 </span>            :     }
+<span class="lineNum">     235 </span><span class="lineCov">       1012 :     else if (l == current_levels - 1 )</span>
+<span class="lineNum">     236 </span>            :     {
+<span class="lineNum">     237 </span><span class="lineCov">        875 :       if ( i &lt; _data[l]-&gt;size() )</span>
+<span class="lineNum">     238 </span><span class="lineCov">        761 :         _data[0]-&gt;at(i)=get_nth_(l++, i);</span>
+<span class="lineNum">     239 </span>            :     }
+<span class="lineNum">     240 </span>            :     else
+<span class="lineNum">     241 </span>            :     {
+<span class="lineNum">     242 </span><span class="lineCov">        137 :       _data[0]-&gt;at(i)=get_nth_(l++, i);</span>
+<span class="lineNum">     243 </span>            :     }
+<span class="lineNum">     244 </span>            :   }
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span><span class="lineCov">         29 :   if (_opt.reducer_mode == reducer_options::mode::adapt)</span>
+<span class="lineNum">     247 </span>            :   {
+<span class="lineNum">     248 </span><span class="lineCov">         56 :     _current_mode = _data.size()==0 || _opt.reducer_limit / _data.size() &gt; MagicModeNumber</span>
+<span class="lineNum">     249 </span>            :       ? reducer_options::mode::sorting
+<span class="lineNum">     250 </span><span class="lineCov">         28 :       : reducer_options::mode::nth;</span>
+<span class="lineNum">     251 </span>            :   }
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span><span class="lineCov">        221 :   for ( size_t i = 1; i &lt; _data.size(); ++i)</span>
+<span class="lineNum">     254 </span><span class="lineCov">        192 :     _allocator.free( std::move(_data[i]) );</span>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineCov">         29 :   _data.resize(1);</span>
+<a name="257"><span class="lineNum">     257 </span>            : }</a>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineCov">       9249 : void reducer::add_( value_type v)</span>
+<span class="lineNum">     260 </span>            : {
+<span class="lineNum">     261 </span><span class="lineCov">       9249 :   _average += ( static_cast&lt;double&gt;(v) - _average) / static_cast&lt;double&gt;( _average_count + 1 );</span>
+<span class="lineNum">     262 </span><span class="lineCov">       9249 :   ++_average_count;</span>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">       9249 :   this-&gt;minmax(v);</span>
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            :   // Если заполнен текущий уровень
+<span class="lineNum">     267 </span><span class="lineCov">       9249 :   if ( _data.empty() || _data.back()-&gt;size() == _opt.reducer_limit  )</span>
+<span class="lineNum">     268 </span>            :   {
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span>            :     // Создаем новый уровень
+<span class="lineNum">     271 </span><span class="lineCov">       2696 :     if ( _data.size() == _opt.reducer_levels || _opt.reducer_limit == 0)</span>
+<span class="lineNum">     272 </span>            :     {
+<span class="lineNum">     273 </span>            :       // Лимит уровней закончился
+<span class="lineNum">     274 </span><span class="lineCov">       1415 :       ++_lossy_count;</span>
+<span class="lineNum">     275 </span><span class="lineCov">      10664 :       return;</span>
+<span class="lineNum">     276 </span>            :     }
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span><span class="lineCov">       1281 :     if ( _current_mode == reducer_options::mode::sorting &amp;&amp; !_data.empty() )</span>
+<span class="lineNum">     279 </span><span class="lineCov">          1 :       std::sort( _data.back()-&gt;begin(), _data.back()-&gt;end() );</span>
+<span class="lineNum">     280 </span><span class="lineCov">       1281 :     _data.push_back( _allocator.create() );</span>
+<span class="lineNum">     281 </span><span class="lineCov">       1281 :     _data.back()-&gt;reserve(_opt.reducer_limit);</span>
+<span class="lineNum">     282 </span>            :   }
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span><span class="lineCov">       7834 :   _data.back()-&gt;push_back(v);</span>
+<span class="lineNum">     285 </span>            : }
+<a name="286"><span class="lineNum">     286 </span>            : </a>
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span><span class="lineCov">          3 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - wrtstat-coverage.info - wrtstat/aggregator.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">wrtstat</a> - aggregator.cpp<span style="font-size: 80%;"> (source / <a href="aggregator.cpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">wrtstat-coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">107</td>
+            <td class="headerCovTableEntry">223</td>
+            <td class="headerCovTableEntryLo">48.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-09-13</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntryLo">38.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &lt;wrtstat/aggregator.hpp&gt;</a>
+<span class="lineNum">       2 </span>            : #include &lt;wrtstat/separator.hpp&gt;
+<span class="lineNum">       3 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">       4 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">       5 </span>            : 
+<a name="6"><span class="lineNum">       6 </span>            : namespace wrtstat {</a>
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span><span class="lineCov">         19 : aggregator_base::aggregator_base(time_type ts_now, const aggregator_options&amp; opt, const allocator&amp; a )</span>
+<span class="lineNum">       9 </span>            :   : _sep(ts_now, opt, a)
+<span class="lineNum">      10 </span>            :   , _outgoing_reduced_size(opt.outgoing_reduced_size)
+<span class="lineNum">      11 </span><span class="lineCov">         19 :   , _id( std::make_shared&lt;int&gt;(1) )</span>
+<span class="lineNum">      12 </span>            : {
+<a name="13"><span class="lineNum">      13 </span><span class="lineCov">         19 : }</span></a>
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span><span class="lineNoCov">          0 : const separator&amp; aggregator_base::get_separator() const</span>
+<span class="lineNum">      16 </span>            : {
+<span class="lineNum">      17 </span><span class="lineNoCov">          0 :   return this-&gt;_sep;</span>
+<a name="18"><span class="lineNum">      18 </span>            : }</a>
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span><span class="lineNoCov">          0 : time_type aggregator_base::now(time_type resolution)</span>
+<span class="lineNum">      21 </span>            : {
+<span class="lineNum">      22 </span><span class="lineNoCov">          0 :   return separator::now(resolution);</span>
+<a name="23"><span class="lineNum">      23 </span>            : }</a>
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span><span class="lineCov">         26 : time_type aggregator_base::now(resolutions resolution)</span>
+<span class="lineNum">      26 </span>            : {
+<span class="lineNum">      27 </span><span class="lineCov">         26 :   return separator::now(resolution);</span>
+<a name="28"><span class="lineNum">      28 </span>            : }</a>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 : time_type aggregator_base::now()</span>
+<span class="lineNum">      31 </span>            : {
+<span class="lineNum">      32 </span><span class="lineNoCov">          0 :   return _sep.now();</span>
+<a name="33"><span class="lineNum">      33 </span>            : }</a>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineCov">        210 : bool aggregator_base::add(time_type ts_now, value_type v, size_type count)</span>
+<span class="lineNum">      36 </span>            : {
+<span class="lineNum">      37 </span><span class="lineCov">        210 :   if ( !_enabled )</span>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :     return true;</span>
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span><span class="lineCov">        210 :   if ( !_sep.add(ts_now, v, count) )</span>
+<span class="lineNum">      41 </span><span class="lineCov">          8 :     return false; // ts_now устарел</span>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineCov">        202 :   this-&gt;aggregate0_();</span>
+<span class="lineNum">      44 </span><span class="lineCov">        202 :   return true;</span>
+<a name="45"><span class="lineNum">      45 </span>            : }</a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">        115 : bool aggregator_base::push( time_type ts_now, value_type v, size_type count, aggregated_handler handler)</span>
+<span class="lineNum">      48 </span>            : {
+<span class="lineNum">      49 </span><span class="lineCov">        115 :   if ( !_enabled )</span>
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :     return true;</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">        115 :   if ( handler == nullptr )</span>
+<span class="lineNum">      53 </span><span class="lineCov">        108 :     return this-&gt;add(ts_now, v, count);</span>
+<span class="lineNum">      54 </span><span class="lineCov">          7 :   return _sep.push(ts_now, v, count, std::bind(&amp;aggregator_base::push_handler_,  this, std::placeholders::_1, handler));</span>
+<span class="lineNum">      55 </span>            : }
+<a name="56"><span class="lineNum">      56 </span>            : </a>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 : bool aggregator_base::add(time_type ts_now, const data_type&amp; v, size_type count)</span>
+<span class="lineNum">      59 </span>            : {
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :   if ( !_enabled )</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :     return true;</span>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :   if ( !_sep.add(ts_now, v, count) )</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :     return false; // ts_now устарел</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :   this-&gt;aggregate0_();</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :   return true;</span>
+<a name="68"><span class="lineNum">      68 </span>            : }</a>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 : bool aggregator_base::push( time_type ts_now, const data_type&amp; v, size_type count, aggregated_handler handler)</span>
+<span class="lineNum">      71 </span>            : {
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :   if ( !_enabled )</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :     return true;</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :   if ( handler == nullptr )</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :     return this-&gt;add(ts_now, v, count);</span>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :   return _sep.push(ts_now, v, count, std::bind(&amp;aggregator_base::push_handler_,  this, std::placeholders::_1, handler));</span>
+<a name="80"><span class="lineNum">      80 </span>            : }</a>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 : bool aggregator_base::add( const reduced_data&amp; v)</span>
+<span class="lineNum">      83 </span>            : {
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :   if ( !_enabled )</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :     return true;</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :   if ( !_sep.add(v) )</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :     return false; // v.ts устарел</span>
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :   this-&gt;aggregate0_();</span>
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 :   return true;</span>
+<a name="90"><span class="lineNum">      90 </span>            : }</a>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineCov">     117702 : bool aggregator_base::push( const reduced_data&amp; v, aggregated_handler handler)</span>
+<span class="lineNum">      93 </span>            : {
+<span class="lineNum">      94 </span><span class="lineCov">     117702 :   if ( !_enabled )</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :     return true;</span>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineCov">     117702 :   if ( handler == nullptr )</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :     return this-&gt;add(v);</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineCov">     117702 :   return _sep.push(v, std::bind(&amp;aggregator_base::push_handler_,  this, std::placeholders::_1, handler));</span>
+<a name="101"><span class="lineNum">     101 </span>            : }</a>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span><span class="lineCov">          1 : void aggregator_base::push_handler_( aggregated_ptr ag, aggregated_handler handler)</span>
+<span class="lineNum">     104 </span>            : {
+<span class="lineNum">     105 </span><span class="lineCov">          1 :   if ( handler!=nullptr )</span>
+<span class="lineNum">     106 </span>            :   {
+<span class="lineNum">     107 </span><span class="lineCov">          1 :     ag = this-&gt;aggregate2_( std::move(ag) );</span>
+<span class="lineNum">     108 </span><span class="lineCov">          1 :     this-&gt;reduce_(ag-&gt;data);</span>
+<span class="lineNum">     109 </span><span class="lineCov">          1 :     handler(std::move(ag));</span>
+<span class="lineNum">     110 </span>            :   }
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineCov">          2 : bool aggregator_base::separate(time_type ts_now, aggregated_handler handler, bool force)</span>
+<span class="lineNum">     114 </span>            : {
+<span class="lineNum">     115 </span><span class="lineCov">          2 :   bool res = _sep.separate(ts_now, handler, force);</span>
+<span class="lineNum">     116 </span><span class="lineCov">          2 :   this-&gt;aggregate0_();</span>
+<span class="lineNum">     117 </span><span class="lineCov">          2 :   return res;</span>
+<a name="118"><span class="lineNum">     118 </span>            : }</a>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineCov">         21 : aggregator_base::aggregated_ptr aggregator_base::pop()</span>
+<span class="lineNum">     121 </span>            : {
+<span class="lineNum">     122 </span><span class="lineCov">         21 :   if ( _ag_list.empty() )</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :     return nullptr;</span>
+<span class="lineNum">     124 </span><span class="lineCov">         21 :   auto res = std::move(_ag_list.front() );</span>
+<span class="lineNum">     125 </span><span class="lineCov">         21 :   _ag_list.pop_front();</span>
+<span class="lineNum">     126 </span><span class="lineCov">         21 :   return res;</span>
+<a name="127"><span class="lineNum">     127 </span>            : }</a>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 : aggregator_base::aggregated_ptr aggregator_base::force_pop()</span>
+<span class="lineNum">     130 </span>            : {
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :   auto ag = this-&gt;aggregate2_(_sep.force_pop());</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :   this-&gt;reduce_(ag-&gt;data);</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :   return ag;</span>
+<a name="134"><span class="lineNum">     134 </span>            : }</a>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">          1 : aggregator_base::aggregated_ptr aggregator_base::aggregate_current()</span>
+<span class="lineNum">     137 </span>            : {
+<span class="lineNum">     138 </span><span class="lineCov">          1 :   if ( auto ag = this-&gt;aggregate2_(_sep.get_current()) )</span>
+<span class="lineNum">     139 </span>            :   {
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :     this-&gt;reduce_(ag-&gt;data);</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :     return ag;</span>
+<span class="lineNum">     142 </span><span class="lineCov">          1 :   }</span>
+<span class="lineNum">     143 </span><span class="lineCov">          1 :   return nullptr;</span>
+<a name="144"><span class="lineNum">     144 </span>            : }</a>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 : void aggregator_base::enable(bool value)</span>
+<span class="lineNum">     147 </span>            : {
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :   _enabled = value;</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 : }</span>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<span class="lineNum">     151 </span>            : template&lt;typename T&gt;
+<span class="lineNum">     152 </span><span class="lineCov">         16 : aggregator_base::simple_pusher_t aggregator_base::create_simple_pusher( std::weak_ptr&lt;T&gt; wthis, aggregated_handler handler )</span>
+<a name="153"><span class="lineNum">     153 </span>            : {</a>
+<span class="lineNum">     154 </span><span class="lineCov">         16 :   std::weak_ptr&lt;int&gt; wid = this-&gt;_id;</span>
+<span class="lineNum">     155 </span><span class="lineCov">        293 :   return [wid, wthis, handler](time_type ts_now, time_type v, size_type count)</span>
+<span class="lineNum">     156 </span>            :   {
+<span class="lineNum">     157 </span><span class="lineCov">        230 :     if ( auto pthis = wthis.lock() )</span>
+<span class="lineNum">     158 </span>            :     {
+<span class="lineNum">     159 </span><span class="lineCov">        230 :       if (auto id = wid.lock() )</span>
+<span class="lineNum">     160 </span>            :       {
+<span class="lineNum">     161 </span><span class="lineCov">        115 :         pthis-&gt;push(ts_now, v, count, handler);</span>
+<span class="lineNum">     162 </span>            :       }
+<span class="lineNum">     163 </span>            :     }
+<span class="lineNum">     164 </span><span class="lineCov">        131 :   };</span>
+<span class="lineNum">     165 </span>            : }
+<a name="166"><span class="lineNum">     166 </span>            : </a>
+<span class="lineNum">     167 </span>            : template&lt;typename T&gt;
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 : aggregator_base::data_pusher_t aggregator_base::create_data_pusher( std::weak_ptr&lt;T&gt; wthis, aggregated_handler handler )</span>
+<a name="169"><span class="lineNum">     169 </span>            : {</a>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :   std::weak_ptr&lt;int&gt; wid = this-&gt;_id;</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :   return [wid, wthis, handler](time_type ts_now, data_type&amp;&amp; v, size_type count)</span>
+<span class="lineNum">     172 </span>            :   {
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :     if ( auto pthis = wthis.lock() )</span>
+<span class="lineNum">     174 </span>            :     {
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :       if (auto id = wid.lock() )</span>
+<span class="lineNum">     176 </span>            :       {
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         pthis-&gt;push(ts_now, std::move(v), count, handler);</span>
+<span class="lineNum">     178 </span>            :       }
+<span class="lineNum">     179 </span>            :     }
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 :   };</span>
+<span class="lineNum">     181 </span>            : }
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<span class="lineNum">     183 </span>            : template&lt;typename T&gt;
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 : aggregator_base::reduced_pusher_t aggregator_base::create_reduced_pusher( std::weak_ptr&lt;T&gt; wthis, aggregated_handler handler )</span>
+<a name="185"><span class="lineNum">     185 </span>            : {</a>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :   std::weak_ptr&lt;int&gt; wid = this-&gt;_id;</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :   return [wid, wthis, handler]( const reduced_data&amp; reduced)</span>
+<span class="lineNum">     188 </span>            :   {
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :     if ( auto pthis = wthis.lock() )</span>
+<span class="lineNum">     190 </span>            :     {
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :       if (auto id = wid.lock() )</span>
+<span class="lineNum">     192 </span>            :       {
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :         pthis-&gt;push(reduced, handler);</span>
+<span class="lineNum">     194 </span>            :       }
+<span class="lineNum">     195 </span>            :     }
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :   };</span>
+<a name="197"><span class="lineNum">     197 </span>            : }</a>
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineCov">        102 : size_t aggregator_base::size() const</span>
+<span class="lineNum">     200 </span>            : {
+<span class="lineNum">     201 </span><span class="lineCov">        102 :   return _ag_list.size();</span>
+<a name="202"><span class="lineNum">     202 </span>            : }</a>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 : void aggregator_base::clear( time_type ts_now )</span>
+<span class="lineNum">     205 </span>            : {
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :   _sep.clear(ts_now);</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :   _ag_list.clear();</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :   _id.reset();</span>
+<a name="209"><span class="lineNum">     209 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineCov">         84 : value_type aggregator_base::nth_(size_type perc, size_type&amp; off, data_type&amp; d)</span>
+<span class="lineNum">     212 </span>            : {
+<span class="lineNum">     213 </span><span class="lineCov">         84 :   data_type::iterator beg = d.begin() + static_cast&lt;std::ptrdiff_t&gt;(off);</span>
+<span class="lineNum">     214 </span><span class="lineCov">         84 :   data_type::iterator nth = d.begin() + static_cast&lt;std::ptrdiff_t&gt;( d.size()*perc/100 );</span>
+<span class="lineNum">     215 </span><span class="lineCov">         84 :   data_type::difference_type dist = std::distance(beg, nth );</span>
+<span class="lineNum">     216 </span><span class="lineCov">         84 :   if ( dist &lt; 0 )</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :     return *beg;</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">         84 :   off = static_cast&lt;size_type&gt;(dist);</span>
+<span class="lineNum">     220 </span><span class="lineCov">         84 :   std::nth_element(beg, nth, d.end());</span>
+<span class="lineNum">     221 </span><span class="lineCov">         84 :   return *nth;</span>
+<a name="222"><span class="lineNum">     222 </span>            : }</a>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineCov">         22 : void aggregator_base::reduce_(data_type&amp; d) const</span>
+<span class="lineNum">     225 </span>            : {
+<span class="lineNum">     226 </span><span class="lineCov">         22 :   if ( _outgoing_reduced_size==0 || d.size() &lt;= _outgoing_reduced_size)</span>
+<span class="lineNum">     227 </span><span class="lineCov">         44 :     return;</span>
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :   size_type i = 0;</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :   auto beg = d.begin();</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :   auto end = d.end();</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :   if ( _outgoing_reduced_size*2 &gt; d.size() )</span>
+<span class="lineNum">     233 </span>            :   {
+<span class="lineNum">     234 </span>            :     // 300 ~ 400
+<a name="235"><span class="lineNum">     235 </span>            :     // Удаляем каждый N элемент</a>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :     size_type step = d.size() / ( d.size() - _outgoing_reduced_size );</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :     end = std::remove_if( beg, end, [&amp;i, step](const value_type&amp;) {</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :       return (i++)%step==0;</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :     });</span>
+<span class="lineNum">     240 </span>            :   }
+<span class="lineNum">     241 </span>            :   else
+<span class="lineNum">     242 </span>            :   {
+<span class="lineNum">     243 </span>            :     // 50 - 400
+<a name="244"><span class="lineNum">     244 </span>            :     // Оставляем каждый N элемент</a>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :     size_type step = d.size() / _outgoing_reduced_size;</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :     end = std::remove_if( beg, end, [&amp;i, step](const value_type&amp;) {</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :       return (i++)%step!=0;</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :     });</span>
+<span class="lineNum">     249 </span>            :   }
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :   auto dist = std::distance( beg, end);</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :   if ( dist &gt; 0 )</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :     d.resize( static_cast&lt;size_t&gt;(dist), 0 );</span>
+<span class="lineNum">     253 </span>            :   else
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :     abort();</span>
+<a name="255"><span class="lineNum">     255 </span>            : }</a>
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span><span class="lineCov">        225 : void aggregator_base::aggregate0_()</span>
+<span class="lineNum">     258 </span>            : {
+<span class="lineNum">     259 </span><span class="lineCov">        225 :   while (auto sep = _sep.pop() )</span>
+<span class="lineNum">     260 </span>            :   {
+<span class="lineNum">     261 </span><span class="lineCov">         42 :     aggregated_ptr ag = this-&gt;aggregate2_( std::move(sep) );</span>
+<span class="lineNum">     262 </span><span class="lineCov">         21 :     this-&gt;reduce_(ag-&gt;data);</span>
+<span class="lineNum">     263 </span><span class="lineCov">         21 :     _ag_list.push_back( std::move(ag) );</span>
+<span class="lineNum">     264 </span><span class="lineCov">         21 :   }</span>
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">        204 : }</span></a>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 : void aggregator_base::aggregate1_(aggregated_handler handler)</span>
+<span class="lineNum">     268 </span>            : {
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :   while (auto sep = _sep.pop() )</span>
+<span class="lineNum">     270 </span>            :   {
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :     aggregated_ptr ag = this-&gt;aggregate2_( std::move(sep) );</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :     this-&gt;reduce_(ag-&gt;data);</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :     handler( std::move(ag) );</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :   }</span>
+<a name="275"><span class="lineNum">     275 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineCov">         23 : aggregator_base::aggregated_ptr aggregator_base::aggregate2_(reduced_ptr d) const</span>
+<span class="lineNum">     278 </span>            : {
+<span class="lineNum">     279 </span><span class="lineCov">         23 :   if ( d==nullptr )</span>
+<span class="lineNum">     280 </span><span class="lineCov">          1 :     return nullptr;</span>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span><span class="lineCov">         22 :   aggregated_ptr&amp; res = d;</span>
+<span class="lineNum">     283 </span><span class="lineCov">         22 :   size_t s = res-&gt;data.size();</span>
+<span class="lineNum">     284 </span><span class="lineCov">         22 :   if ( s!=0 )</span>
+<span class="lineNum">     285 </span>            :   {
+<span class="lineNum">     286 </span><span class="lineCov">         21 :     size_type off = 0;</span>
+<span class="lineNum">     287 </span><span class="lineCov">         21 :     res-&gt;perc50 = this-&gt;nth_(50, off, res-&gt;data);</span>
+<span class="lineNum">     288 </span><span class="lineCov">         21 :     res-&gt;perc80 = this-&gt;nth_(80, off, res-&gt;data);</span>
+<span class="lineNum">     289 </span><span class="lineCov">         21 :     res-&gt;perc95 = this-&gt;nth_(95, off, res-&gt;data);</span>
+<span class="lineNum">     290 </span><span class="lineCov">         21 :     res-&gt;perc99 = this-&gt;nth_(99, off, res-&gt;data);</span>
+<span class="lineNum">     291 </span><span class="lineCov">         21 :     res-&gt;perc100 = res-&gt;data[ s - 1 ];</span>
+<span class="lineNum">     292 </span>            :   }
+<span class="lineNum">     293 </span><span class="lineCov">         22 :   return std::move(res);</span>
+<span class="lineNum">     294 </span>            : }
+<a name="295"><span class="lineNum">     295 </span>            : </a>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineCov">          1 : aggregator::aggregator(time_type ts_now, const options_type&amp; opt, const allocator&amp; a )</span>
+<span class="lineNum">     298 </span><span class="lineCov">          1 :   : aggregator_base(ts_now, opt, a)</span>
+<span class="lineNum">     299 </span>            : {
+<span class="lineNum">     300 </span><span class="lineCov">          1 : }</span>
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<span class="lineNum">     302 </span>            : // pusher
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 : aggregator::simple_pusher_t aggregator::create_simple_pusher(aggregated_handler handler )</span>
+<span class="lineNum">     304 </span>            : {
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :   return aggregator_base::create_simple_pusher&lt;aggregator&gt;( this-&gt;shared_from_this(), handler  );</span>
+<a name="306"><span class="lineNum">     306 </span>            : }</a>
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 : aggregator::data_pusher_t aggregator::create_data_pusher(aggregated_handler handler )</span>
+<span class="lineNum">     309 </span>            : {
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :   return aggregator_base::create_data_pusher&lt;aggregator&gt;( this-&gt;shared_from_this(), handler  );</span>
+<a name="311"><span class="lineNum">     311 </span>            : }</a>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 : aggregator::reduced_pusher_t aggregator::create_reduced_pusher(aggregated_handler handler )</span>
+<span class="lineNum">     314 </span>            : {
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :   return aggregator_base::create_reduced_pusher&lt;aggregator&gt;( this-&gt;shared_from_this(), handler  );</span>
+<a name="316"><span class="lineNum">     316 </span>            : }</a>
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span><span class="lineCov">         17 : aggregator_mt::aggregator_mt(time_type ts_now, const options_type&amp; opt, const allocator&amp; a)</span>
+<span class="lineNum">     319 </span><span class="lineCov">         17 :   : aggregator_base(ts_now, opt, a)</span>
+<span class="lineNum">     320 </span>            : {
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">         17 : }</span></a>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineCov">          2 : bool aggregator_mt::add(time_type ts_now, value_type v, size_type count)</span>
+<span class="lineNum">     324 </span>            : {
+<span class="lineNum">     325 </span><span class="lineCov">          2 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     326 </span><span class="lineCov">          2 :   return aggregator_base::add(ts_now, v, count);</span>
+<a name="327"><span class="lineNum">     327 </span>            : }</a>
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 : bool aggregator_mt::add(time_type ts_now, const data_type&amp; v, size_type count)</span>
+<span class="lineNum">     330 </span>            : {
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :   return aggregator_base::add(ts_now, v, count);</span>
+<a name="333"><span class="lineNum">     333 </span>            : }</a>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 : bool aggregator_mt::add( const reduced_data&amp; v)</span>
+<span class="lineNum">     336 </span>            : {
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :   return aggregator_base::add(v);</span>
+<a name="339"><span class="lineNum">     339 </span>            : }</a>
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span><span class="lineCov">        115 : bool aggregator_mt::push( time_type ts_now, value_type v, size_type count, aggregated_handler handler)</span>
+<span class="lineNum">     342 </span>            : {
+<span class="lineNum">     343 </span><span class="lineCov">        115 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     344 </span><span class="lineCov">        115 :   return aggregator_base::push(ts_now, v, count, handler);</span>
+<a name="345"><span class="lineNum">     345 </span>            : }</a>
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 : bool aggregator_mt::push( time_type ts_now, const data_type&amp; v, size_type count, aggregated_handler handler)</span>
+<span class="lineNum">     348 </span>            : {
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :   return aggregator_base::push(ts_now, v, count, handler);</span>
+<a name="351"><span class="lineNum">     351 </span>            : }</a>
+<span class="lineNum">     352 </span>            : 
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 : bool aggregator_mt::push( const reduced_data&amp; v, aggregated_handler handler)</span>
+<span class="lineNum">     354 </span>            : {
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :   return aggregator_base::push(v, handler);</span>
+<a name="357"><span class="lineNum">     357 </span>            : }</a>
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span><span class="lineCov">         11 : aggregator_mt::aggregated_ptr aggregator_mt::pop()</span>
+<span class="lineNum">     360 </span>            : {
+<span class="lineNum">     361 </span><span class="lineCov">         11 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     362 </span><span class="lineCov">         11 :   return aggregator_base::pop();</span>
+<a name="363"><span class="lineNum">     363 </span>            : }</a>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 : aggregator_mt::aggregated_ptr aggregator_mt::force_pop()</span>
+<span class="lineNum">     366 </span>            : {
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :   return aggregator_base::force_pop();</span>
+<a name="369"><span class="lineNum">     369 </span>            : }</a>
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span><span class="lineCov">          1 : aggregator_mt::aggregated_ptr aggregator_mt::aggregate_current()</span>
+<span class="lineNum">     372 </span>            : {
+<span class="lineNum">     373 </span><span class="lineCov">          1 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     374 </span><span class="lineCov">          1 :   return aggregator_base::aggregate_current();</span>
+<a name="375"><span class="lineNum">     375 </span>            : }</a>
+<span class="lineNum">     376 </span>            : 
+<span class="lineNum">     377 </span><span class="lineCov">          1 : bool aggregator_mt::separate(time_type ts_now, aggregated_handler handler, bool force)</span>
+<span class="lineNum">     378 </span>            : {
+<span class="lineNum">     379 </span><span class="lineCov">          1 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     380 </span><span class="lineCov">          1 :   return aggregator_base::separate(ts_now, handler, force);</span>
+<a name="381"><span class="lineNum">     381 </span>            : }</a>
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 : void aggregator_mt::enable(bool value)</span>
+<span class="lineNum">     384 </span>            : {
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :   return aggregator_base::enable(value);</span>
+<span class="lineNum">     387 </span>            : }
+<span class="lineNum">     388 </span>            : 
+<a name="389"><span class="lineNum">     389 </span>            : //</a>
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span><span class="lineCov">         16 : aggregator_mt::simple_pusher_t aggregator_mt::create_simple_pusher(aggregated_handler handler )</span>
+<span class="lineNum">     392 </span>            : {
+<span class="lineNum">     393 </span><span class="lineCov">         16 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     394 </span><span class="lineCov">         16 :   return aggregator_base::create_simple_pusher&lt;aggregator_mt&gt;( this-&gt;shared_from_this(), handler  );</span>
+<a name="395"><span class="lineNum">     395 </span>            : }</a>
+<span class="lineNum">     396 </span>            : 
+<span class="lineNum">     397 </span><span class="lineNoCov">          0 : aggregator_mt::data_pusher_t aggregator_mt::create_data_pusher(aggregated_handler handler )</span>
+<span class="lineNum">     398 </span>            : {
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :   return aggregator_base::create_data_pusher&lt;aggregator_mt&gt;( this-&gt;shared_from_this(), handler);</span>
+<a name="401"><span class="lineNum">     401 </span>            : }</a>
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 : aggregator_mt::reduced_pusher_t aggregator_mt::create_reduced_pusher(aggregated_handler handler )</span>
+<span class="lineNum">     404 </span>            : {
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :   return aggregator_base::create_reduced_pusher&lt;aggregator_mt&gt;( this-&gt;shared_from_this(), handler );</span>
+<a name="407"><span class="lineNum">     407 </span>            : }</a>
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span><span class="lineCov">        101 : size_t aggregator_mt::size() const</span>
+<span class="lineNum">     410 </span>            : {
+<span class="lineNum">     411 </span><span class="lineCov">        101 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     412 </span><span class="lineCov">        101 :   return aggregator_base::size();</span>
+<a name="413"><span class="lineNum">     413 </span>            : }</a>
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 : void aggregator_mt::clear(time_type ts_now)</span>
+<span class="lineNum">     416 </span>            : {
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :   std::lock_guard&lt;mutex_type&gt; lk(_mutex);</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :   return aggregator_base::clear( ts_now );</span>
+<a name="419"><span class="lineNum">     419 </span>            : }</a>
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span><span class="lineCov">          3 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

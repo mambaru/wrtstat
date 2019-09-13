@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - wrtstat-coverage.info - wrtstat/meters/size_meter.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">wrtstat/meters</a> - size_meter.hpp<span style="font-size: 80%;"> (source / <a href="size_meter.hpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">wrtstat-coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-09-13</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #pragma once</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : #include &lt;wrtstat/aggregator.hpp&gt;
+<span class="lineNum">       4 </span>            : #include &lt;chrono&gt;
+<span class="lineNum">       5 </span>            : #include &lt;memory&gt;
+<span class="lineNum">       6 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : namespace wrtstat {
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : class size_point
+<span class="lineNum">      11 </span>            : {
+<span class="lineNum">      12 </span>            : public:
+<span class="lineNum">      13 </span>            :   typedef size_point self;
+<span class="lineNum">      14 </span>            :   typedef std::shared_ptr&lt;self&gt; self_ptr;
+<span class="lineNum">      15 </span>            :   typedef std::function&lt; void(time_type now, value_type value, size_type count) &gt; meter_fun_t;
+<span class="lineNum">      16 </span>            :   typedef std::mutex mutex_type;
+<span class="lineNum">      17 </span>            :   typedef std::shared_ptr&lt;mutex_type&gt; mutex_ptr;
+<span class="lineNum">      18 </span>            :   typedef std::weak_ptr&lt;mutex_type&gt; mutex_wptr;
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<span class="lineNum">      20 </span>            :   size_point()= delete;
+<span class="lineNum">      21 </span><span class="lineCov">          1 :   size_point( size_point&amp;&amp; ) = default;</span>
+<span class="lineNum">      22 </span>            :   size_point&amp; operator=( size_point&amp;&amp; ) = default;
+<span class="lineNum">      23 </span>            :   size_point( const size_point&amp; ) = delete;
+<a name="24"><span class="lineNum">      24 </span>            :   size_point&amp; operator=( const size_point&amp; ) = delete;</a>
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span><span class="lineCov">          1 :   size_point(const meter_fun_t&amp; fun, time_type ts_now, value_type s)</span>
+<span class="lineNum">      27 </span>            :     : _now(ts_now)
+<span class="lineNum">      28 </span>            :     , _size(s)
+<span class="lineNum">      29 </span><span class="lineCov">          1 :     , _meter_fun(fun)</span>
+<span class="lineNum">      30 </span>            :   {
+<a name="31"><span class="lineNum">      31 </span><span class="lineCov">          1 :   }</span></a>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineCov">          2 :   ~size_point()</span>
+<span class="lineNum">      34 </span><span class="lineCov">          2 :   {</span>
+<span class="lineNum">      35 </span><span class="lineCov">          2 :     this-&gt;_push();</span>
+<a name="36"><span class="lineNum">      36 </span><span class="lineCov">          2 :   }</span></a>
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span><span class="lineCov">          2 :   void _push()</span>
+<span class="lineNum">      39 </span>            :   {
+<span class="lineNum">      40 </span><span class="lineCov">          2 :     if ( _meter_fun == nullptr || _now == 0)</span>
+<span class="lineNum">      41 </span><span class="lineCov">          3 :       return;</span>
+<span class="lineNum">      42 </span><span class="lineCov">          1 :     _meter_fun( _now, _size, static_cast&lt;size_type&gt;(_size) );</span>
+<span class="lineNum">      43 </span>            :   }
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            :   void set_size(value_type s) { _size = s; }
+<span class="lineNum">      46 </span>            :   value_type get_size() const { return _size; }
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :   size_point clone(time_type ts_now, value_type s) const
+<span class="lineNum">      49 </span>            :   {
+<span class="lineNum">      50 </span>            :     return self(_meter_fun, ts_now, s);
+<span class="lineNum">      51 </span>            :   }
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            :   void reset()
+<span class="lineNum">      54 </span>            :   {
+<span class="lineNum">      55 </span>            :     _now = 0;
+<span class="lineNum">      56 </span>            :     _size = 0;
+<span class="lineNum">      57 </span>            :   }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :   void reset(const meter_fun_t&amp; fun, time_type ts_now, value_type size )
+<span class="lineNum">      60 </span>            :   {
+<span class="lineNum">      61 </span>            :     this-&gt;_push();
+<span class="lineNum">      62 </span>            :     _now = ts_now;
+<span class="lineNum">      63 </span>            :     _meter_fun = fun;
+<span class="lineNum">      64 </span>            :     _size = size;
+<span class="lineNum">      65 </span>            :   }
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : private:
+<span class="lineNum">      68 </span>            :   time_type _now;
+<span class="lineNum">      69 </span>            :   value_type _size;
+<span class="lineNum">      70 </span>            :   meter_fun_t _meter_fun;
+<a name="71"><span class="lineNum">      71 </span>            : };</a>
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span><span class="lineCov">          5 : class size_meter</span>
+<span class="lineNum">      74 </span>            : {
+<span class="lineNum">      75 </span>            : public:
+<span class="lineNum">      76 </span>            :   typedef size_point point_type;
+<a name="77"><span class="lineNum">      77 </span>            :   typedef size_point::meter_fun_t meter_fun_t;</a>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineCov">          1 :   size_meter( const meter_fun_t&amp; fun, resolutions resolution)</span>
+<span class="lineNum">      80 </span>            :     : _meter_fun(fun)
+<span class="lineNum">      81 </span><span class="lineCov">          1 :     , _resolution(resolution)</span>
+<span class="lineNum">      82 </span><span class="lineCov">          1 :   {}</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :   size_point create(value_type size) const
+<span class="lineNum">      85 </span>            :   {
+<span class="lineNum">      86 </span>            :     return this-&gt;create(aggregator::now(_resolution), size);
+<a name="87"><span class="lineNum">      87 </span>            :   }</a>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineCov">          1 :   size_point create(time_type now_ts, value_type size) const</span>
+<span class="lineNum">      90 </span>            :   {
+<span class="lineNum">      91 </span><span class="lineCov">          1 :     return size_point(_meter_fun, now_ts, size);</span>
+<span class="lineNum">      92 </span>            :   }
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :   std::shared_ptr&lt; size_point &gt; create_shared(value_type size) const
+<span class="lineNum">      96 </span>            :   {
+<span class="lineNum">      97 </span>            :     return this-&gt;create_shared(aggregator::now(_resolution), size);
+<span class="lineNum">      98 </span>            :   }
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :   std::shared_ptr&lt; size_point &gt; create_shared(time_type now_ts, value_type size) const
+<span class="lineNum">     101 </span>            :   {
+<span class="lineNum">     102 </span>            :     return std::make_shared&lt;size_point&gt;(_meter_fun, now_ts, size);
+<span class="lineNum">     103 </span>            :   }
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : private:
+<span class="lineNum">     106 </span>            :   meter_fun_t _meter_fun;
+<span class="lineNum">     107 </span>            :   resolutions _resolution;
+<span class="lineNum">     108 </span>            : };
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

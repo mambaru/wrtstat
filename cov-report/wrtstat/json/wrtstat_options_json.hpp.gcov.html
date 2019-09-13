@@ -1,0 +1,221 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - wrtstat-coverage.info - wrtstat/json/wrtstat_options_json.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">wrtstat/json</a> - wrtstat_options_json.hpp<span style="font-size: 80%;"> (source / <a href="wrtstat_options_json.hpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">wrtstat-coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-09-13</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #pragma once</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : #include &lt;wrtstat/wrtstat_options.hpp&gt;
+<span class="lineNum">       4 </span>            : #include &lt;wjson/json.hpp&gt;
+<span class="lineNum">       5 </span>            : #include &lt;wjson/name.hpp&gt;
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : namespace wrtstat{
+<span class="lineNum">       8 </span>            :   
+<span class="lineNum">       9 </span>            : /*
+<span class="lineNum">      10 </span>            : enum class resolutions
+<span class="lineNum">      11 </span>            : {
+<span class="lineNum">      12 </span>            :   none = 0,
+<span class="lineNum">      13 </span>            :   seconds = 1, 
+<span class="lineNum">      14 </span>            :   milliseconds = 1000,
+<span class="lineNum">      15 </span>            :   microseconds = 1000000,
+<span class="lineNum">      16 </span>            :   nanoseconds = 1000000000
+<span class="lineNum">      17 </span>            : };
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : */
+<span class="lineNum">      20 </span>            : 
+<a name="21"><span class="lineNum">      21 </span>            : struct resolution_json</a>
+<a name="22"><span class="lineNum">      22 </span>            : {</a>
+<a name="23"><span class="lineNum">      23 </span><span class="lineNoCov">          0 :   JSON_NAME(none)</span></a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineNoCov">          0 :   JSON_NAME(seconds)</span></a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineNoCov">          0 :   JSON_NAME(milliseconds)</span></a>
+<span class="lineNum">      26 </span><span class="lineNoCov">          0 :   JSON_NAME(microseconds)</span>
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 :   JSON_NAME(nanoseconds)</span>
+<span class="lineNum">      28 </span>            :   typedef wjson::enumerator&lt;
+<span class="lineNum">      29 </span>            :     resolutions,
+<span class="lineNum">      30 </span>            :     wjson::member_list&lt;
+<span class="lineNum">      31 </span>            :       wjson::enum_value&lt;n_none, resolutions, resolutions::none&gt;,
+<span class="lineNum">      32 </span>            :       wjson::enum_value&lt;n_seconds, resolutions, resolutions::seconds&gt;,
+<span class="lineNum">      33 </span>            :       wjson::enum_value&lt;n_milliseconds, resolutions, resolutions::milliseconds&gt;,
+<span class="lineNum">      34 </span>            :       wjson::enum_value&lt;n_microseconds, resolutions, resolutions::microseconds&gt;,
+<span class="lineNum">      35 </span>            :       wjson::enum_value&lt;n_nanoseconds, resolutions, resolutions::nanoseconds&gt;
+<span class="lineNum">      36 </span>            :     &gt;
+<span class="lineNum">      37 </span>            :   &gt; type;
+<span class="lineNum">      38 </span>            :   typedef type::target target;
+<span class="lineNum">      39 </span>            :   typedef type::serializer serializer;
+<span class="lineNum">      40 </span>            :   typedef type::member_list member_list;
+<span class="lineNum">      41 </span>            : };
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : 
+<a name="44"><span class="lineNum">      44 </span>            : struct reducer_options_json</a>
+<a name="45"><span class="lineNum">      45 </span>            : {</a>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :   JSON_NAME(reducer_limit)</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :   JSON_NAME(reducer_levels)</span>
+<span class="lineNum">      48 </span>            :   
+<span class="lineNum">      49 </span>            :   typedef wjson::object&lt;
+<span class="lineNum">      50 </span>            :     reducer_options,
+<span class="lineNum">      51 </span>            :     wjson::member_list&lt;
+<span class="lineNum">      52 </span>            :       wjson::member&lt; n_reducer_limit, reducer_options, size_type, &amp;reducer_options::reducer_limit&gt;,
+<span class="lineNum">      53 </span>            :       wjson::member&lt; n_reducer_levels, reducer_options, size_type, &amp;reducer_options::reducer_levels&gt;
+<span class="lineNum">      54 </span>            :     &gt;,
+<span class="lineNum">      55 </span>            :     wjson::strict_mode
+<span class="lineNum">      56 </span>            :   &gt; type;
+<span class="lineNum">      57 </span>            :   
+<span class="lineNum">      58 </span>            :   typedef type::target target;
+<span class="lineNum">      59 </span>            :   typedef type::serializer serializer;
+<span class="lineNum">      60 </span>            :   typedef type::member_list member_list;
+<span class="lineNum">      61 </span>            : };
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : 
+<a name="64"><span class="lineNum">      64 </span>            : struct separator_options_json</a>
+<a name="65"><span class="lineNum">      65 </span>            : {</a>
+<a name="66"><span class="lineNum">      66 </span><span class="lineNoCov">          0 :   JSON_NAME(aggregation_step_ts)</span></a>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :   JSON_NAME(soiled_start_ts)</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :   JSON_NAME(resolution)</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            :   typedef wjson::object&lt;
+<span class="lineNum">      71 </span>            :     separator_options,
+<span class="lineNum">      72 </span>            :     wjson::member_list&lt;
+<span class="lineNum">      73 </span>            :       wjson::base&lt;reducer_options_json&gt;,
+<span class="lineNum">      74 </span>            :       wjson::member&lt; n_aggregation_step_ts, separator_options, time_type, &amp;separator_options::aggregation_step_ts&gt;,
+<span class="lineNum">      75 </span>            :       wjson::member&lt; n_soiled_start_ts, separator_options, time_type, &amp;separator_options::soiled_start_ts&gt;,
+<span class="lineNum">      76 </span>            :       wjson::member&lt; n_resolution, separator_options, resolutions, &amp;separator_options::resolution, resolution_json&gt;
+<span class="lineNum">      77 </span>            :     &gt;,
+<span class="lineNum">      78 </span>            :     wjson::strict_mode
+<span class="lineNum">      79 </span>            :   &gt; type;
+<span class="lineNum">      80 </span>            :   
+<span class="lineNum">      81 </span>            :   typedef type::target target;
+<span class="lineNum">      82 </span>            :   typedef type::serializer serializer;
+<span class="lineNum">      83 </span>            :   typedef type::member_list member_list;
+<span class="lineNum">      84 </span>            : };
+<span class="lineNum">      85 </span>            : 
+<a name="86"><span class="lineNum">      86 </span>            : struct aggregator_options_json</a>
+<span class="lineNum">      87 </span>            : {
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :   JSON_NAME(outgoing_reduced_size)</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :   typedef wjson::object&lt;
+<span class="lineNum">      91 </span>            :     aggregator_options,
+<span class="lineNum">      92 </span>            :     wjson::member_list&lt;
+<span class="lineNum">      93 </span>            :       wjson::base&lt;separator_options_json&gt;,
+<span class="lineNum">      94 </span>            :       wjson::member&lt; n_outgoing_reduced_size,  aggregator_options, size_type, &amp;aggregator_options::outgoing_reduced_size&gt;
+<span class="lineNum">      95 </span>            :     &gt;,
+<span class="lineNum">      96 </span>            :     wjson::strict_mode
+<span class="lineNum">      97 </span>            :   &gt; type;
+<span class="lineNum">      98 </span>            :   
+<span class="lineNum">      99 </span>            :   typedef type::target target;
+<span class="lineNum">     100 </span>            :   typedef type::serializer serializer;
+<span class="lineNum">     101 </span>            :   typedef type::member_list member_list;
+<span class="lineNum">     102 </span>            : };
+<span class="lineNum">     103 </span>            :   
+<a name="104"><span class="lineNum">     104 </span>            : struct wrtstat_options_json</a>
+<a name="105"><span class="lineNum">     105 </span>            : {</a>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :   JSON_NAME(pool_size)</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :   JSON_NAME(prefixes)</span>
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            :   typedef wjson::object&lt;
+<span class="lineNum">     110 </span>            :     wrtstat_options,
+<span class="lineNum">     111 </span>            :     wjson::member_list&lt;
+<span class="lineNum">     112 </span>            :       wjson::base&lt;aggregator_options_json&gt;,
+<span class="lineNum">     113 </span>            :       wjson::member&lt; n_pool_size, wrtstat_options, size_t, &amp;wrtstat_options::pool_size&gt;,
+<span class="lineNum">     114 </span>            :       wjson::member&lt; n_prefixes, wrtstat_options, std::vector&lt;std::string&gt;, &amp;wrtstat_options::prefixes,
+<span class="lineNum">     115 </span>            :                      wjson::vector_of_strings&lt;&gt; &gt;
+<span class="lineNum">     116 </span>            :     &gt;,
+<span class="lineNum">     117 </span>            :     wjson::strict_mode
+<span class="lineNum">     118 </span>            :   &gt; type;
+<span class="lineNum">     119 </span>            :   
+<span class="lineNum">     120 </span>            :   typedef type::target target;
+<span class="lineNum">     121 </span>            :   typedef type::serializer serializer;
+<span class="lineNum">     122 </span>            :   typedef type::member_list member_list;
+<span class="lineNum">     123 </span>            : };
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            : struct agmap_options_json
+<span class="lineNum">     126 </span>            : {
+<span class="lineNum">     127 </span>            :   JSON_NAME(pool_size)
+<span class="lineNum">     128 </span>            :   JSON_NAME(hash_size)
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :   typedef wjson::object&lt;
+<span class="lineNum">     131 </span>            :     agmap_options,
+<span class="lineNum">     132 </span>            :     wjson::member_list&lt;
+<span class="lineNum">     133 </span>            :       wjson::base&lt;aggregator_options_json&gt;,
+<span class="lineNum">     134 </span>            :       wjson::member&lt; n_pool_size, agmap_options, size_t, &amp;agmap_options::pool_size&gt;,
+<span class="lineNum">     135 </span>            :       wjson::member&lt; n_hash_size, agmap_options, size_t, &amp;agmap_options::hash_size&gt;
+<span class="lineNum">     136 </span>            :     &gt;,
+<span class="lineNum">     137 </span>            :     wjson::strict_mode
+<span class="lineNum">     138 </span>            :   &gt; type;
+<span class="lineNum">     139 </span>            :   
+<span class="lineNum">     140 </span>            :   typedef type::target target;
+<span class="lineNum">     141 </span>            :   typedef type::serializer serializer;
+<span class="lineNum">     142 </span>            :   typedef type::member_list member_list;
+<span class="lineNum">     143 </span>            : };
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

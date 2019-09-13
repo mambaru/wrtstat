@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - wrtstat-coverage.info - wrtstat/manager/aggregator_registry.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">wrtstat/manager</a> - aggregator_registry.hpp<span style="font-size: 80%;"> (source / <a href="aggregator_registry.hpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">wrtstat-coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-09-13</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #pragma once</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : #include &lt;wrtstat/manager/dict.hpp&gt;
+<span class="lineNum">       4 </span>            : #include &lt;wrtstat/manager/pool.hpp&gt;
+<span class="lineNum">       5 </span>            : #include &lt;wrtstat/manager/mutex/rwlock.hpp&gt;
+<span class="lineNum">       6 </span>            : #include &lt;wrtstat/aggregator.hpp&gt;
+<span class="lineNum">       7 </span>            : #include &lt;wrtstat/types.hpp&gt;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #include &lt;string&gt;
+<span class="lineNum">      10 </span>            : #include &lt;mutex&gt;
+<span class="lineNum">      11 </span>            : #include &lt;deque&gt;
+<span class="lineNum">      12 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      13 </span>            : #include &lt;functional&gt;
+<span class="lineNum">      14 </span>            : 
+<a name="15"><span class="lineNum">      15 </span>            : namespace wrtstat {</a>
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span><span class="lineCov">          5 : class aggregator_registry</span>
+<span class="lineNum">      18 </span>            : {
+<span class="lineNum">      19 </span>            : public:
+<span class="lineNum">      20 </span>            :   typedef rwlock&lt;std::mutex&gt; mutex_type;
+<span class="lineNum">      21 </span>            :   typedef aggregator_mt aggregator_type;
+<span class="lineNum">      22 </span>            :   typedef typename aggregated_data::ptr aggregated_ptr;
+<span class="lineNum">      23 </span>            :   typedef aggregator_options options_type;
+<span class="lineNum">      24 </span>            :   
+<span class="lineNum">      25 </span>            :   typedef typename aggregator_type::simple_adder_t simple_adder_t;
+<span class="lineNum">      26 </span>            :   typedef typename aggregator_type::data_adder_t data_adder_t;
+<span class="lineNum">      27 </span>            :   typedef typename aggregator_type::reduced_adder_t reduced_adder_t;
+<span class="lineNum">      28 </span>            :   typedef typename aggregator_type::simple_pusher_t simple_pusher_t;
+<span class="lineNum">      29 </span>            :   typedef typename aggregator_type::data_pusher_t data_pusher_t;
+<span class="lineNum">      30 </span>            :   typedef typename aggregator_type::reduced_pusher_t reduced_pusher_t;
+<span class="lineNum">      31 </span>            :   typedef std::function&lt; void(time_type now, time_type value, size_type count, 
+<span class="lineNum">      32 </span>            :                               size_type readed, size_type writed) &gt; composite_adder_t;
+<span class="lineNum">      33 </span>            :   typedef composite_adder_t composite_pusher_t;
+<span class="lineNum">      34 </span>            :   typedef typename aggregator_type::aggregated_handler aggregated_handler;
+<span class="lineNum">      35 </span>            :   
+<span class="lineNum">      36 </span>            :   typedef std::shared_ptr&lt;aggregator_type&gt; aggregator_ptr;
+<span class="lineNum">      37 </span>            :   typedef std::deque&lt;aggregator_ptr&gt; aggregator_list;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            :   explicit aggregator_registry(const options_type&amp; opt, size_t pool_size, id_t init, id_t step);
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :   size_t aggregators_count() const;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            :   bool add(id_t id, time_type now, value_type v, size_type count);
+<span class="lineNum">      44 </span>            :   
+<span class="lineNum">      45 </span>            :   bool add( const std::string&amp; name, const reduced_data&amp; v);
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            :   aggregated_ptr force_pop(id_t id);
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            :   aggregated_ptr pop(id_t id);
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            :   std::string get_name(id_t id) const;
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            :   id_t create_aggregator(const std::string&amp; name, time_type now);
+<span class="lineNum">      54 </span>            :   
+<span class="lineNum">      55 </span>            :   aggregator_ptr get_aggregator(const std::string&amp; name, time_type now);
+<span class="lineNum">      56 </span>            :   
+<span class="lineNum">      57 </span>            :   aggregator_ptr get_aggregator(id_t id) const;
+<span class="lineNum">      58 </span>            :   
+<span class="lineNum">      59 </span>            :   simple_pusher_t create_simple_pusher( id_t id, aggregated_handler handler );
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            :   data_pusher_t create_data_pusher( id_t id, aggregated_handler handler );
+<span class="lineNum">      62 </span>            :   
+<span class="lineNum">      63 </span>            :   reduced_pusher_t create_reduced_pusher( id_t id, aggregated_handler handler );
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :   composite_pusher_t create_composite_pusher( 
+<span class="lineNum">      66 </span>            :     id_t time_id, id_t read_id, id_t write_id, 
+<span class="lineNum">      67 </span>            :     aggregated_handler time_handler,
+<span class="lineNum">      68 </span>            :     aggregated_handler read_handler,
+<span class="lineNum">      69 </span>            :     aggregated_handler write_handler,
+<span class="lineNum">      70 </span>            :     bool summary_size
+<span class="lineNum">      71 </span>            :   );
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            :   simple_pusher_t create_simple_pusher(const std::string&amp; name, aggregated_handler handler, time_type ts_now);
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            :   data_pusher_t create_data_pusher(const std::string&amp; name, aggregated_handler handler, time_type ts_now);
+<span class="lineNum">      76 </span>            :   
+<span class="lineNum">      77 </span>            :   reduced_pusher_t create_reduced_pusher( const std::string&amp; name, aggregated_handler handler, time_type ts_now );
+<span class="lineNum">      78 </span>            :   
+<span class="lineNum">      79 </span>            :   composite_pusher_t create_composite_pusher( 
+<span class="lineNum">      80 </span>            :     const std::string&amp; time_name, 
+<span class="lineNum">      81 </span>            :     const std::string&amp; read_name, 
+<span class="lineNum">      82 </span>            :     const std::string&amp; write_name, 
+<span class="lineNum">      83 </span>            :     aggregated_handler time_handler,
+<span class="lineNum">      84 </span>            :     aggregated_handler read_handler,
+<span class="lineNum">      85 </span>            :     aggregated_handler write_handler,
+<span class="lineNum">      86 </span>            :     bool summary_size,
+<span class="lineNum">      87 </span>            :     time_type ts_now
+<span class="lineNum">      88 </span>            :   );
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :   void enable(bool value);
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            :   bool del(const std::string&amp; name);
+<span class="lineNum">      93 </span>            :   
+<span class="lineNum">      94 </span>            : private:
+<span class="lineNum">      95 </span>            :   composite_adder_t make_composite_handler_(simple_adder_t time_adder, simple_adder_t read_adder, simple_adder_t write_adder, bool summary_size  );
+<span class="lineNum">      96 </span>            : private:
+<span class="lineNum">      97 </span>            :   mutable mutex_type _mutex;
+<span class="lineNum">      98 </span>            :   aggregator_options _opt;
+<span class="lineNum">      99 </span>            :   aggregator_list _agarr;
+<span class="lineNum">     100 </span>            :   dict _dict;
+<span class="lineNum">     101 </span>            :   pool&lt;mutex_type&gt; _pool;
+<span class="lineNum">     102 </span>            :   bool _enabled = true;
+<span class="lineNum">     103 </span>            : };
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

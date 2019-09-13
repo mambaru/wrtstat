@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - wrtstat-coverage.info - wrtstat/manager/aggregator_hashmap.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">wrtstat/manager</a> - aggregator_hashmap.cpp<span style="font-size: 80%;"> (source / <a href="aggregator_hashmap.cpp.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">wrtstat-coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryLo">61.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-09-13</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryMed">77.8 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &lt;wrtstat/manager/aggregator_hashmap.hpp&gt;</a>
+<span class="lineNum">       2 </span>            : #include &lt;fas/system/memory.hpp&gt;
+<span class="lineNum">       3 </span>            : 
+<a name="4"><span class="lineNum">       4 </span>            : namespace wrtstat {</a>
+<span class="lineNum">       5 </span>            : 
+<span class="lineNum">       6 </span><span class="lineCov">          1 : aggregator_hashmap::aggregator_hashmap(const options_type&amp; opt )</span>
+<span class="lineNum">       7 </span><span class="lineCov">          1 :   : _opt(opt)</span>
+<span class="lineNum">       8 </span>            : {
+<span class="lineNum">       9 </span><span class="lineCov">          1 :   this-&gt;initialize_();</span>
+<a name="10"><span class="lineNum">      10 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span><span class="lineNoCov">          0 : aggregator_hashmap::aggregator_hashmap(aggregator_hashmap&amp;&amp; agh)</span>
+<span class="lineNum">      13 </span><span class="lineNoCov">          0 :   : _hash( std::move(agh._hash) )</span>
+<span class="lineNum">      14 </span><span class="lineNoCov">          0 :   , _opt( std::move(agh._opt) )</span>
+<span class="lineNum">      15 </span><span class="lineNoCov">          0 :   ,_mutex_list( std::move(agh._mutex_list) )</span>
+<span class="lineNum">      16 </span><span class="lineNoCov">          0 :   ,_aggregator_list( std::move(agh._aggregator_list) )</span>
+<span class="lineNum">      17 </span>            : {
+<a name="18"><span class="lineNum">      18 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span><span class="lineNoCov">          0 : aggregator_hashmap&amp; aggregator_hashmap::operator=(aggregator_hashmap&amp;&amp; agh)</span>
+<span class="lineNum">      21 </span>            : {
+<span class="lineNum">      22 </span><span class="lineNoCov">          0 :   _opt = agh._opt;</span>
+<span class="lineNum">      23 </span><span class="lineNoCov">          0 :   _mutex_list = std::move(agh._mutex_list);</span>
+<span class="lineNum">      24 </span>            :   _hash = agh._hash;
+<span class="lineNum">      25 </span><span class="lineNoCov">          0 :   _hash_size = agh._hash_size;</span>
+<span class="lineNum">      26 </span><span class="lineNoCov">          0 :   _aggregator_list = std::move(agh._aggregator_list);</span>
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 :   return *this;</span>
+<a name="28"><span class="lineNum">      28 </span>            : }</a>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span><span class="lineCov">     117702 : bool aggregator_hashmap::push( const std::string&amp; name, const reduced_data&amp; v, aggregated_handler handler)</span>
+<span class="lineNum">      31 </span>            : {
+<span class="lineNum">      32 </span><span class="lineCov">     117702 :   size_t pos = this-&gt;get_pos_(name);</span>
+<span class="lineNum">      33 </span><span class="lineCov">     117702 :   auto&amp; ag = _aggregator_list[pos];</span>
+<span class="lineNum">      34 </span><span class="lineCov">     117702 :   auto&amp; mtx = _mutex_list[pos];</span>
+<span class="lineNum">      35 </span><span class="lineCov">     117702 :   std::lock_guard&lt;mutex_type&gt; lk( *mtx );</span>
+<span class="lineNum">      36 </span><span class="lineCov">     117702 :   return ag-&gt;push(name, v, std::move(handler) );</span>
+<a name="37"><span class="lineNum">      37 </span>            : }</a>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span><span class="lineCov">     117702 : size_t aggregator_hashmap::get_pos_( const std::string&amp; name) const</span>
+<span class="lineNum">      40 </span>            : {
+<span class="lineNum">      41 </span><span class="lineCov">     117702 :   return _hash(name) % _opt.hash_size;</span>
+<a name="42"><span class="lineNum">      42 </span>            : }</a>
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span><span class="lineCov">          1 : void aggregator_hashmap::initialize_()</span>
+<span class="lineNum">      45 </span>            : {
+<span class="lineNum">      46 </span><span class="lineCov">          1 :   _mutex_list.resize( _opt.hash_size);</span>
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">          1 :   _aggregator_list.resize( _opt.hash_size);</span></a>
+<span class="lineNum">      48 </span><span class="lineCov">          1 :   std::generate(std::begin(_mutex_list), std::end(_mutex_list), std::make_unique&lt;mutex_type&gt;);</span>
+<span class="lineNum">      49 </span><span class="lineCov">       4097 :   std::generate(std::begin(_aggregator_list), std::end(_aggregator_list), [this](){ return std::make_unique&lt;aggregator_map&gt;(_opt);});</span>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">          3 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
