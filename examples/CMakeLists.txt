@@ -1,7 +1,3 @@
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BIN_OUTPUT_DIR})
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-
 add_executable(example1 example1.cpp)
 add_executable(example2 example2.cpp)
 add_executable(example3 example3.cpp)
@@ -13,14 +9,18 @@ add_executable(example8 example8.cpp)
 add_executable(example9 example9.cpp)
 add_executable(example_j example_j.cpp)
 
-target_link_libraries(example1 wrtstat)
-target_link_libraries(example2 wrtstat)
-target_link_libraries(example3 wrtstat)
-target_link_libraries(example4 wrtstat)
-target_link_libraries(example5 wrtstat)
-target_link_libraries(example6 wrtstat)
-target_link_libraries(example7 wrtstat)
-target_link_libraries(example8 wrtstat)
-target_link_libraries(example9 wrtstat)
-target_link_libraries(example_j wrtstat)
+target_link_libraries(example1 PUBLIC wrtstat)
+target_link_libraries(example2 PUBLIC wrtstat)
+target_link_libraries(example3 PUBLIC wrtstat)
+target_link_libraries(example4 PUBLIC wrtstat)
+target_link_libraries(example5 PUBLIC wrtstat)
+target_link_libraries(example6 PUBLIC wrtstat)
+target_link_libraries(example7 PUBLIC wrtstat)
+target_link_libraries(example8 PUBLIC wrtstat)
+target_link_libraries(example9 PUBLIC wrtstat)
+target_link_libraries(example_j PUBLIC wrtstat)
+
+wci_utils(example1 example2 example3 example4 example5
+          example6 example7 example8 example9 example_j)
+
 

@@ -1,7 +1,8 @@
-[![pipeline status](http://github.lan/cpp/wrtstat/badges/wip-devel/pipeline.svg)](http://gitlab7.lan/cpp/wrtstat/commits/wip-devel)
-[![coverage report](http://gitlab7.lan/cpp/wrtstat/badges/wip-devel/coverage.svg)](http://gitlab7.lan/cpp/wrtstat/commits/wip-devel)
+[![Build Status](https://github.com/mambaru/wrtstat/workflows/C++%20CI/badge.svg?branch=master)](https://github.com/mambaru/wrtstat/tree/master)
+[![Build Status](https://github.com/mambaru/wrtstat/workflows/C++%20CI/badge.svg?branch=mambaru)](https://github.com/mambaru/wrtstat/tree/mambaru)
+[![Coverage Report](http://github.lan/cpp/wrtstat/badges/pre-release/coverage.svg)](http://github.lan/cpp/wrtstat/commits/pre-release)
 
-Библиотека для сбора статистики фреймворка [WFC](https://github.com/mambaru/wfcroot). 
+Библиотека для сбора статистики фреймворка [WFC](https://github.com/mambaru/wfcroot).
 
 * Документация [doxygen](https://mambaru.github.io/wrtstat/index.html).
 * Репозитарий на [github.com](https://github.com/mambaru/wrtstat).

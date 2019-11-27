@@ -23,8 +23,6 @@ public:
   size_point( const size_point& ) = delete;
   size_point& operator=( const size_point& ) = delete;
 
-  
-
   size_point(const meter_fun_t& fun, time_type ts_now, value_type s)
     : _now(ts_now)
     , _size(s)
@@ -36,7 +34,7 @@ public:
   {
     this->_push();
   }
-  
+
   void _push()
   {
     if ( _meter_fun == nullptr || _now == 0)
@@ -52,12 +50,12 @@ public:
     return self(_meter_fun, ts_now, s);
   }
 
-  void reset() 
+  void reset()
   {
     _now = 0;
     _size = 0;
   }
-  
+
   void reset(const meter_fun_t& fun, time_type ts_now, value_type size )
   {
     this->_push();
@@ -66,27 +64,22 @@ public:
     _size = size;
   }
 
-
 private:
   time_type _now;
   value_type _size;
   meter_fun_t _meter_fun;
 };
 
-
-class size_meter/*: size_point*/
+class size_meter
 {
-  //typedef size_point super;
 public:
   typedef size_point point_type;
   typedef size_point::meter_fun_t meter_fun_t;
-  
+
   size_meter( const meter_fun_t& fun, resolutions resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
-  {
-  
-  }
+  {}
 
   size_point create(value_type size) const
   {
@@ -98,7 +91,7 @@ public:
     return size_point(_meter_fun, now_ts, size);
   }
 
-  
+
   std::shared_ptr< size_point > create_shared(value_type size) const
   {
     return this->create_shared(aggregator::now(_resolution), size);
@@ -107,11 +100,6 @@ public:
   std::shared_ptr< size_point > create_shared(time_type now_ts, value_type size) const
   {
     return std::make_shared<size_point>(_meter_fun, now_ts, size);
-    //return _pool->make(_meter_fun, now_ts, size);
-    //return super::clone(now_ts, size);
-    /*auto p = _pool->make(_meter_fun, now_ts, size);
-    if (p==nullptr) abort();
-    return p;*/
   }
 
 private:

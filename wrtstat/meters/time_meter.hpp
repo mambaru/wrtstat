@@ -2,6 +2,8 @@
 
 #include <wrtstat/types.hpp>
 #include <wrtstat/aggregator.hpp>
+#include <fas/typemanip.hpp>
+#include <fas/utility/useless_cast.hpp>
 #include <chrono>
 #include <memory>
 #include <iostream>
@@ -17,7 +19,7 @@ public:
 
   typedef std::chrono::steady_clock clock_type;
   typedef D duration_type;
-  
+
   typedef std::function< void(time_type now, value_type span, size_type count) > meter_fun_t;
   typedef std::mutex mutex_type;
   typedef std::shared_ptr<mutex_type> mutex_ptr;
@@ -28,7 +30,7 @@ public:
   time_point& operator=( const time_point& ) = delete;
   time_point( time_point&& ) = default;
   time_point& operator=( time_point&& ) = default;
-  
+
   time_point(const meter_fun_t& fun, time_type ts_now, size_type cnt = 1 )
     : _now(ts_now)
     , _count(cnt)
@@ -42,8 +44,8 @@ public:
   {
     this->_push();
   }
-  
-  void reset() 
+
+  void reset()
   {
     _now = 0;
     _count = 0;
@@ -60,14 +62,14 @@ public:
       _start = clock_type::now();
     }
   }
-  
+
   void _push()
   {
     if ( _meter_fun == nullptr || _now == 0 )
       return;
     clock_type::time_point finish = clock_type::now();
     time_type span = std::chrono::template duration_cast<D>( finish - _start ).count();
-    _meter_fun( _now, static_cast<value_type>(span), _count );
+    _meter_fun( _now, fas::useless_cast<value_type>(span), _count );
   }
 
   time_point<D> clone(time_type ts_now, size_type cnt) const
@@ -88,7 +90,7 @@ class time_meter
 public:
   typedef time_point<D> point_type;
   typedef typename time_point<D>::meter_fun_t meter_fun_t;
-  
+
   time_meter( const meter_fun_t& fun, resolutions resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
@@ -114,7 +116,7 @@ public:
   {
     return std::make_shared<time_point<D> >(_meter_fun, ts_now, count);
   }
- 
+
 private:
   meter_fun_t _meter_fun;
   resolutions _resolution;

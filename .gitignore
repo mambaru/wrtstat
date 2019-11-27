@@ -1,3 +1,5 @@
+*_build.counter
+*build_info.h
 *~
 *.kdev4
 *.pyc
@@ -13,7 +15,6 @@ build
 autom4te.cache
 *.deps
 CMakeFiles
-Testing
 CMakeCache.txt
 *.kate-swp
 *build_info.h

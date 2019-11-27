@@ -21,7 +21,7 @@ public:
   value_point() = delete;
   value_point( value_point&& ) = default;
   value_point& operator=( value_point&& ) = default;
-  
+
   value_point( const value_point& ) = delete;
   value_point& operator=( const value_point& ) = delete;
 
@@ -56,13 +56,13 @@ public:
     return value_point(_meter_fun, ts_now, val, cnt);
   }
 
-  void reset() 
+  void reset()
   {
     _now = 0;
     _count = 0;
     _value = 0;
   }
-  
+
   void reset(const meter_fun_t& fun, time_type ts_now, value_type val,  size_type cnt )
   {
     this->push_();
@@ -78,13 +78,12 @@ private:
   meter_fun_t _meter_fun;
 };
 
-class value_meter//: value_point
+class value_meter
 {
-  //typedef value_point super;
 public:
   typedef value_point point_type;
   typedef value_point::meter_fun_t meter_fun_t;
-  
+
   value_meter( const meter_fun_t& fun, resolutions resolution)
     : _meter_fun(fun)
     , _resolution(resolution)
