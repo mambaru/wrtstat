@@ -1,5 +1,4 @@
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${UNIT_TEST_BIN_OUTPUT_DIR})
-  
+
 add_executable(
   test_wrtstat
   test_wrtstat.cpp
@@ -8,10 +7,9 @@ add_executable(
   aggregator_suite.cpp
   agmap_suite.cpp
   wrtstat_suite.cpp
-  ${FAS_TESTING_CPP}
 )
 
-target_link_libraries(test_wrtstat wrtstat)
+target_link_libraries(test_wrtstat PUBLIC wrtstat fas::testing)
 
-add_test( NAME test_wrtstat COMMAND test_wrtstat)
-add_test_memcheck(test_wrtstat)
+wci_test( TARGET test_wrtstat COMMAND test_wrtstat)
+
