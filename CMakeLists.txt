@@ -22,7 +22,7 @@ set(
 
 add_library(wrtstat ${source_list})
 wci_targets(wrtstat)
-target_include_directories(wrtstat PUBLIC ${wjrpc_SOURCE_DIR})
+target_include_directories(wrtstat PUBLIC ${wrtstat_SOURCE_DIR})
 include(FindThreads)
 target_link_libraries(wrtstat PUBLIC faslib wjson wlog ${CMAKE_THREAD_LIBS_INIT})
 
