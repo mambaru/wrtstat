@@ -1,5 +1,5 @@
 #include <fas/testing.hpp>
-#include <wrtstat/reducer.hpp>
+#include <wrtstat/aggregator/reducer.hpp>
 #include <numeric>
 
 

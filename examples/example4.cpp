@@ -1,5 +1,5 @@
 #include <iostream>
-#include <wrtstat/meter_manager.hpp>
+#include <wrtstat/wrtstat.hpp>
 #include <unistd.h>
 #include <iostream>
 #include <chrono>
@@ -14,10 +14,10 @@ void test(std::function<void()>)
 int main()
 {
   std::srand( static_cast<unsigned int>(std::time(nullptr)) );
-  wrtstat::meter_manager::options_type opt;
+  wrtstat::wrtstat::options_type opt;
   opt.aggregation_step_ts = 1000000;
   opt.resolution = wrtstat::resolutions::microseconds;
-  wrtstat::meter_manager mng(opt);
+  wrtstat::wrtstat mng(opt);
   wrtstat::id_t id = mng.create_aggregator("my_name", std::time(nullptr)*1000000);
   auto meter_proto = mng.create_time_meter<std::chrono::nanoseconds>(id).create(std::time(nullptr)*1000000, 100000);
   for (int i = 0; i < 1000; ++i)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <wrtstat/aggregator.hpp>
+#include <wrtstat/aggregator/aggregator.hpp>
 #include <fas/utility/useless_cast.hpp>
 #include <memory>
 
@@ -89,6 +89,7 @@ public:
   {
     if ( _meter_fun == nullptr || _now == 0 )
       return;
+    
     clock_type::time_point finish = clock_type::now();
     time_type span = std::chrono::template duration_cast<D>( finish - _start ).count();
     _meter_fun( _now, fas::useless_cast<value_type>(span), _count, _readed, _writed );

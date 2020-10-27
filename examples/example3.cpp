@@ -1,5 +1,6 @@
-#include <wrtstat/aggregator.hpp>
-#include <wrtstat/manager/mutex/empty_mutex.hpp>
+#include <wrtstat/aggregator/aggregator.hpp>
+#include <wrtstat/system/empty_mutex.hpp>
+#include <wrtstat/system/pool.hpp>
 #include <ctime>
 #include <cstdlib>
 #include <iostream>

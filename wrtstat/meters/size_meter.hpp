@@ -1,9 +1,8 @@
 #pragma once
 
-#include <wrtstat/aggregator.hpp>
+#include <wrtstat/aggregator/aggregator.hpp>
 #include <chrono>
 #include <memory>
-#include <iostream>
 
 namespace wrtstat {
 
@@ -13,9 +12,6 @@ public:
   typedef size_point self;
   typedef std::shared_ptr<self> self_ptr;
   typedef std::function< void(time_type now, value_type value, size_type count) > meter_fun_t;
-  typedef std::mutex mutex_type;
-  typedef std::shared_ptr<mutex_type> mutex_ptr;
-  typedef std::weak_ptr<mutex_type> mutex_wptr;
 
   size_point()= delete;
   size_point( size_point&& ) = default;

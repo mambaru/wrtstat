@@ -1,7 +1,5 @@
 #include <fas/testing.hpp>
-#include <wrtstat/meter_manager.hpp>
 #include <wrtstat/wrtstat.hpp>
-#include <wrtstat/manager/aggregator_registry.hpp>
 #include <chrono>
 #include <map>
 
@@ -12,12 +10,12 @@ namespace {
 UNIT(wrtstat1, "")
 {
   using namespace fas::testing;
-
-  wrtstat::meter_manager::options_type options;
+  
+  wrtstat::wrtstat::options_type options;
   // Если resolutions now_t не совпадает, то 
   options.resolution = wrtstat::resolutions::microseconds;
   
-  wrtstat::meter_manager stat(options);
+  wrtstat::wrtstat stat(options);
   stat.create_composite_multi_meter<std::chrono::microseconds>(
     "a1", "a2", "a3", true).create( 
     stat.now(), 
@@ -42,9 +40,9 @@ UNIT(wrtstat2, "")
 {
   using namespace fas::testing;
   
-  wrtstat::meter_manager::options_type opt;
+  wrtstat::wrtstat::options_type opt;
   opt.resolution = wrtstat::resolutions::none;
-  wrtstat::meter_manager stat(opt);
+  wrtstat::wrtstat stat(opt);
   wrtstat::id_t id = stat.create_aggregator( "test1", 0 );
   // bool add(id_t id, time_type ts_now, value_type v, size_type cnt)
   stat.add(id, 0, 0, 1);
@@ -66,7 +64,7 @@ UNIT(wrtstat3, "")
 {
   using namespace fas::testing;
   t << flush;
-  wrtstat::meter_manager::options_type opt;
+  wrtstat::wrtstat::options_type opt;
   opt.resolution = wrtstat::resolutions::microseconds;
   opt.aggregation_step_ts = 1000000;
   /*opt.reducer_limit = 256;
@@ -82,7 +80,7 @@ UNIT(wrtstat3, "")
     t << message(name) << " count=" << ag->count << " 80%=" << ag->perc80 << " 100%=" << ag->perc100 << " max=" << ag->max << " lossy=" << ag->lossy;
   };
   //opt.handler=[](const std::string& , wrtstat::aggregated_data::ptr ) {};
-  wrtstat::meter_manager stat(opt);
+  wrtstat::wrtstat stat(opt);
   
   std::map<size_t, size_t> test_map;
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", true);
@@ -127,7 +125,7 @@ UNIT(wrtstat4, "")
     t << message(name) << " count=" << ag->count << " 80%=" << ag->perc80 << " 100%=" << ag->perc100 << " max=" << ag->max << " lossy=" << ag->lossy;
   };
   //opt.handler=[](const std::string& , wrtstat::aggregated_data::ptr ) {};
-  wrtstat::meter_manager stat(opt);
+  wrtstat::wrtstat stat(opt);
   
   std::map<size_t, size_t> test_map;
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", true);

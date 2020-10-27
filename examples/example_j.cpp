@@ -2,11 +2,9 @@
 #include <iostream>
 #include <fstream>
 
-#define WLOG_ENABLE_DEBUG_LOG ON
-#include <wlog/logging.hpp>
-#include <wrtstat/json/load.hpp>
+#include <wrtstat/options/load_options.hpp>
 #include <wrtstat/wrtstat_options.hpp>
-#include <wrtstat/json/wrtstat_options_json.hpp>
+#include <wrtstat/wrtstat_options_json.hpp>
 #include <wjson/json.hpp>
 #include <wjson/strerror.hpp>
 
@@ -31,13 +29,13 @@ int main(int argc, char* argv[])
   
   if ( std::isdigit(argv[1][0]) )
   {
-    std::cout << wrtstat::dump(opt) << std::endl;
+    std::cout << wrtstat::serialize_options(opt) << std::endl;
     return 0;
   }
   
   
   std::string er;
-  if ( !wrtstat::load(argv[1], &opt, &er) )
+  if ( !wrtstat::load_options(argv[1], &opt, &er) )
   {
     std::cerr << er << std::endl;
   }

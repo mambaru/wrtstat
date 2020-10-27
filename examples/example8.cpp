@@ -1,8 +1,12 @@
-#include <wrtstat/manager/aggregator_map.hpp>
-#include <wrtstat/manager/aggregator_hashmap.hpp>
+
+#include <wrtstat/multi_aggregator/basic_multi_aggregator.hpp>
+#include <wrtstat/multi_aggregator/multi_aggregator.hpp>
+#include <wrtstat/aggregator/aggregator.hpp>
+
 #include <chrono>
 #include <thread>
 #include <vector>
+#include <iostream>
 using namespace wrtstat;
 
 /*
@@ -10,13 +14,13 @@ aggregator_map rt;
 aggregator_map rt2;
 */
 
-typedef aggregator_hashmap aggregator_map_t;
+typedef multi_aggregator aggregator_map_t;
 //typedef aggregator_map aggregator_map_t;
 
 aggregator_map_t rt;
 aggregator_map_t rt2;
 
-typedef aggregator_map_t::aggregated_ptr aggregated_ptr;
+//typedef aggregator_map_t::aggregated_ptr aggregated_ptr;
 reduced_data rd;
 std::mutex mutex;
 
@@ -36,8 +40,8 @@ void test()
       {
         rd.ts = aggregator::now_t<std::chrono::microseconds>();
         const std::string& name = names[size_t(i*j)];
-        rt.push(name, rd, [&name]( aggregated_ptr ag){
-          rt2.push( name, *ag, [&name](aggregated_ptr ag1){
+        rt.push(name, rd, [&name]( request::push::ptr ag){
+          rt2.push( name, *ag, [&name](request::push::ptr ag1){
             std::cout << name << "=" << ag1->count << std::endl;
           });
           std::cout << "ready,";
