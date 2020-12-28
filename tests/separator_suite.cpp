@@ -1,5 +1,5 @@
 #include <fas/testing.hpp>
-#include <wrtstat/separator.hpp>
+#include <wrtstat/aggregator/separator.hpp>
 
 namespace {
   

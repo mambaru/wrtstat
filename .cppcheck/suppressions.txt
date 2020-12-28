@@ -1,1 +1,3 @@
-syntaxError:./tests/*
+unusedFunction:./wrtstat/aggregator/*
+unusedFunction:./wrtstat/multi_packer/*
+useStlAlgorithm:./wrtstat/multi_packer/basic_packer.cpp

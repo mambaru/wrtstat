@@ -1,8 +1,8 @@
 #include <iostream>
-#include <wrtstat/reducer.hpp>
-#include <wrtstat/aggregator.hpp>
-#include <wrtstat/manager/pool.hpp>
-#include <wrtstat/manager/mutex/empty_mutex.hpp>
+#include <wrtstat/aggregator/reducer.hpp>
+#include <wrtstat/aggregator/aggregator.hpp>
+#include <wrtstat/system/pool.hpp>
+#include <wrtstat/system/empty_mutex.hpp>
 
 
 void reset_data(wrtstat::aggregated_data::ptr);
