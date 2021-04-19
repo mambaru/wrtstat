@@ -1,5 +1,6 @@
 #include <fas/testing.hpp>
-#include <wrtstat/aggregator.hpp>
+#include <wrtstat/aggregator/aggregator.hpp>
+#include <wrtstat/aggregator/aggregator_mt.hpp>
 #include <numeric>
 
 namespace {

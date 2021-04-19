@@ -1,0 +1,20 @@
+#pragma once
+#include <wrtstat/aggregator/options/reducer_options.hpp>
+#include <wrtstat/aggregator/api/types.hpp>
+
+namespace wrtstat {
+
+struct separator_options
+  : reducer_options
+{
+  // шаг обрезания. Если нужен шаг обрезания 5 сек для микросекунд (resolution=1000000), то нужно указать 5000000
+  time_type aggregation_step_ts = 1;
+  // resolution 0, 1, 1000, 1000000, 1000000000
+  // При resolution==0 отметку времени всегда нужно передавать, а нулевое значение тоже значение 
+  resolutions resolution = resolutions::seconds;
+  // смещает начальное значение для того чтобы аггрегация не шла лавиной
+  // значение аналогично step_ts, обычно достаточно чтобы было равным step_ts
+  time_type soiled_start_ts = 0;
+};
+
+}

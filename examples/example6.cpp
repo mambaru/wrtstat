@@ -1,10 +1,13 @@
-#include <wrtstat/meter_manager.hpp>
+#include <wrtstat/wrtstat.hpp>
 #include <chrono>
 #include <thread>
 #include <vector>
+#include <string>
+#include <iostream>
+
 using namespace wrtstat;
 reduced_data rd;
-::wrtstat::meter_manager rt1;
+::wrtstat::wrtstat rt1;
 std::mutex mutex;
 
 std::vector<std::string> names;
@@ -41,5 +44,6 @@ int main()
     th.push_back(std::thread(test));
   for (size_t i=0; i < S; ++i)
     th[i].join();
+  
   return 0;
 }

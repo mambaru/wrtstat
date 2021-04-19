@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <wrtstat/aggregator.hpp>
+#include <wrtstat/aggregator/aggregator.hpp>
 #include <fas/utility/useless_cast.hpp>
 #include <memory>
 
@@ -27,7 +27,7 @@ public:
   composite_point( composite_point&& ) = default;
   composite_point& operator=( composite_point&& ) = default;
 
-  composite_point(const meter_fun_t& fun, time_type ts_now, size_type count, value_type readed, value_type writed)
+  composite_point(const meter_fun_t& fun, time_type ts_now, size_type count, value_type readed, value_type writed, time_type shift_back = 0)
     : _now(ts_now)
     , _count(count)
     , _readed(readed)
@@ -35,7 +35,11 @@ public:
     , _meter_fun(fun)
   {
     if ( _now != 0 )
+    {
       _start = clock_type::now();
+      if ( shift_back != 0 )
+        _start -= D(shift_back);
+    }
   }
 
   ~composite_point()
@@ -51,7 +55,8 @@ public:
     _writed = 0;
   }
 
-  void reset(const meter_fun_t& fun, time_type ts_now, size_type count = 1, value_type readed = 0, value_type writed = 0 )
+  void reset(const meter_fun_t& fun, time_type ts_now, size_type count = 1, value_type readed = 0, value_type writed = 0, 
+             time_type shift_back = 0 )
   {
     this->_push();
     _now = ts_now;
@@ -62,7 +67,14 @@ public:
       _readed = readed;
       _writed = writed;
       _start = clock_type::now();
+      if ( shift_back != 0 )
+        _start -= D(shift_back);
     }
+  }
+  
+  void set_start_time(clock_type::time_point start_time)
+  {
+    _start = start_time;
   }
 
   value_type get_read_size() const
@@ -89,14 +101,16 @@ public:
   {
     if ( _meter_fun == nullptr || _now == 0 )
       return;
+    
     clock_type::time_point finish = clock_type::now();
     time_type span = std::chrono::template duration_cast<D>( finish - _start ).count();
     _meter_fun( _now, fas::useless_cast<value_type>(span), _count, _readed, _writed );
   }
 
-  composite_point<D> clone(time_type ts_now, size_type count, value_type readed = 0, value_type writed = 0) const
+  composite_point<D> clone(time_type ts_now, size_type count, value_type readed = 0, value_type writed = 0,
+                           time_type shift_back = 0) const
   {
-    return composite_point<D>(_meter_fun, ts_now, count, readed, writed);
+    return composite_point<D>(_meter_fun, ts_now, count, readed, writed, shift_back);
   }
 
 private:
@@ -121,26 +135,26 @@ public:
   {
   }
 
-  composite_point<D> create(size_type count, value_type readed, value_type writed) const
+  composite_point<D> create(size_type count, value_type readed, value_type writed, time_type shift_back = 0) const
   {
-    return this->create(aggregator::now(_resolution), count, readed, writed);
+    return this->create(aggregator::now(_resolution), count, readed, writed, shift_back);
   }
 
-  composite_point<D> create(time_t ts_now, size_type count, value_type readed, value_type writed) const
+  composite_point<D> create(time_t ts_now, size_type count, value_type readed, value_type writed, time_type shift_back = 0) const
   {
-    return composite_point<D>(_meter_fun, ts_now, count, readed, writed);
+    return composite_point<D>(_meter_fun, ts_now, count, readed, writed, shift_back);
 
   }
 
-  std::shared_ptr< composite_point<D> > create_shared(size_type count, value_type readed, value_type writed) const
+  std::shared_ptr< composite_point<D> > create_shared(size_type count, value_type readed, value_type writed, time_type shift_back = 0) const
   {
-    return this->create_shared(aggregator::now(_resolution), count, readed, writed);
+    return this->create_shared(aggregator::now(_resolution), count, readed, writed, shift_back);
   }
 
   std::shared_ptr< composite_point<D> > create_shared(time_t ts_now, size_type count,
-                                                      value_type readed, value_type writed) const
+                                                      value_type readed, value_type writed, time_type shift_back = 0) const
   {
-    return std::make_shared<composite_point<D> >(_meter_fun, ts_now, count, readed, writed);
+    return std::make_shared<composite_point<D> >(_meter_fun, ts_now, count, readed, writed, shift_back);
   }
 
 private:

@@ -1,12 +1,11 @@
 #pragma once
 
-#include <wrtstat/types.hpp>
-#include <wrtstat/aggregator.hpp>
+#include <wrtstat/aggregator/aggregator.hpp>
 #include <fas/typemanip.hpp>
 #include <fas/utility/useless_cast.hpp>
+
 #include <chrono>
 #include <memory>
-#include <iostream>
 
 namespace wrtstat {
 
@@ -21,9 +20,6 @@ public:
   typedef D duration_type;
 
   typedef std::function< void(time_type now, value_type span, size_type count) > meter_fun_t;
-  typedef std::mutex mutex_type;
-  typedef std::shared_ptr<mutex_type> mutex_ptr;
-  typedef std::weak_ptr<mutex_type> mutex_wptr;
 
   time_point()= delete;
   time_point( const time_point& ) = delete;

@@ -73,33 +73,33 @@ private:
   point_list _points;
 };
 
-template< typename MeterFactory>
+template< typename MeterType>
 class multi_meter
 {
 public:
-  typedef MeterFactory factory_type;
-  typedef typename factory_type::point_type point_type;
+  typedef MeterType meter_type;
+  typedef typename meter_type::point_type point_type;
   
   void reserve(size_t value)
   {
-    _factory_list.reserve(value);
+    _meters.reserve(value);
   }
-  void push_back(factory_type factory)
+  void push_back(meter_type m)
   {
-    _factory_list.push_back(factory);
+    _meters.push_back(m);
   }
   
   size_t size() const 
   {
-    return _factory_list.size();
+    return _meters.size();
   }
 
   template<typename... A>
   multi_point<point_type> create(A... args) const
   {
     multi_point<point_type> m;
-    m.reserve(_factory_list.size());
-    for (const auto& f : _factory_list)
+    m.reserve(_meters.size());
+    for (const auto& f : _meters)
     {
       m.push_back( f.create( std::forward<A>(args)...) );
     }
@@ -110,15 +110,15 @@ public:
   std::shared_ptr<multi_point<point_type> > create_shared(A... args) const
   {
     std::shared_ptr<multi_point<point_type> > m = std::make_shared< multi_point<point_type> >();
-    m->reserve(_factory_list.size());
-    for (const auto& f : _factory_list)
+    m->reserve(_meters.size());
+    for (const auto& f : _meters)
     {
       m->push_back( f.create(std::forward<A>(args)...) );
     }
     return m;
   }
 private:
-  std::vector<factory_type> _factory_list;
+  std::vector<meter_type> _meters;
 };
 
 

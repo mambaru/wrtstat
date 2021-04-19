@@ -1,8 +1,8 @@
 #include <iostream>
 #include <array>
 #include <algorithm>
-#include <wrtstat/reducer.hpp>
-#include <wrtstat/separator.hpp>
+#include <wrtstat/aggregator/reducer.hpp>
+#include <wrtstat/aggregator/separator.hpp>
 #define LEVEL1 10
 #define LEVEL2 1
 int main()

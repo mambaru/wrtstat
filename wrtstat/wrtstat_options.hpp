@@ -1,7 +1,7 @@
 #pragma once
 
-#include <wrtstat/aggregator_options.hpp>
-#include <wrtstat/aggregated_data.hpp>
+#include <wrtstat/aggregator/options/aggregator_options.hpp>
+#include <wrtstat/aggregator/api/aggregated_data.hpp>
 
 namespace wrtstat {
 
@@ -16,14 +16,6 @@ struct wrtstat_options
   named_aggregated_handler handler = nullptr;
   id_t id_init = 0;
   id_t id_step = 1;
-};
-
-
-struct agmap_options
-  : aggregator_options
-{
-  size_t pool_size = 0;
-  size_t hash_size = 4096;
 };
 
 }

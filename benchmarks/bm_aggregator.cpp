@@ -1,5 +1,6 @@
 #include <iostream>
-#include <wrtstat/aggregator.hpp>
+#include <wrtstat/aggregator/aggregator.hpp>
+#include <wrtstat/system/pool.hpp>
 
 int main(int argc, char* argv[])
 {
