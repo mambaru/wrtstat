@@ -98,15 +98,6 @@ bool basic_aggregator::push( const reduced_data& v, aggregated_handler handler)
   return _sep.push(v, std::bind(&basic_aggregator::push_handler_,  this, std::placeholders::_1, handler));
 }
 
-void basic_aggregator::push_handler_( aggregated_ptr ag, aggregated_handler handler)
-{
-  if ( handler!=nullptr )
-  {
-    ag = this->aggregate2_( std::move(ag) );
-    this->reduce_(ag->data);
-    handler(std::move(ag));
-  }
-}
 
 bool basic_aggregator::separate(time_type ts_now, aggregated_handler handler, bool force)
 {
@@ -242,5 +233,16 @@ basic_aggregator::aggregated_ptr basic_aggregator::aggregate2_(reduced_ptr d) co
   }
   return std::move(res);
 }
+
+void basic_aggregator::push_handler_( aggregated_ptr ag, aggregated_handler handler)
+{
+  if ( handler!=nullptr )
+  {
+    ag = this->aggregate2_( std::move(ag) );
+    this->reduce_(ag->data);
+    handler(std::move(ag));
+  }
+}
+
 
 }

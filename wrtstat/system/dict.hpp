@@ -25,7 +25,7 @@ public:
       return itr->second;
 
     id_t id = 0;
-    if ( _free.empty() ) 
+    if ( _free.empty() )
     {
       _counter += _step;
       id = _counter;
@@ -47,7 +47,7 @@ public:
       return std::string();
     return itr->second;
   }
-  
+
   id_t get_id(const std::string& name) const
   {
     auto itr = _dict.find(name);
@@ -55,19 +55,19 @@ public:
       return static_cast<id_t>(-1);
     return itr->second;
   }
-  
-  bool free(id_t index) 
+
+  bool free(id_t index)
   {
     auto itr = _index.find(index);
     if ( itr == _index.end() )
       return false;
-    
+
     _free.insert( itr->first );
     _dict.erase( itr->second );
     _index.erase( itr );
     return false;
   }
-  
+
   bool free(const std::string& name)
   {
     id_t id = this->get_id(name);
@@ -75,7 +75,7 @@ public:
       return false;
     return this->free(id);
   }
-  
+
   void clear()
   {
     _counter = 0;
@@ -83,10 +83,17 @@ public:
     _index.clear();
     _free.clear();
   }
-  
+
   size_t id2pos(id_t id) const
   {
     return (id + _step - 1) / _step;
+  }
+
+  // 3 8 13 18
+  // 2 : 2*5 + 18%5 = 13
+  size_t pos2id(id_t pos) const
+  {
+    return pos*_step + _counter%_step;
   }
 
 private:

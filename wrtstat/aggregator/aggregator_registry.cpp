@@ -29,19 +29,37 @@ bool aggregator_registry::add( const std::string& name, const reduced_data& v)
   return false;
 }
 
-aggregator_registry::aggregated_ptr aggregator_registry::force_pop(id_t id)
+aggregator_registry::aggregated_ptr aggregator_registry::force_pop(id_t id) const
 {
   if ( auto p = this->get_aggregator(id) )
     return p->force_pop();
   return nullptr;
 }
 
-aggregator_registry::aggregated_ptr aggregator_registry::pop(id_t id)
+aggregator_registry::aggregated_ptr aggregator_registry::pop(id_t id) const
 {
   if ( auto p = this->get_aggregator(id) )
     return p->pop();
   return nullptr;
 }
+
+void aggregator_registry::pop_all(named_aggregated_list* ag_list) const
+{
+  if ( ag_list == nullptr ) return;
+
+  read_lock<mutex_type> lk(_mutex);
+  this->pop_(ag_list, &aggregator_type::pop);
+
+}
+
+void aggregator_registry::force_pop_all(named_aggregated_list* ag_list) const
+{
+  if ( ag_list == nullptr ) return;
+
+  read_lock<mutex_type> lk(_mutex);
+  this->pop_(ag_list, &aggregator_type::force_pop);
+}
+
 
 std::string aggregator_registry::get_name(id_t id) const
 {
@@ -163,24 +181,24 @@ aggregator_registry::composite_pusher_t aggregator_registry::create_composite_pu
 
 //
 aggregator_registry::simple_pusher_t aggregator_registry::create_simple_pusher(
-  const std::string& name, 
-  aggregated_handler handler, 
+  const std::string& name,
+  aggregated_handler handler,
   time_type ts_now)
 {
   return this->create_simple_pusher( this->create_aggregator(name, ts_now), handler );
 }
 
 aggregator_registry::data_pusher_t aggregator_registry::create_data_pusher(
-  const std::string& name, 
-  aggregated_handler handler, 
+  const std::string& name,
+  aggregated_handler handler,
   time_type ts_now)
 {
   return this->create_data_pusher( this->create_aggregator(name, ts_now), handler);
 }
 
-aggregator_registry::reduced_pusher_t aggregator_registry::create_reduced_pusher( 
-  const std::string& name, 
-  aggregated_handler handler, 
+aggregator_registry::reduced_pusher_t aggregator_registry::create_reduced_pusher(
+  const std::string& name,
+  aggregated_handler handler,
   time_type ts_now)
 {
   return this->create_reduced_pusher(this->create_aggregator(name, ts_now), handler);
@@ -228,4 +246,19 @@ bool aggregator_registry::del(const std::string& name)
   _agarr[ pos ] = nullptr;
   return this->_dict.free(id);
 }
+
+void aggregator_registry::pop_(named_aggregated_list* ag_list, aggregated_ptr (aggregator_type::*pop_fun)()  ) const
+{
+  size_t size = _agarr.size();
+  ag_list->reserve(size);
+  for ( size_t i = 0 ; i < size; ++i)
+  {
+    size_t id = _dict.pos2id(i);
+    if ( auto p = this->get_aggregator(id) )
+    {
+      ag_list->push_back( std::make_pair(_dict.get_name(id), (p.get()->*pop_fun)()) );
+    }
+  }
+}
+
 }
