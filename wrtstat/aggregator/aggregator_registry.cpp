@@ -256,7 +256,10 @@ void aggregator_registry::pop_(named_aggregated_list* ag_list, aggregated_ptr (a
     size_t id = _dict.pos2id(i);
     if ( auto p = this->get_aggregator(id) )
     {
-      ag_list->push_back( std::make_pair(_dict.get_name(id), (p.get()->*pop_fun)()) );
+      if (aggregated_ptr ag = (p.get()->*pop_fun)())
+      {
+        ag_list->push_back( std::make_pair(_dict.get_name(id), std::move(ag) ) );
+      }
     }
   }
 }
