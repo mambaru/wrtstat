@@ -280,8 +280,6 @@ aggregated_data::handler wrtstat::make_handler_( const std::string& name) const
     return nullptr;
 }
 
-
-
 size_t wrtstat::pushout_(bool force) const
 {
   aggregator_registry::named_aggregated_list ag_list;
@@ -294,3 +292,5 @@ size_t wrtstat::pushout_(bool force) const
 }
 
 }
+
+

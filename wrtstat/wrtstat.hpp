@@ -97,9 +97,8 @@ public:
   size_t force_pushout() const;
 
 private:
-
+  
   size_t pushout_(bool force) const;
-
 
   static std::string make_name_(const std::string& prefix, const std::string& name);
 
