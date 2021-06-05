@@ -46,6 +46,7 @@ public:
   size_t calc_json_size(const request::push& req);
   size_t calc_json_size(const request::multi_push& req);
   static bool compact(request::multi_push* req);
+  static bool recompact(request::multi_push* req, std::string* err);
   void clear();
   static size_t calc_json_size(const request::push& req, bool compact);
   static size_t calc_json_size(const request::multi_push& req, bool compact);

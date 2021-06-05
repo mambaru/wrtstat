@@ -264,5 +264,52 @@ request::multi_push::ptr basic_packer::multi_pop()
   return res;
 }
 
+bool basic_packer::recompact(request::multi_push* req, std::string* err)
+{
+  if ( req->legend.empty() )
+    return true;
+
+  if ( req->sep.empty() )
+  {
+    if (err!=nullptr) *err = "Separator not specified";
+    return false;
+  }
+
+  for (auto& push : req->data)
+  {
+    std::stringstream ss;
+    auto beg = push.name.begin();
+    auto end = push.name.end();
+    while (beg!=end)
+    {
+      if ( !wjson::parser::is_number(beg, end) )
+      {
+        if (err!=nullptr) *err = "Invalid compact name format";
+        return false;
+      }
+      size_t pos = 0;
+      beg = wjson::parser::unserialize_integer(pos, beg, end, nullptr);
+      if ( pos >= req->legend.size() )
+      {
+        if (err!=nullptr) *err = "Invalid legend or compact name format";
+        return false;
+      }
+
+      ss << req->legend[pos];
+      if ( beg == end )
+        break;
+
+      if ( *beg!='~')
+      {
+        if (err!=nullptr) *err = "Invalid compact name format (~ expected)";
+        return false;
+      }
+      ++beg;
+      ss << req->sep;
+    }
+    push.name = ss.str();
+  }
+  return true;
+}
 
 }

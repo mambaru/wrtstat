@@ -3,6 +3,22 @@
 
 namespace {
 
+UNIT(packer_recompact1, "")
+{
+  using namespace fas::testing;
+  using namespace wrtstat;
+
+  request::multi_push req;
+  req.sep = "~~";
+  req.data.resize(2);
+  req.legend={"name1", "name2", "name3"};
+  req.data[0].name="0~1~2";
+  req.data[1].name="2~1~0";
+  basic_packer::recompact(&req, nullptr);
+  t << equal<expect, std::string>("name1~~name2~~name3", req.data[0].name) << FAS_FL;
+  t << equal<expect, std::string>("name3~~name2~~name1", req.data[1].name) << FAS_FL;
+}
+
 UNIT(packer_compact1, "")
 {
   using namespace fas::testing;
@@ -154,6 +170,7 @@ UNIT(basic_packer1, "")
 } // namespace
 
 BEGIN_SUITE(packer, "")
+  ADD_UNIT(packer_recompact1)
   ADD_UNIT(packer_compact1)
   ADD_UNIT(push_top1)
   ADD_UNIT(basic_packer1)
