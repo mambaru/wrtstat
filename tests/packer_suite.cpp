@@ -8,80 +8,62 @@ UNIT(packer_compact1, "")
   using namespace fas::testing;
   using namespace wrtstat;
 
-  std::string err;
-  packer_options opt;
-  opt.name_compact = true;
-  basic_packer p(opt, nullptr);
-  request::push req;
-
-  req.name="";
-  p.compact(&req);
-  t << equal<expect, std::string>("0", req.name) << FAS_FL;
-  t << equal<assert, size_t>(1, p.legend().size()) << FAS_FL;
+  request::multi_push req;
+  req.sep = "~~";
+  req.data.resize(1);
+  req.data[0].name="";
+  basic_packer::compact(&req);
+  t << equal<expect, std::string>("0", req.data[0].name) << FAS_FL;
+  t << equal<assert, size_t>(1, req.legend.size()) << FAS_FL;
   t << stop;
-  t << equal<expect, std::string>("", p.legend()[0]) << FAS_FL;
-  t << is_true<expect>(p.recompact(&req, &err)) << err << FAS_FL;
-  t << equal<expect, std::string>("", req.name) << FAS_FL;
-  p.clear();
 
-  req.name="name1";
-  p.compact(&req);
-  t << equal<expect, std::string>("0", req.name) << FAS_FL;
-  t << equal<assert, size_t>(1, p.legend().size()) << FAS_FL;
+  req.legend.clear();
+  req.data[0].name="name1";
+  basic_packer::compact(&req);
+  t << equal<expect, std::string>("0", req.data[0].name) << FAS_FL;
+  t << equal<assert, size_t>(1, req.legend.size()) << FAS_FL;
   t << stop;
-  t << equal<expect, std::string>("name1", p.legend()[0]) << FAS_FL;
-  t << is_true<expect>(p.recompact(&req, &err)) << err << FAS_FL;
-  t << equal<expect, std::string>("name1", req.name) << FAS_FL;
-  p.clear();
 
-  req.name="name1~~name2~~name3";
-  p.compact(&req);
-  t << equal<expect, std::string>("0~1~2", req.name) << FAS_FL;
-  t << equal<assert, size_t>(3, p.legend().size()) << FAS_FL;
+  req.legend.clear();
+  req.data[0].name="name1~~name2~~name3";
+  basic_packer::compact(&req);
+  t << equal<expect, std::string>("0~1~2", req.data[0].name) << FAS_FL;
+  t << equal<assert, size_t>(3, req.legend.size()) << FAS_FL;
   t << stop;
-  t << equal<expect, std::string>("name1", p.legend()[0]) << FAS_FL;
-  t << equal<expect, std::string>("name2", p.legend()[1]) << FAS_FL;
-  t << equal<expect, std::string>("name3", p.legend()[2]) << FAS_FL;
-  t << is_true<expect>(p.recompact(&req, &err)) << err << FAS_FL;
-  t << equal<expect, std::string>("name1~~name2~~name3", req.name) << FAS_FL;
-  p.clear();
+  t << equal<expect, std::string>("name1", req.legend[0]) << FAS_FL;
+  t << equal<expect, std::string>("name2", req.legend[1]) << FAS_FL;
+  t << equal<expect, std::string>("name3", req.legend[2]) << FAS_FL;
 
-  req.name="~~name1~~name2~~name3~~";
-  p.compact(&req);
-  t << equal<expect, std::string>("0~1~2~3~0", req.name) << FAS_FL;
-  t << equal<assert, size_t>(4, p.legend().size()) << FAS_FL;
+  req.legend.clear();
+  req.data[0].name="~~name1~~name2~~name3~~";
+  basic_packer::compact(&req);
+  t << equal<expect, std::string>("0~1~2~3~0", req.data[0].name) << FAS_FL;
+  t << equal<assert, size_t>(4, req.legend.size()) << FAS_FL;
   t << stop;
-  t << equal<expect, std::string>("", p.legend()[0]) << FAS_FL;
-  t << equal<expect, std::string>("name1", p.legend()[1]) << FAS_FL;
-  t << equal<expect, std::string>("name2", p.legend()[2]) << FAS_FL;
-  t << equal<expect, std::string>("name3", p.legend()[3]) << FAS_FL;
-  t << is_true<expect>(p.recompact(&req, &err)) << err << FAS_FL;
-  t << equal<expect, std::string>("~~name1~~name2~~name3~~", req.name) << FAS_FL;
-  p.clear();
+  t << equal<expect, std::string>("", req.legend[0]) << FAS_FL;
+  t << equal<expect, std::string>("name1", req.legend[1]) << FAS_FL;
+  t << equal<expect, std::string>("name2", req.legend[2]) << FAS_FL;
+  t << equal<expect, std::string>("name3", req.legend[3]) << FAS_FL;
 
-  req.name="~~name~1~~name~2~~name~3~~";
-  p.compact(&req);
-  t << equal<expect, std::string>("0~1~2~3~0", req.name) << FAS_FL;
-  t << equal<assert, size_t>(4, p.legend().size()) << FAS_FL;
+  req.legend.clear();
+  req.data[0].name="~~name~1~~name~2~~name~3~~";
+  basic_packer::compact(&req);
+  t << equal<expect, std::string>("0~1~2~3~0", req.data[0].name) << FAS_FL;
+  t << equal<assert, size_t>(4, req.legend.size()) << FAS_FL;
   t << stop;
-  t << equal<expect, std::string>("", p.legend()[0]) << FAS_FL;
-  t << equal<expect, std::string>("name~1", p.legend()[1]) << FAS_FL;
-  t << equal<expect, std::string>("name~2", p.legend()[2]) << FAS_FL;
-  t << equal<expect, std::string>("name~3", p.legend()[3]) << FAS_FL;
-  t << is_true<expect>(p.recompact(&req, &err)) << err << FAS_FL;
-  t << equal<expect, std::string>("~~name~1~~name~2~~name~3~~", req.name) << FAS_FL;
-  p.clear();
+  t << equal<expect, std::string>("", req.legend[0]) << FAS_FL;
+  t << equal<expect, std::string>("name~1", req.legend[1]) << FAS_FL;
+  t << equal<expect, std::string>("name~2", req.legend[2]) << FAS_FL;
+  t << equal<expect, std::string>("name~3", req.legend[3]) << FAS_FL;
 
-  req.name="~~~~~~~";
-  p.compact(&req);
-  t << equal<expect, std::string>("0~0~0~1", req.name) << FAS_FL;
-  t << equal<assert, size_t>(2, p.legend().size()) << FAS_FL;
+  req.legend.clear();
+  req.data[0].name="~~~~~~~";
+  basic_packer::compact(&req);
+  t << equal<expect, std::string>("0~0~0~1", req.data[0].name) << FAS_FL;
+  t << equal<assert, size_t>(2, req.legend.size()) << FAS_FL;
   t << stop;
-  t << equal<expect, std::string>("", p.legend()[0]) << FAS_FL;
-  t << equal<expect, std::string>("~", p.legend()[1]) << FAS_FL;
-  t << is_true<expect>(p.recompact(&req, &err)) << err << FAS_FL;
-  t << equal<expect, std::string>("~~~~~~~", req.name) << FAS_FL;
-  p.clear();
+  t << equal<expect, std::string>("", req.legend[0]) << FAS_FL;
+  t << equal<expect, std::string>("~", req.legend[1]) << FAS_FL;
 }
 
 UNIT(push_top1, "")
@@ -126,7 +108,7 @@ UNIT(basic_packer1, "")
 {
   using namespace fas::testing;
   using namespace wrtstat;
-  
+
   packer_options opt;
   opt.json_limit = 512;
   opt.push_limit = 10;
@@ -136,7 +118,7 @@ UNIT(basic_packer1, "")
   size_t total1 = 0;
   size_t total2 = 0;
   size_t total4 = 0;
-  // &t, &total1, &total2, 
+  // &t, &total1, &total2,
   basic_packer pt(opt, [&](request::multi_push::ptr req)
   {
 //#warning TODO проверить размер JSON
@@ -168,7 +150,7 @@ UNIT(basic_packer1, "")
   t << equal<expect, size_t>(total1, 1000) << FAS_FL;
   t << equal<expect, size_t>(total2, total3) << FAS_FL;
 }
-  
+
 } // namespace
 
 BEGIN_SUITE(packer, "")

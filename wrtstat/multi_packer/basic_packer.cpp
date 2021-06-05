@@ -1,5 +1,5 @@
 //
-// Author: Vladimir Migashko <migashko@gmail.com>, (C) 2016-2020
+// Author: Vladimir Migashko <migashko@gmail.com>, (C) 2016-2021
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -20,8 +20,6 @@ basic_packer::basic_packer(const packer_options& opt, const multi_push_handler& 
   : _opt(opt)
   , _handler(handler)
 {
-  if ( _opt.name_compact )
-    _legend.reserve(128);
 }
 
 size_t basic_packer::pushout()
@@ -53,11 +51,19 @@ bool basic_packer::push( const request::push& req)
 
 bool basic_packer::push( request::push::ptr req)
 {
+  size_t json_size = this->calc_json_size(*req);
   if ( _opt.name_compact )
   {
-    this->compact_( req.get()) ;
+    size_t pos = 0, count = 0;
+    while ( (pos = req->name.find(_opt.name_sep, pos)) != std::string::npos )
+    {
+      ++count; ++pos;
+    }
+    // предполагаем, что в среднем каждое имя в списке заменится XX~ примерно, с запасом для >10
+    // service~~foo1~~foo2~~foo3 => 0~1~2~3
+    json_size -= req->name.size();
+    json_size += 3*count;
   }
-  size_t json_size = this->calc_json_size(*req);
   _top.insert( std::make_pair(json_size, std::move(req)));
   return true;
 }
@@ -71,154 +77,42 @@ bool basic_packer::multi_push( const request::multi_push& req)
   return status;
 }
 
-bool basic_packer::recompact(
-  std::string* out_name,
-  std::set<std::string>* out_legend,
-  const std::string& name,
-  const std::string& sep,
-  const legend_list_t& legend,
-  std::string* err
-)
+bool basic_packer::compact(request::multi_push* req)
 {
-  if ( legend.empty() )
-    return true;
-
-  std::stringstream ss;
-
-  auto beg = name.begin();
-  auto end = name.end();
-  while (beg!=end)
-  {
-    if ( !wjson::parser::is_number(beg, end) )
-    {
-      if (err!=nullptr) *err = "Invalid compact name format";
-      return false;
-    }
-    size_t pos = 0;
-    beg = wjson::parser::unserialize_integer(pos, beg, end, nullptr);
-    if ( pos >= legend.size() )
-    {
-      if (err!=nullptr) *err = "Invalid legend or compact name format";
-      return false;
-    }
-    if ( out_name != nullptr)
-      ss << legend[pos];
-    if ( out_legend!= nullptr )
-      out_legend->insert(legend[pos]);
-    if ( beg == end )
-      break;
-    if ( *beg!='~')
-    {
-      if (err!=nullptr) *err = "Invalid compact name format (~ expected)";
-      return false;
-    }
-    ++beg;
-    if ( out_name != nullptr)
-      ss << sep;
-  }
-
-  if ( out_name != nullptr)
-    *out_name = ss.str();
-  return true;
-
-}
-
-
-bool basic_packer::recompact(request::push* req, const std::string& sep, const legend_list_t& legend, std::string* err)
-{
-  auto name = std::move(req->name);
-  return basic_packer::recompact(&(req->name), nullptr, name, sep, legend, err);
-  /*
-  if ( legend.empty() )
-    return true;
-
-  std::stringstream ss;
-
-  auto beg = req->name.begin();
-  auto end = req->name.end();
-  while (beg!=end)
-  {
-    //std::cout << std::endl << std::string(beg, end) << std::endl;
-    if ( !wjson::parser::is_number(beg, end) )
-    {
-      if (err!=nullptr) *err = "Invalid compact name format";
-      return false;
-    }
-    size_t pos = 0;
-    beg = wjson::parser::unserialize_integer(pos, beg, end, nullptr);
-    if ( pos >= legend.size() )
-    {
-      if (err!=nullptr) *err = "Invalid legend or compact name format";
-      return false;
-    }
-    ss << legend[pos];
-    if ( beg == end )
-      break;
-    if ( *beg!='~')
-    {
-      if (err!=nullptr) *err = "Invalid compact name format (~ expected)";
-      return false;
-    }
-    ++beg;
-    ss << sep;
-  }
-  req->name = ss.str();
-  return true;*/
-}
-
-bool basic_packer::recompact(request::push* req, std::string* err)
-{
-  return basic_packer::recompact(req, this->_opt.name_sep, this->legend(), err);
-}
-
-bool basic_packer::recompact(request::multi_push* req, std::string* err)
-{
-  for (auto& p : req->data )
-    if ( !basic_packer::recompact(&p, req->sep, req->legend, err) )
-      return false;
-  return true;
-}
-
-const basic_packer::legend_list_t& basic_packer::legend() const
-{
-  return _legend;
-}
-
-bool basic_packer::compact(request::push* req)
-{
-  if ( !_opt.name_compact )
+  if ( req->sep.empty() )
     return false;
-  this->compact_(req);
+
+  for (auto& push : req->data )
+  {
+    basic_packer::compact_( &push.name, &req->legend, req->sep);
+  }
   return true;
 }
 
-void basic_packer::compact_( request::push* req)
+void basic_packer::compact_(std::string* name, legend_list_t* legend, const std::string& sep)
 {
   std::stringstream short_name;
   size_t cur_pos = 0;
-  size_t next_pos = req->name.find(_opt.name_sep);
-  std::string item_name = req->name.substr(cur_pos, next_pos);
+  size_t next_pos = name->find(sep);
+  std::string item_name = name->substr(cur_pos, next_pos);
   while ( next_pos != std::string::npos)
   {
-    short_name << findorcre_(item_name) << "~";
-    cur_pos = next_pos + _opt.name_sep.size();
-    next_pos = req->name.find(_opt.name_sep, cur_pos);
-    item_name = req->name.substr(cur_pos, next_pos - cur_pos);
+    short_name << basic_packer::findorcre_(item_name, legend) << "~";
+    cur_pos = next_pos + sep.size();
+    next_pos = name->find(sep, cur_pos);
+    item_name = name->substr(cur_pos, next_pos - cur_pos);
   }
-  short_name << findorcre_(item_name);
-  req->name = short_name.str();
+  short_name << basic_packer::findorcre_(item_name, legend);
+  *name = short_name.str();
 }
 
-basic_packer::name_id_t basic_packer::findorcre_(const std::string& name)
+basic_packer::name_id_t basic_packer::findorcre_(const std::string& name, legend_list_t* legend)
 {
-  //std::cout << "\n[" << name << "]" << std::endl;
-  auto itr = _name_id_map.find(name);
-  if ( itr != _name_id_map.end() )
-    return itr->second;
-  name_id_t id = _legend.size();
-  _name_id_map.insert( std::make_pair(name, id) );
-  _legend.push_back(name);
-  return id;
+  auto itr = std::find(legend->begin(), legend->end(), name);
+  if ( itr != legend->end() )
+    return static_cast<basic_packer::name_id_t>( std::distance( legend->begin(), itr) );
+  legend->push_back(name);
+  return legend->size() - 1;
 }
 
 namespace {
@@ -257,8 +151,7 @@ size_t basic_packer::calc_json_size(const request::multi_push& req)
 
 void basic_packer::clear()
 {
-  _legend.clear();
-  _name_id_map.clear();
+  _top.clear();
 }
 
 
@@ -366,15 +259,8 @@ request::multi_push::ptr basic_packer::multi_pop()
       break;
   }
 
-  std::set<std::string> name_legend;
-
-  for (const auto& d: res->data)
-  {
-    recompact(nullptr, &name_legend, d.name, res->sep, _legend, nullptr);
-
-  }
-  res->legend.assign(name_legend.begin(), name_legend.end());
-
+  res->sep = _opt.name_sep;
+  basic_packer::compact(res.get());
   return res;
 }
 
