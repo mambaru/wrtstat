@@ -1,5 +1,6 @@
-#include<wrtstat/wrtstat.hpp>
-#include<chrono>
+#include <wrtstat/wrtstat.hpp>
+#include <fas/system/memory.hpp>
+#include <chrono>
 
 namespace wrtstat {
 
@@ -55,7 +56,7 @@ void wrtstat::fake_implementations_()
 /////////////////////////////////////////////////
 
 wrtstat::wrtstat(const options_type& opt )
-  :  aggregator_registry(opt, opt.pool_size, opt.id_init, opt.id_step)
+  :  _registry( std::make_unique<registry_type>(opt, opt.pool_size, opt.id_init, opt.id_step) )
   , _resolution(opt.resolution)
   , _handler(opt.handler)
   , _prefixes(opt.prefixes)
@@ -64,18 +65,29 @@ wrtstat::wrtstat(const options_type& opt )
     _prefixes.push_back("");
 }
 
+id_t wrtstat::create_aggregator(const std::string& name, time_type now)
+{
+  return _registry->create_aggregator(name, now);
+}
+
+std::string wrtstat::get_name(id_t id) const
+{
+  return _registry->get_name(id);
+}
+
+
 template<typename D >
 time_meter<D>
 wrtstat::create_time_meter(id_t id)
 {
-  return time_meter<D>(super::create_simple_pusher(id, make_handler_(id) ), _resolution );
+  return time_meter<D>(_registry->create_simple_pusher(id, make_handler_(id) ), _resolution );
 }
 
 template<typename D >
 time_meter<D>
 wrtstat::create_time_meter(const std::string& name)
 {
-  return this->create_time_meter<D>( this->create_aggregator(name, aggregator::now(_resolution) ) );
+  return this->create_time_meter<D>( _registry->create_aggregator(name, aggregator::now(_resolution) ) );
 }
 
 template<typename D>
@@ -94,12 +106,12 @@ wrtstat::create_time_multi_meter( const std::string& time_name)
 
 size_meter wrtstat::create_size_meter(id_t id)
 {
-  return size_meter(super::create_simple_pusher(id, make_handler_(id) ), _resolution);
+  return size_meter(_registry->create_simple_pusher(id, make_handler_(id) ), _resolution);
 }
 
 size_meter wrtstat::create_size_meter(const std::string& name)
 {
-  return this->create_size_meter( this->create_aggregator(name, aggregator::now(_resolution)));
+  return this->create_size_meter( _registry->create_aggregator(name, aggregator::now(_resolution)));
 }
 
 multi_meter< size_meter >
@@ -121,12 +133,12 @@ multi_meter< size_meter >
 
 value_meter wrtstat::create_value_meter(id_t id)
 {
-  return value_meter(super::create_simple_pusher(id, make_handler_(id)), _resolution );
+  return value_meter(_registry->create_simple_pusher(id, make_handler_(id)), _resolution );
 }
 
 value_meter wrtstat::create_value_meter(const std::string& name)
 {
-  return this->create_value_meter( this->create_aggregator(name, aggregator::now(_resolution)));
+  return this->create_value_meter( _registry->create_aggregator(name, aggregator::now(_resolution)));
 }
 
 multi_meter< value_meter >
@@ -151,7 +163,7 @@ composite_meter<D>
   wrtstat::create_composite_meter(id_t time_id, id_t read_id, id_t write_id, bool summary_size)
 {
   return composite_meter<D>(
-          super::create_composite_pusher(
+          _registry->create_composite_pusher(
             time_id, read_id, write_id,
             make_handler_(time_id), make_handler_(read_id), make_handler_(write_id),
             summary_size
@@ -170,7 +182,7 @@ composite_meter<D>
                           )
   {
     return composite_meter<D>(
-        super::create_composite_pusher(
+        _registry->create_composite_pusher(
           time_name, read_name, write_name,
           make_handler_(time_name),
           make_handler_(read_name),
@@ -237,6 +249,56 @@ size_t wrtstat::force_pushout() const
   return this->pushout_(true);
 }
 
+const wrtstat::registry_type& wrtstat::registry() const
+{
+  return *_registry;
+}
+
+size_t wrtstat::aggregators_count() const
+{
+  return _registry->aggregators_count();
+}
+
+bool wrtstat::add(id_t id, time_type now, value_type v, size_type count)
+{
+  return _registry->add(id, now, v, count);
+}
+
+bool wrtstat::add( const std::string& name, const reduced_data& v)
+{
+  return _registry->add(name, v);
+}
+
+wrtstat::aggregated_ptr wrtstat::pop(id_t id) const
+{
+  return _registry->pop(id);
+}
+
+wrtstat::aggregated_ptr wrtstat::force_pop(id_t id) const
+{
+  return _registry->force_pop(id);
+}
+
+void wrtstat::pop_all(named_aggregated_list* ag_list) const
+{
+  return _registry->pop_all(ag_list);
+}
+
+void wrtstat::force_pop_all(named_aggregated_list* ag_list) const
+{
+  return _registry->force_pop_all(ag_list);
+}
+
+void wrtstat::enable(bool value)
+{
+  _registry->enable(value);
+}
+
+bool wrtstat::del(const std::string& name)
+{
+  return _registry->del(name);
+}
+
 
 std::string wrtstat::make_name_(const std::string& prefix, const std::string& name)
 {
@@ -256,7 +318,7 @@ aggregated_data::handler wrtstat::make_handler_( id_t id ) const
       {
         if ( name.empty() )
         {
-          name = this->get_name(id);
+          name = _registry->get_name(id);
           if ( name.empty() )
           {
             id = bad_id;
@@ -283,7 +345,7 @@ aggregated_data::handler wrtstat::make_handler_( const std::string& name) const
 size_t wrtstat::pushout_(bool force) const
 {
   aggregator_registry::named_aggregated_list ag_list;
-  force ? this->force_pop_all(&ag_list) : this->pop_all(&ag_list);
+  force ? _registry->force_pop_all(&ag_list) : _registry->pop_all(&ag_list);
   for(auto &nag : ag_list)
   {
     _handler(nag.first, std::move(nag.second) );

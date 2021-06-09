@@ -60,7 +60,7 @@ protected:
   typedef std::function< void(time_type now, time_type value, size_type count) > simple_pusher_t;
   typedef std::function< void(time_type now, data_type&& value, size_type count) > data_pusher_t;
   typedef std::function< void(const reduced_data&) > reduced_pusher_t;
- 
+
   template<typename T>
   simple_pusher_t create_simple_pusher( std::weak_ptr<T> wthis, aggregated_handler handler );
 
@@ -74,8 +74,7 @@ private:
 
   static value_type nth_(size_type perc, size_type& off, data_type& d);
 
-  // TODO: return сколько элементов было удалено + добавить в count
-  void reduce_(data_type& d) const;
+  size_t reduce_(data_type& d) const;
 
   void aggregate0_();
 

@@ -162,10 +162,10 @@ value_type basic_aggregator::nth_(size_type perc, size_type& off, data_type& d)
   return *nth;
 }
 
-void basic_aggregator::reduce_(data_type& d) const
+size_t basic_aggregator::reduce_(data_type& d) const
 {
   if ( _outgoing_reduced_size==0 || d.size() <= _outgoing_reduced_size)
-    return;
+    return 0;
 
   size_type i = 0;
   auto beg = d.begin();
@@ -189,10 +189,11 @@ void basic_aggregator::reduce_(data_type& d) const
     });
   }
   auto dist = std::distance( beg, end);
-  if ( dist > 0 )
+  auto deleted = std::distance( end, d.end() );
+  if ( dist > 0 && static_cast<size_t>(dist) < d.size()  )
     d.resize( static_cast<size_t>(dist), 0 );
-  else
-    abort();
+
+  return static_cast<size_t>(deleted);
 }
 
 void basic_aggregator::aggregate0_()

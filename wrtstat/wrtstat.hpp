@@ -11,21 +11,22 @@
 
 namespace wrtstat {
 
-// TODO: aggregator_registry as member
 class wrtstat
-  : public aggregator_registry
 {
 public:
-  typedef aggregator_registry super;
-  typedef aggregator_registry manager_type;
-  typedef typename manager_type::aggregated_ptr aggregated_ptr;
+  typedef aggregator_registry registry_type;
+  typedef registry_type::aggregated_ptr aggregated_ptr;
   typedef std::function<void(const std::string& name, aggregated_data::ptr)> named_aggregated_handler;
+  typedef registry_type::named_aggregated_list named_aggregated_list;
   typedef wrtstat_options options_type;
-
-  typedef std::shared_ptr<manager_type> manager_ptr;
+  typedef std::unique_ptr<registry_type> registry_ptr;
   typedef std::mutex mutex_type;
 
   explicit wrtstat(const options_type& opt = options_type() ) ;
+
+  id_t create_aggregator(const std::string& name, time_type now);
+
+  std::string get_name(id_t id) const;
 
 // ----------------------------------
 // time_meter
@@ -96,8 +97,29 @@ public:
 
   size_t force_pushout() const;
 
+  const registry_type& registry() const;
+
+  size_t aggregators_count() const;
+
+  bool add(id_t id, time_type now, value_type v, size_type count);
+
+  bool add( const std::string& name, const reduced_data& v);
+
+  aggregated_ptr pop(id_t id) const;
+
+  aggregated_ptr force_pop(id_t id) const;
+
+  void pop_all(named_aggregated_list* ag_list) const;
+
+  void force_pop_all(named_aggregated_list* ag_list) const;
+
+  void enable(bool value);
+
+  bool del(const std::string& name);
+
+
 private:
-  
+
   size_t pushout_(bool force) const;
 
   static std::string make_name_(const std::string& prefix, const std::string& name);
@@ -108,6 +130,7 @@ private:
 
   void fake_implementations_();
 private:
+  registry_ptr _registry;
   resolutions _resolution = resolutions::none;
   named_aggregated_handler _handler;
   std::vector<std::string> _prefixes;

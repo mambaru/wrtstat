@@ -64,8 +64,8 @@ UNIT(json2, "")
     "{'name':'','ts':0,'avg':0,'count':0,'perc50':0,'perc80':0,'perc95':0,'perc99':0,'perc100':0,'lossy':0,'min':0,'max':0,'data':[]}"_json ) << FAS_FL;
   check_json<response::push_json>(t, "{'status':true}"_json ) << FAS_FL;
 
-  check_json<request::del_json>(t, "{'regexp':'','dryrun':false,'get_names':false}"_json ) << FAS_FL;
-  check_json<response::del_json>(t, "{'count':0,'error':'','names':[]}"_json ) << FAS_FL;
+  check_json<request::del_json>(t, "{'names':[]}"_json ) << FAS_FL;
+  check_json<response::del_json>(t, "{}"_json ) << FAS_FL;
 
   check_json<request::multi_push_json>(t, "{'sep':'~~','legend':[],'data':[]}"_json ) << FAS_FL;
   check_json<response::multi_push_json>(t, "{'status':true,'error':''}"_json ) << FAS_FL;
