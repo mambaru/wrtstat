@@ -4,6 +4,7 @@
 #include <wrtstat/system/pool.hpp>
 #include <wrtstat/system/rwlock.hpp>
 #include <wrtstat/aggregator/aggregator_mt.hpp>
+#include <wrtstat/aggregator/options/registry_options.hpp>
 
 #include <string>
 #include <mutex>
@@ -19,7 +20,8 @@ public:
   typedef rwlock<std::mutex> mutex_type;
   typedef aggregator_mt aggregator_type;
   typedef typename aggregated_data::ptr aggregated_ptr;
-  typedef aggregator_options options_type;
+  typedef registry_options options_type;
+  typedef registry_options::initializer_fun_t initializer_fun_t;
 
   typedef typename aggregator_type::simple_pusher_t simple_pusher_t;
   typedef typename aggregator_type::data_pusher_t data_pusher_t;
@@ -35,7 +37,7 @@ public:
   typedef std::pair<std::string, aggregated_ptr> named_aggregated_t;
   typedef std::vector<named_aggregated_t> named_aggregated_list;
 
-  explicit aggregator_registry(const options_type& opt, size_t pool_size, id_t init = 0, id_t step = 1);
+  explicit aggregator_registry(const options_type& opt);
 
   size_t aggregators_count() const;
 
@@ -52,6 +54,8 @@ public:
   void force_pop_all(named_aggregated_list* ag_list) const;
 
   std::string get_name(id_t id) const;
+  
+  void set_initializer(initializer_fun_t&& init_f);
 
   id_t create_aggregator(const std::string& name, time_type now);
 
@@ -110,6 +114,7 @@ private:
   dict _dict;
   pool<mutex_type> _pool;
   bool _enabled = true;
+  initializer_fun_t initializer_ = nullptr;
 };
 
 }

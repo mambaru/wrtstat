@@ -56,13 +56,18 @@ void wrtstat::fake_implementations_()
 /////////////////////////////////////////////////
 
 wrtstat::wrtstat(const options_type& opt )
-  :  _registry( std::make_unique<registry_type>(opt, opt.pool_size, opt.id_init, opt.id_step) )
+  :  _registry( std::make_unique<registry_type>(opt/*, opt.pool_size, opt.id_init, opt.id_step*/) )
   , _resolution(opt.resolution)
   , _handler(opt.handler)
   , _prefixes(opt.prefixes)
 {
   if ( _prefixes.empty() )
     _prefixes.push_back("");
+}
+
+void wrtstat::set_initializer(initializer_fun_t&& init_f)
+{
+  return _registry->set_initializer( std::move(init_f) );  
 }
 
 id_t wrtstat::create_aggregator(const std::string& name, time_type now)

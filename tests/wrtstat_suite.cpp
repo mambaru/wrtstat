@@ -42,7 +42,7 @@ UNIT(wrtstat2, "")
 
   wrtstat::wrtstat::options_type opt;
   opt.resolution = wrtstat::resolutions::none;
-  wrtstat::aggregator_registry stat(opt, opt.pool_size, opt.id_init, opt.id_step);
+  wrtstat::aggregator_registry stat(opt/*, opt.pool_size, opt.id_init, opt.id_step*/);
   wrtstat::id_t id = stat.create_aggregator( "test1", 0 );
   // bool add(id_t id, time_type ts_now, value_type v, size_type cnt)
   stat.add(id, 0, 0, 1);
@@ -150,7 +150,10 @@ UNIT(wrtstat4, "")
   t << equal<assert>( stat.aggregators_count(), 7ul) << FAS_FL;
 
   wrtstat::aggregator_registry::options_type opt2;
-  wrtstat::aggregator_registry ar(opt2, 0,0,0);
+  opt2.pool_size = 0;
+  opt2.id_init = 0;
+  opt2.id_step = 0;
+  wrtstat::aggregator_registry ar(opt2/*, 0,0,0*/);
   t << equal<assert>( ar.aggregators_count(), 0ul) << FAS_FL;
 }
 

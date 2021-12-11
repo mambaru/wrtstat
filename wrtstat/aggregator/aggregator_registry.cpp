@@ -3,10 +3,11 @@
 
 namespace wrtstat {
 
-aggregator_registry::aggregator_registry(const options_type& opt, size_t pool_size, id_t init, id_t step)
+aggregator_registry::aggregator_registry(const options_type& opt)
   : _opt(opt)
-  , _dict(init, step)
-  , _pool(opt.reducer_limit, pool_size)
+  , _dict(opt.id_init, opt.id_step)
+  , _pool(opt.reducer_limit, opt.pool_size)
+  , initializer_(opt.initializer)
 { }
 
 size_t aggregator_registry::aggregators_count() const
@@ -67,6 +68,12 @@ std::string aggregator_registry::get_name(id_t id) const
   return _dict.get_name(id);
 }
 
+void aggregator_registry::set_initializer(initializer_fun_t&& init_f)
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  initializer_ = init_f;
+}
+ 
 id_t aggregator_registry::create_aggregator(const std::string& name, time_type now)
 {
   if ( name.empty() )
@@ -86,6 +93,15 @@ id_t aggregator_registry::create_aggregator(const std::string& name, time_type n
     _agarr[pos] = std::make_shared<aggregator_type>(now, _opt, _pool.get_allocator() );
     if ( !_enabled )
       _agarr[pos]->enable(false);
+    else if ( initializer_ != nullptr )
+    {
+      reduced_data rd;
+      if ( initializer_(name, &rd) )
+      {
+        _agarr[pos]->add(rd);
+      }
+    }
+    
   }
   return id;
 }

@@ -21,8 +21,11 @@ public:
   typedef wrtstat_options options_type;
   typedef std::unique_ptr<registry_type> registry_ptr;
   typedef std::mutex mutex_type;
+  typedef registry_type::initializer_fun_t initializer_fun_t;
 
   explicit wrtstat(const options_type& opt = options_type() ) ;
+
+  void set_initializer(initializer_fun_t&& init_f);
 
   id_t create_aggregator(const std::string& name, time_type now);
 
