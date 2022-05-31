@@ -82,9 +82,9 @@ bool basic_packer::compact(request::multi_push* req)
   if ( req->sep.empty() )
     return false;
 
-  for (auto& push : req->data )
+  for (auto& p : req->data )
   {
-    basic_packer::compact_( &push.name, &req->legend, req->sep);
+    basic_packer::compact_( &p.name, &req->legend, req->sep);
   }
   return true;
 }
@@ -275,11 +275,11 @@ bool basic_packer::recompact(request::multi_push* req, std::string* err)
     return false;
   }
 
-  for (auto& push : req->data)
+  for (auto& p : req->data)
   {
     std::stringstream ss;
-    auto beg = push.name.begin();
-    auto end = push.name.end();
+    auto beg = p.name.begin();
+    auto end = p.name.end();
     while (beg!=end)
     {
       if ( !wjson::parser::is_number(beg, end) )
@@ -307,7 +307,7 @@ bool basic_packer::recompact(request::multi_push* req, std::string* err)
       ++beg;
       ss << req->sep;
     }
-    push.name = ss.str();
+    p.name = ss.str();
   }
   return true;
 }
