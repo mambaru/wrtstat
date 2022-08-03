@@ -24,10 +24,10 @@ struct aggregated_info_json_compact
       aggregated_perc_json_compact::member_list,
       reduced_info_json_compact::tail_list
     >
-  > type;
-  typedef type::target target;
-  typedef type::member_list member_list;
-  typedef type::serializer serializer;
+  > meta;
+  typedef meta::target target;
+  typedef meta::member_list member_list;
+  typedef meta::serializer serializer;
 };
 
 }

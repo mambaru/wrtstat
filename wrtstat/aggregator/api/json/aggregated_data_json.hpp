@@ -22,10 +22,10 @@ struct aggregated_data_json
       aggregated_perc_json::member_list,
       reduced_data_json::tail_list
     >
-  > type;
-  typedef type::target target;
-  typedef type::member_list member_list;
-  typedef type::serializer serializer;
+  > meta;
+  typedef meta::target target;
+  typedef meta::member_list member_list;
+  typedef meta::serializer serializer;
 };
 
 

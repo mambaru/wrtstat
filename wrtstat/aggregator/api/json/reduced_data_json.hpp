@@ -18,7 +18,7 @@ struct reduced_data_json
   typedef wjson::vector_of< wjson::value<value_type>, 128 > data_json;
   typedef reduced_info_json::head_list head_list;
   typedef fas::type_list_n<
-  reduced_info_json::tail_list,
+    reduced_info_json::tail_list,
     wjson::member<n_data,  reduced_data,  data_type,  &reduced_data::data, data_json>
   >::type tail_list;
   
@@ -28,10 +28,10 @@ struct reduced_data_json
        head_list,
        tail_list
       >
-  > type;
-  typedef type::target target;
-  typedef type::member_list member_list;
-  typedef type::serializer serializer;
+  > meta;
+  typedef meta::target target;
+  typedef meta::member_list member_list;
+  typedef meta::serializer serializer;
 };
   
 }

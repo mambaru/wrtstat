@@ -20,10 +20,10 @@ namespace request {
       wjson::member_list<
         wjson::member_array<del, std::vector<std::string>, &del::names, wjson::vector_of_strings<> >
       >
-    > type;
+    > meta;
 
-    typedef type::target target;
-    typedef type::serializer serializer;
+    typedef meta::target target;
+    typedef meta::serializer serializer;
   };
 }
 
@@ -35,10 +35,10 @@ namespace response
       del,
       wjson::member_list<
       >
-    > type;
+    > meta;
 
-    typedef type::target target;
-    typedef type::serializer serializer;
+    typedef meta::target target;
+    typedef meta::serializer serializer;
   };
 }
 

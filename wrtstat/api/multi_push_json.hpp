@@ -27,10 +27,10 @@ namespace request {
         wjson::member<n_legend, multi_push, std::vector<std::string>, &multi_push::legend, wjson::vector_of_strings<16> >,
         wjson::member<n_data, multi_push, std::deque<push>, &multi_push::data, wjson::deque_of<push_json> >
       >
-    > type;
+    > meta;
 
-    typedef type::target target;
-    typedef type::serializer serializer;
+    typedef meta::target target;
+    typedef meta::serializer serializer;
   };
 }
 
@@ -47,10 +47,10 @@ namespace response
         wjson::member<n_status, multi_push, bool, &multi_push::status>,
         wjson::member<n_error, multi_push, std::string, &multi_push::error >
       >
-    > type;
+    > meta;
 
-    typedef type::target target;
-    typedef type::serializer serializer;
+    typedef meta::target target;
+    typedef meta::serializer serializer;
   };
 }
 

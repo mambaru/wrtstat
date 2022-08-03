@@ -23,11 +23,11 @@ namespace request {
         wjson::member_array<push, std::string, &push::name>,
         wjson::base<aggregated_data_json_compact>
       >
-    > type;
+    > meta;
     
-    typedef type::target target;
-    typedef type::serializer serializer;
-    typedef type::member_list member_list;
+    typedef meta::target target;
+    typedef meta::serializer serializer;
+    typedef meta::member_list member_list;
   };
 }
 
@@ -40,13 +40,12 @@ namespace response
       wjson::member_list<
         wjson::member_array<push, bool, &push::status>
       >
-    > type;
+    > meta;
 
-    typedef type::target target;
-    typedef type::serializer serializer;
-    typedef type::member_list member_list;
+    typedef meta::target target;
+    typedef meta::serializer serializer;
+    typedef meta::member_list member_list;
   };
 }
 
-  
 }

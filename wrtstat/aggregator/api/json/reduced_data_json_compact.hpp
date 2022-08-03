@@ -26,10 +26,10 @@ struct reduced_data_json_compact
       head_list,
       tail_list
     >
-  > type;
-  typedef type::target target;
-  typedef type::member_list member_list;
-  typedef type::serializer serializer;
+  > meta;
+  typedef meta::target target;
+  typedef meta::member_list member_list;
+  typedef meta::serializer serializer;
 };
   
 }
