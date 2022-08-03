@@ -133,18 +133,17 @@ UNIT(basic_packer1, "")
   opt.name_compact = false;
   size_t total1 = 0;
   size_t total2 = 0;
-  size_t total4 = 0;
+//  size_t total4 = 0;
   // &t, &total1, &total2,
   basic_packer pt(opt, [&](request::multi_push::ptr req)
   {
-//#warning TODO проверить размер JSON
     size_t values = 0;
     for ( const auto &p : req->data)
       values += p.data.size();
     t << message("data count=") << req->data.size() << " json=" << pt.calc_json_size(*req) << " values=" << values;
     total1 += req->data.size();
     ++total2;
-    total4+=values;
+//    total4+=values;
   });
   for (int i = 0; i < 1000; ++i)
   {
