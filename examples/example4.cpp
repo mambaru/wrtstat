@@ -24,7 +24,7 @@ int main()
   {
     //auto handler = mng.create_handler<std::chrono::microseconds>(id, 10);
     auto meter = std::make_shared< wrtstat::time_point<std::chrono::nanoseconds>>(meter_proto.clone(std::time(nullptr)*1000000, 1));
-    test([meter](){});
+    test([meter]() noexcept {});
   }
   
   if ( auto ag = mng.force_pop(id) )

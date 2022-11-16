@@ -1,5 +1,5 @@
 //
-// Author: Vladimir Migashko <migashko@gmail.com>, (C) 2016-2020
+// Author: Vladimir Migashko <migashko@gmail.com>, (C) 2016-2022
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -75,9 +75,12 @@ void multi_aggregator::initialize_()
 {
   _mutex_list.resize( _opt.hash_size);
   _aggregator_list.resize( _opt.hash_size);
-  std::generate(std::begin(_mutex_list), std::end(_mutex_list), std::make_unique<mutex_type>);
-  std::generate(std::begin(_aggregator_list), std::end(_aggregator_list), 
-    [this](){ return std::make_unique<basic_multi_aggregator>(_opt);});
+  std::generate(std::begin(_mutex_list), std::end(_mutex_list), []() noexcept {
+    return std::make_unique<mutex_type>();
+  });
+  std::generate(std::begin(_aggregator_list), std::end(_aggregator_list), [this]() noexcept {
+    return std::make_unique<basic_multi_aggregator>(_opt);
+  });
 }
 
 }
