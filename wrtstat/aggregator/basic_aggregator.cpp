@@ -117,9 +117,12 @@ basic_aggregator::aggregated_ptr basic_aggregator::pop()
 
 basic_aggregator::aggregated_ptr basic_aggregator::force_pop()
 {
-  auto ag = this->aggregate2_(_sep.force_pop());
-  this->reduce_(ag->data);
-  return ag;
+  if ( auto ag = this->aggregate2_(_sep.force_pop()) )
+  {
+    this->reduce_(ag->data);
+    return ag;
+  }
+  return nullptr;
 }
 
 basic_aggregator::aggregated_ptr basic_aggregator::aggregate_current()

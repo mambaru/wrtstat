@@ -100,7 +100,7 @@ bool separator::push( const reduced_data& v, aggregated_handler handler )
 separator::reduced_ptr separator::pop()
 {
   if ( _sep_list.empty() )
-  return nullptr;
+    return nullptr;
   auto res = std::move(_sep_list.front());
   _sep_list.pop_front();
   return res;
@@ -110,9 +110,12 @@ separator::reduced_ptr separator::force_pop()
 {
   if (auto r = this->pop() )
     return r;
-  auto r = _reducer.detach();
-  r->ts = _next_time  - _step_ts;
-  return r;
+  if ( auto r = _reducer.detach() )
+  {
+    r->ts = _next_time  - _step_ts;
+    return r;
+  }
+  return nullptr;
 }
 
 separator::reduced_ptr separator::get_current()
