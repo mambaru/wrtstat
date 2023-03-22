@@ -108,6 +108,7 @@ bool basic_aggregator::separate(time_type ts_now, aggregated_handler handler, bo
 
 basic_aggregator::aggregated_ptr basic_aggregator::pop()
 {
+  this->aggregate0_();
   if ( _ag_list.empty() )
     return nullptr;
   auto res = std::move(_ag_list.front() );
