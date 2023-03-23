@@ -260,7 +260,9 @@ request::multi_push::ptr basic_packer::multi_pop()
   }
 
   res->sep = _opt.name_sep;
-  basic_packer::compact(res.get());
+
+  if ( _opt.name_compact )
+    basic_packer::compact(res.get());
   return res;
 }
 
