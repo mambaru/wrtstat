@@ -49,7 +49,7 @@ void aggregator_registry::pop_all(named_aggregated_list* ag_list) const
   if ( ag_list == nullptr ) return;
 
   read_lock<mutex_type> lk(_mutex);
-  this->pop_(ag_list, &aggregator_type::pop);
+  this->pop_(ag_list, &aggregator_type::pop, false);
 
 }
 
@@ -58,7 +58,7 @@ void aggregator_registry::force_pop_all(named_aggregated_list* ag_list) const
   if ( ag_list == nullptr ) return;
 
   read_lock<mutex_type> lk(_mutex);
-  this->pop_(ag_list, &aggregator_type::force_pop);
+  this->pop_(ag_list, &aggregator_type::force_pop, true);
 }
 
 
@@ -263,7 +263,7 @@ bool aggregator_registry::del(const std::string& name)
   return this->_dict.free(id);
 }
 
-void aggregator_registry::pop_(named_aggregated_list* ag_list, aggregated_ptr (aggregator_type::*pop_fun)()  ) const
+void aggregator_registry::pop_(named_aggregated_list* ag_list, aggregated_ptr (aggregator_type::*pop_fun)(), bool force) const
 {
   size_t size = _agarr.size();
   ag_list->reserve(size);
@@ -272,6 +272,7 @@ void aggregator_registry::pop_(named_aggregated_list* ag_list, aggregated_ptr (a
     size_t id = _dict.pos2id(i);
     if ( auto p = this->get_aggregator(id) )
     {
+      p->separate(force);
       if (aggregated_ptr ag = (p.get()->*pop_fun)())
       {
         ag_list->push_back( std::make_pair(_dict.get_name(id), std::move(ag) ) );

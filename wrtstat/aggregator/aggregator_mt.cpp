@@ -61,6 +61,13 @@ aggregator_mt::aggregated_ptr aggregator_mt::aggregate_current()
   return basic_aggregator::aggregate_current();
 }
 
+bool aggregator_mt::separate(bool force)
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  return basic_aggregator::separate(force);
+}
+
+
 bool aggregator_mt::separate(time_type ts_now, aggregated_handler handler, bool force)
 {
   std::lock_guard<mutex_type> lk(_mutex);

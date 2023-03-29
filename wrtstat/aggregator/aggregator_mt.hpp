@@ -39,6 +39,8 @@ public:
 
   aggregated_ptr aggregate_current();
 
+  bool separate(bool force = false);
+
   bool separate(time_type ts_now, aggregated_handler handler, bool force);
 
   void enable(bool value);

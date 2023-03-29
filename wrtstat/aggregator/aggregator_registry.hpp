@@ -106,7 +106,7 @@ private:
     bool summary_size
   );
 
-  void pop_(named_aggregated_list* ag_list, aggregated_ptr (aggregator_type::*pop_fun)() ) const;
+  void pop_(named_aggregated_list* ag_list, aggregated_ptr (aggregator_type::*pop_fun)(), bool force ) const;
 private:
   mutable mutex_type _mutex;
   aggregator_options _opt;

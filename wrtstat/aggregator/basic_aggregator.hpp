@@ -29,6 +29,7 @@ public:
   bool push( time_type ts_now, const data_type& v, size_type count, aggregated_handler handler);
   bool push( const reduced_data& v, aggregated_handler handler);
 
+  bool separate(bool force = false);
   bool separate(time_type ts_now, aggregated_handler handler, bool force);
 
   aggregated_ptr pop();
