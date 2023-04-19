@@ -1,5 +1,6 @@
 #include "basic_aggregator.hpp"
 #include <algorithm>
+#include <iostream>
 
 namespace wrtstat {
 
@@ -46,7 +47,6 @@ bool basic_aggregator::push( time_type ts_now, value_type v, size_type count, ag
 {
   if ( !_enabled )
     return true;
-
   if ( handler == nullptr )
     return this->add(ts_now, v, count);
   return _sep.push(ts_now, v, count, std::bind(&basic_aggregator::push_handler_,  this, std::placeholders::_1, handler));

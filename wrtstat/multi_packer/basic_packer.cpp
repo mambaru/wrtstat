@@ -15,7 +15,6 @@
 
 namespace wrtstat{
 
-
 basic_packer::basic_packer(const packer_options& opt, const multi_push_handler& handler)
   : _opt(opt)
   , _handler(handler)
@@ -67,7 +66,6 @@ bool basic_packer::push( request::push::ptr req)
   _top.insert( std::make_pair(json_size, std::move(req)));
   return true;
 }
-
 
 bool basic_packer::multi_push( const request::multi_push& req)
 {
@@ -222,6 +220,7 @@ request::multi_push::ptr basic_packer::multi_pop()
   size_t push_limit = _opt.push_limit;
   if (empty_size > json_limit )
     return nullptr;
+
   json_limit -= empty_size;
   while (json_limit > 0)
   {

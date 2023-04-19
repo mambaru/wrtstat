@@ -18,21 +18,20 @@ UNIT(wrtstat1, "")
   wrtstat::wrtstat stat(options);
   stat.create_composite_multi_meter<std::chrono::microseconds>(
     "a1", "a2", "a3", true).create(
-    stat.now(),
     static_cast<wrtstat::size_type >(255),
     0l, 0l
   );
   t << message("DEBUG");
   t << flush;
 
-  stat.create_size_multi_meter( "s1").create(stat.now(), 12);
-  stat.create_value_multi_meter( "v1").create(stat.now(), 12, 0u);
-  stat.create_value_multi_meter( "v2").create(stat.now(), 12, 1u);
+  stat.create_size_multi_meter( "s1").create(12);
+  stat.create_value_multi_meter( "v1").create(12, 0u);
+  stat.create_value_multi_meter( "v2").create(12, 1u);
 
   stat.create_time_multi_meter< std::chrono::nanoseconds >("t1")
-      .create( stat.now(), 1u);
+      .create(1u);
   stat.create_time_multi_meter< std::chrono::nanoseconds >( "t2")
-      .create( stat.now(), 10u );
+      .create(10u);
   t << nothing;
 }
 

@@ -12,9 +12,9 @@ namespace wrtstat {
 
 struct packer_options
 {
-  size_t push_limit = 0;
-  size_t data_limit = 0; 
-  size_t json_limit = 0;
+  size_t push_limit = 32768;
+  size_t data_limit = 32768;
+  size_t json_limit = 32768;
   bool json_compact = false;
   
   std::string name_sep = "~~";

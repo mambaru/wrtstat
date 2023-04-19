@@ -27,54 +27,54 @@ public:
   time_point( time_point&& ) = default;
   time_point& operator=( time_point&& ) = default;
 
-  time_point(const meter_fun_t& fun, time_type ts_now, size_type cnt = 1 )
-    : _now(ts_now)
+  time_point(const meter_fun_t& fun, resolutions res, size_type cnt = 1 )
+    : _resolution(res)
     , _count(cnt)
     , _meter_fun(fun)
   {
-    if ( _now != 0 )
-      _start = clock_type::now();
+    _start = clock_type::now();
   }
 
   ~time_point()
   {
-    this->_push();
+    this->push();
   }
 
   void reset()
   {
-    _now = 0;
     _count = 0;
   }
 
-  void reset(const meter_fun_t& fun, time_type ts_now, size_type cnt )
+  void reset(const meter_fun_t& fun, size_type cnt )
   {
-    this->_push();
-    _now = ts_now;
+    this->push();
     _meter_fun = fun;
-    if ( _now != 0 )
-    {
-      _count = cnt;
-      _start = clock_type::now();
-    }
+    _count = cnt;
+    _start = clock_type::now();
   }
 
-  void _push()
+  void push(time_type ts_now)
   {
-    if ( _meter_fun == nullptr || _now == 0 )
+    if ( _meter_fun == nullptr )
       return;
     clock_type::time_point finish = clock_type::now();
     time_type span = std::chrono::template duration_cast<D>( finish - _start ).count();
-    _meter_fun( _now, fas::useless_cast<value_type>(span), _count );
+    _meter_fun( ts_now, fas::useless_cast<value_type>(span), _count );
+    _meter_fun=nullptr;
   }
 
-  time_point<D> clone(time_type ts_now, size_type cnt) const
+  void push()
   {
-    return time_point<D>(_meter_fun, ts_now, cnt);
+    this->push(aggregator::now(_resolution));
+  }
+
+  time_point<D> clone( size_type cnt) const
+  {
+    return time_point<D>(_meter_fun, _resolution, cnt);
   }
 
 private:
-  time_type _now;
+  resolutions _resolution;
   size_type _count;
   meter_fun_t _meter_fun;
   clock_type::time_point _start;
@@ -95,22 +95,12 @@ public:
 
   time_point<D> create(size_type count) const
   {
-    return this->create(aggregator::now(_resolution), count);
-  }
-
-  time_point<D> create(time_t ts_now, size_type count) const
-  {
-    return time_point<D>(_meter_fun, ts_now, count);
+    return time_point<D>(_meter_fun, _resolution, count);
   }
 
   std::shared_ptr< time_point<D> > create_shared(size_type count) const
   {
-    return this->create_shared(aggregator::now(_resolution), count);
-  }
-
-  std::shared_ptr< time_point<D> > create_shared(time_t ts_now, size_type count) const
-  {
-    return std::make_shared<time_point<D> >(_meter_fun, ts_now, count);
+    return std::make_shared<time_point<D> >(_meter_fun, _resolution, count);
   }
 
 private:

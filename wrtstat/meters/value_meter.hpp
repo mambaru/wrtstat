@@ -21,8 +21,8 @@ public:
   value_point( const value_point& ) = delete;
   value_point& operator=( const value_point& ) = delete;
 
-  value_point(const meter_fun_t& fun, time_type ts_now, value_type val, size_type cnt = 1)
-    : _now(ts_now)
+  value_point(const meter_fun_t& fun, resolutions res, value_type val, size_type cnt = 1)
+    : _resolution(res)
     , _value(val)
     , _count(cnt)
     , _meter_fun(fun)
@@ -31,14 +31,19 @@ public:
 
   ~value_point()
   {
-    this->push_();
+    this->push();
   }
 
-  void push_()
+  void push(time_type ts_now)
   {
-    if ( _meter_fun == nullptr || _now == 0)
+    if ( _meter_fun == nullptr )
       return;
-    _meter_fun( _now, _value, _count );
+    _meter_fun( ts_now, _value, _count );
+  }
+
+  void push()
+  {
+    this->push(aggregator::now(_resolution));
   }
 
   void set_value(value_type val) { _value = val; }
@@ -47,28 +52,26 @@ public:
   void set_count(size_t cnt) { _count = cnt; }
   size_type get_count() const { return _count; }
 
-  value_point clone(time_type ts_now, value_type val,  size_type cnt) const
+  value_point clone( value_type val,  size_type cnt) const
   {
-    return value_point(_meter_fun, ts_now, val, cnt);
+    return value_point(_meter_fun, _resolution, val, cnt);
   }
 
   void reset()
   {
-    _now = 0;
     _count = 0;
     _value = 0;
   }
 
-  void reset(const meter_fun_t& fun, time_type ts_now, value_type val,  size_type cnt )
+  void reset(const meter_fun_t& fun,  value_type val,  size_type cnt )
   {
-    this->push_();
-    _now = ts_now;
+    this->push();
     _meter_fun = fun;
     _value = val;
     _count = cnt;
   }
 private:
-  time_type  _now;
+  resolutions _resolution;
   value_type _value;
   size_type  _count;
   meter_fun_t _meter_fun;
@@ -87,22 +90,12 @@ public:
 
   value_point create(value_type value, size_type count) const
   {
-    return this->create(aggregator::now(_resolution), value, count);
-  }
-
-  value_point create(time_type now_ts,  value_type value, size_type count) const
-  {
-    return value_point(_meter_fun, now_ts, value, count);
+    return value_point(_meter_fun, _resolution, value, count);
   }
 
   std::shared_ptr< value_point > create_shared(value_type value, size_type count) const
   {
-    return this->create_shared(aggregator::now(_resolution), value, count);
-  }
-
-  std::shared_ptr< value_point > create_shared(time_type now_ts,  value_type value, size_type count) const
-  {
-    return std::make_shared<value_point>(_meter_fun, now_ts, value, count);
+    return std::make_shared<value_point>(_meter_fun, _resolution, value, count);
   }
 
 private:

@@ -57,13 +57,13 @@ public:
 
   
   template<typename... A>
-  multi_point<point_type> clone(time_type now, A... args) const
+  multi_point<point_type> clone(A... args) const
   {
     multi_point<point_type> m;
     m._points.reserve(this->_points.size());
     for (const auto& p : _points )
     {
-      m._points.push_back( std::move( p.clone(now, args...) ) );
+      m._points.push_back( std::move( p.clone(args...) ) );
     }
     return  std::move(m);
   }
