@@ -1,5 +1,4 @@
 #include "separator.hpp"
-#include <iostream>
 
 namespace wrtstat {
 

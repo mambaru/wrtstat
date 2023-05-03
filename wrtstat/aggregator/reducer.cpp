@@ -1,6 +1,5 @@
 #include <wrtstat/aggregator/reducer.hpp>
 
-
 namespace wrtstat {
 
 namespace{

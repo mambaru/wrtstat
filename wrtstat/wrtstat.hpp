@@ -23,6 +23,7 @@ public:
   typedef std::mutex mutex_type;
   typedef registry_type::initializer_fun_t initializer_fun_t;
 
+  virtual ~wrtstat();
   explicit wrtstat(const options_type& opt = options_type() ) ;
 
   void set_initializer(initializer_fun_t&& init_f);

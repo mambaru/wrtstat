@@ -1,6 +1,5 @@
 #include "basic_aggregator.hpp"
 #include <algorithm>
-#include <iostream>
 
 namespace wrtstat {
 

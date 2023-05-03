@@ -101,7 +101,6 @@ id_t aggregator_registry::create_aggregator(const std::string& name, time_type n
         _agarr[pos]->add(rd);
       }
     }
-    
   }
   return id;
 }

@@ -55,6 +55,11 @@ void wrtstat::fake_implementations_()
 
 /////////////////////////////////////////////////
 
+wrtstat::~wrtstat()
+{
+  this->force_pushout();
+}
+
 wrtstat::wrtstat(const options_type& opt )
   :  _registry( std::make_unique<registry_type>(opt/*, opt.pool_size, opt.id_init, opt.id_step*/) )
   , _resolution(opt.resolution)

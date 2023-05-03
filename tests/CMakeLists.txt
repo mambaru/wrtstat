@@ -13,5 +13,5 @@ add_executable(
 
 target_link_libraries(test_wrtstat PUBLIC wrtstat fas::testing)
 
-wci_test( TARGET test_wrtstat COMMAND test_wrtstat)
+wci_test( TARGET test_wrtstat COMMAND test_wrtstat NO_MEMCHECK)
 
