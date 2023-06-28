@@ -36,7 +36,7 @@ bool multi_aggregator::push( const std::string& name, const reduced_data& v, pus
 {
   size_t pos = this->get_pos_(name);
   auto& ag = _aggregator_list[pos];
-  auto& mtx = _mutex_list[pos];
+  const auto& mtx = _mutex_list[pos];
   std::lock_guard<mutex_type> lk( *mtx );
   return ag->push(name, v, std::move(handler) );
 }
@@ -45,24 +45,49 @@ bool multi_aggregator::push( const request::push& p, const push_handler& handler
 {
   size_t pos = this->get_pos_(p.name);
   auto& ag = _aggregator_list[pos];
-  auto& mtx = _mutex_list[pos];
+  const auto& mtx = _mutex_list[pos];
   std::lock_guard<mutex_type> lk( *mtx );
   return ag->push(p, std::move(handler) );  
 }
 
 bool multi_aggregator::multi_push( const request::multi_push& mp, const push_handler& handler)
 {
-  // Это наивный вариант:
-  // TODO: сделать разбор легенды
-  // TODO: сделать move варианты
-  // TODO: сначала извлечь в массивы, потом под мьютексоб пушить 
-  // TODO: все опционально
   for ( const request::push& p : mp.data )
     this->push(p, handler);
   return true;
 }
 
+bool multi_aggregator::del( const std::string& name)
+{
+  size_t pos = this->get_pos_(name);
+  auto& ag = _aggregator_list[pos];
+  const auto& mtx = _mutex_list[pos];
+  std::lock_guard<mutex_type> lk( *mtx );
+  return ag->del( name );
+}
 
+
+void multi_aggregator::pushout(const push_handler& handler)
+{
+  size_t size = _mutex_list.size();
+  for (size_t i = 0; i < size; ++i)
+  {
+    const auto& mtx = _mutex_list[i];
+    std::lock_guard<mutex_type> lk( *mtx );
+    _aggregator_list[i]->pushout(handler);
+  }
+}
+
+void multi_aggregator::force_pushout(const push_handler& handler)
+{
+  size_t size = _mutex_list.size();
+  for (size_t i = 0; i < size; ++i)
+  {
+    const auto& mtx = _mutex_list[i];
+    std::lock_guard<mutex_type> lk( *mtx );
+    _aggregator_list[i]->force_pushout(handler);
+  }
+}
 
 // ===============================================================
 

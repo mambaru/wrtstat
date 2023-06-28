@@ -57,7 +57,11 @@ private:
 private:
   packer_options _opt;
   multi_push_handler _handler;
-  std::multimap<size_t, request::push::ptr> _top;
+
+  typedef std::pair<size_t, request::push::ptr> top_pair_t;
+  typedef std::vector<top_pair_t> top_list_t;
+  top_list_t _top;
+  //std::multimap<size_t, request::push::ptr> _top;
 };
 
 }

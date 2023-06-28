@@ -22,9 +22,12 @@ public:
   typedef std::unique_ptr<registry_type> registry_ptr;
   typedef std::mutex mutex_type;
   typedef registry_type::initializer_fun_t initializer_fun_t;
+  typedef std::vector<std::string> prefix_list_t;
 
   virtual ~wrtstat();
   explicit wrtstat(const options_type& opt = options_type() ) ;
+
+  resolutions resolution() const { return _resolution;}
 
   void set_initializer(initializer_fun_t&& init_f);
 
@@ -43,7 +46,7 @@ public:
   time_meter<D> create_time_meter(const std::string& name);
 
   template<typename D>
-  multi_meter< time_meter<D> > create_time_multi_meter( const std::string& time_name);
+  multi_meter< time_meter<D> > create_time_multi_meter( const prefix_list_t& prefixes, const std::string& time_name);
 
 // ----------------------------------
 // size_meter
@@ -52,7 +55,7 @@ public:
 
   size_meter create_size_meter(const std::string& name);
 
-  multi_meter< size_meter > create_size_multi_meter( const std::string& time_name);
+  multi_meter< size_meter > create_size_multi_meter( const prefix_list_t& prefixes, const std::string& time_name);
 
 // ----------------------------------
 // value_meter
@@ -62,7 +65,7 @@ public:
 
   value_meter create_value_meter(const std::string& name);
 
-  multi_meter< value_meter > create_value_multi_meter( const std::string& time_name);
+  multi_meter< value_meter > create_value_multi_meter( const prefix_list_t& prefixes, const std::string& time_name);
 
 // ----------------------------------
 // composite_meter
@@ -82,6 +85,7 @@ public:
 
   template<typename D>
   multi_meter< composite_meter<D> > create_composite_multi_meter(
+    const prefix_list_t& prefixes,
     const std::string& time_name,
     const std::string& read_name,
     const std::string& write_name,
@@ -137,7 +141,7 @@ private:
   registry_ptr _registry;
   resolutions _resolution = resolutions::none;
   named_aggregated_handler _handler;
-  std::vector<std::string> _prefixes;
+  // std::vector<std::string> _prefixes;
 };
 
 }

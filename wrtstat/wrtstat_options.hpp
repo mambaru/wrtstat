@@ -9,7 +9,7 @@ struct wrtstat_options
   : registry_options
 {
   typedef std::function<void(const std::string& name, aggregated_data::ptr)> named_aggregated_handler;
-  std::vector<std::string> prefixes;
+  /*std::vector<std::string> prefixes;*/
   named_aggregated_handler handler = nullptr;
 };
 

@@ -1,4 +1,4 @@
 unusedFunction:./wrtstat/aggregator/*
 unusedFunction:./wrtstat/multi_packer/*
 useStlAlgorithm:./wrtstat/multi_packer/*
-unknownMacro:./wrtstat/*
+#unknownMacro:./wrtstat/*

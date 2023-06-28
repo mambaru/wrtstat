@@ -175,6 +175,7 @@ aggregator_registry::composite_pusher_t aggregator_registry::create_composite_pu
   bool summary_size
 )
 {
+
   simple_pusher_t time_pusher;
   simple_pusher_t read_pusher;
   simple_pusher_t write_pusher;

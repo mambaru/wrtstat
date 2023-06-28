@@ -32,6 +32,20 @@ size_t basic_packer::pushout()
     _handler( std::move(p) );
     ++count;
   }
+
+  if ( !_top.empty() )
+  {
+    auto mp = std::make_unique<request::multi_push>();
+    for ( auto& p : _top )
+    {
+      mp->data.push_back( std::move(*p.second) );
+    }
+    this->compact( mp.get() );
+    _handler( std::move(mp) );
+  }
+
+  _top.clear();
+  _top.shrink_to_fit();
   return count;
 }
 
@@ -63,7 +77,8 @@ bool basic_packer::push( request::push::ptr req)
     json_size -= req->name.size();
     json_size += 3*count;
   }
-  _top.insert( std::make_pair(json_size, std::move(req)));
+  auto itr = std::lower_bound(_top.begin(), _top.end(), top_pair_t(json_size, nullptr) );
+  _top.insert( itr, std::make_pair(json_size, std::move(req)));
   return true;
 }
 
@@ -180,7 +195,8 @@ request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursiz
   if ( _top.empty() )
     return nullptr;
 
-  auto itr = _top.lower_bound(maxsize);
+//  auto itr = _top.lower_bound(maxsize);
+  auto itr = std::lower_bound(_top.begin(), _top.end(), top_pair_t(maxsize, nullptr) );
   if ( itr == _top.end() )
   {
     // любая подходит, берем максимальную

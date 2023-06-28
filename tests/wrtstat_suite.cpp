@@ -17,6 +17,7 @@ UNIT(wrtstat1, "")
 
   wrtstat::wrtstat stat(options);
   stat.create_composite_multi_meter<std::chrono::microseconds>(
+    {},
     "a1", "a2", "a3", true).create(
     static_cast<wrtstat::size_type >(255),
     0l, 0l
@@ -24,13 +25,13 @@ UNIT(wrtstat1, "")
   t << message("DEBUG");
   t << flush;
 
-  stat.create_size_multi_meter( "s1").create(12);
-  stat.create_value_multi_meter( "v1").create(12, 0u);
-  stat.create_value_multi_meter( "v2").create(12, 1u);
+  stat.create_size_multi_meter( {}, "s1").create(12);
+  stat.create_value_multi_meter( {}, "v1").create(12, 0u);
+  stat.create_value_multi_meter( {}, "v2").create(12, 1u);
 
-  stat.create_time_multi_meter< std::chrono::nanoseconds >("t1")
+  stat.create_time_multi_meter< std::chrono::nanoseconds >( {}, "t1")
       .create(1u);
-  stat.create_time_multi_meter< std::chrono::nanoseconds >( "t2")
+  stat.create_time_multi_meter< std::chrono::nanoseconds >( {}, "t2")
       .create(10u);
   t << nothing;
 }
@@ -69,7 +70,7 @@ UNIT(wrtstat3, "")
   /*opt.reducer_limit = 256;
   opt.reducer_levels = 256;
   opt.pool_size = 256;*/
-  opt.prefixes={"a~~"/*, "b~~", "c~~", "d~~", "e~~", "f~~"*/};
+  wrtstat::wrtstat::prefix_list_t prefixes={"a~~"/*, "b~~", "c~~", "d~~", "e~~", "f~~"*/};
 
   int test = 0;
 //#error TODO передавать имя!! и убрать удаление счетчиков, иначе ссылка будет не дествительна, а по значению захватывать не эффективно
@@ -83,7 +84,7 @@ UNIT(wrtstat3, "")
 
   std::map<size_t, size_t> test_map;
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", true);
-  auto meter = stat.create_composite_multi_meter<std::chrono::nanoseconds>("", "", "size2", true);
+  auto meter = stat.create_composite_multi_meter<std::chrono::nanoseconds>(prefixes, "", "", "size2", true);
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1");
   //auto meter = stat.create_composite_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", false);
   //auto meter = stat.create_time_meter_factory<std::chrono::microseconds>("time1");
@@ -114,7 +115,7 @@ UNIT(wrtstat4, "")
   opt.reducer_limit = 256;
   opt.reducer_levels = 256;
   opt.pool_size = 256;
-  opt.prefixes={"a~~", "b~~", "c~~", "d~~", "e~~", "f~~"};
+  wrtstat::wrtstat::prefix_list_t prefixes={"a~~", "b~~", "c~~", "d~~", "e~~", "f~~"};
 
   int test = 0;
 //#error TODO передавать имя!! и убрать удаление счетчиков, иначе ссылка будет не дествительна, а по значению захватывать не эффективно
@@ -128,7 +129,7 @@ UNIT(wrtstat4, "")
 
   std::map<size_t, size_t> test_map;
   //auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", true);
-  auto meter = stat.create_composite_multi_meter<std::chrono::nanoseconds>("", "", "size2", true);
+  auto meter = stat.create_composite_multi_meter<std::chrono::nanoseconds>(prefixes, "", "", "size2", true);
   /*auto meter = stat.create_multi_meter_factory<std::chrono::nanoseconds>("time1");
   auto meter = stat.create_composite_meter_factory<std::chrono::nanoseconds>("time1", "size1", "size2", false);
   auto meter = stat.create_time_meter_factory<std::chrono::microseconds>("time1");*/

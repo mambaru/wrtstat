@@ -7,7 +7,7 @@
 
 namespace wrtstat{
   
-struct multi_aggregator_options_options_json
+struct multi_aggregator_options_json
 {
   JSON_NAME(pool_size)
   JSON_NAME(hash_size)

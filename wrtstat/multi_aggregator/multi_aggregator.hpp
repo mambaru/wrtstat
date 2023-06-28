@@ -34,6 +34,11 @@ public:
 
   bool multi_push( const request::multi_push& p, const push_handler& handler);
   
+  bool del( const std::string& name);
+
+  void pushout(const push_handler& handler);
+  void force_pushout(const push_handler& handler);
+
 private:
   size_t get_pos_( const std::string& name) const;
   

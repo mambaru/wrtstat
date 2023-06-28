@@ -31,6 +31,10 @@ public:
 
   bool push( const request::push& p, const push_handler& handler);
   
+  bool del( const std::string& name);
+
+  void pushout(const push_handler& handler);
+  void force_pushout(const push_handler& handler);
 private:
   aggregator_map_t _aggregator_map;
   options_type _opt;

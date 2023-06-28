@@ -26,10 +26,10 @@ void wrtstat::fake_implementations_()
   this->create_time_meter<std::chrono::microseconds>(std::string());
   this->create_time_meter< std::chrono::nanoseconds>(std::string());
 
-  this->create_time_multi_meter<std::chrono::seconds>(std::string());
-  this->create_time_multi_meter<std::chrono::milliseconds>(std::string());
-  this->create_time_multi_meter<std::chrono::microseconds>(std::string());
-  this->create_time_multi_meter< std::chrono::nanoseconds>(std::string());
+  this->create_time_multi_meter<std::chrono::seconds>({""}, std::string());
+  this->create_time_multi_meter<std::chrono::milliseconds>({""},std::string());
+  this->create_time_multi_meter<std::chrono::microseconds>({""},std::string());
+  this->create_time_multi_meter< std::chrono::nanoseconds>({""},std::string());
 
   this->create_composite_meter<std::chrono::seconds>(0,0,0,false);
   this->create_composite_meter<std::chrono::milliseconds>(0,0,0,false);
@@ -41,10 +41,10 @@ void wrtstat::fake_implementations_()
   this->create_composite_meter<std::chrono::microseconds>(std::string(),std::string(),std::string(),false);
   this->create_composite_meter< std::chrono::nanoseconds>(std::string(),std::string(),std::string(),false);
 
-  this->create_composite_multi_meter<std::chrono::seconds>(std::string(),std::string(),std::string(),false);
-  this->create_composite_multi_meter<std::chrono::milliseconds>(std::string(),std::string(),std::string(),false);
-  this->create_composite_multi_meter<std::chrono::microseconds>(std::string(),std::string(),std::string(),false);
-  this->create_composite_multi_meter< std::chrono::nanoseconds>(std::string(),std::string(),std::string(),false);
+  this->create_composite_multi_meter<std::chrono::seconds>({""},std::string(),std::string(),std::string(),false);
+  this->create_composite_multi_meter<std::chrono::milliseconds>({""},std::string(),std::string(),std::string(),false);
+  this->create_composite_multi_meter<std::chrono::microseconds>({""},std::string(),std::string(),std::string(),false);
+  this->create_composite_multi_meter< std::chrono::nanoseconds>({""},std::string(),std::string(),std::string(),false);
 
   wrtstat::now_t<std::chrono::seconds>() ;
   wrtstat::now_t<std::chrono::milliseconds>() ;
@@ -64,10 +64,10 @@ wrtstat::wrtstat(const options_type& opt )
   :  _registry( std::make_unique<registry_type>(opt/*, opt.pool_size, opt.id_init, opt.id_step*/) )
   , _resolution(opt.resolution)
   , _handler(opt.handler)
-  , _prefixes(opt.prefixes)
+  /*, _prefixes(opt.prefixes)*/
 {
-  if ( _prefixes.empty() )
-    _prefixes.push_back("");
+  /*if ( _prefixes.empty() )
+    _prefixes.push_back("");*/
 }
 
 void wrtstat::set_initializer(initializer_fun_t&& init_f)
@@ -102,11 +102,11 @@ wrtstat::create_time_meter(const std::string& name)
 
 template<typename D>
 multi_meter< time_meter<D> >
-wrtstat::create_time_multi_meter( const std::string& time_name)
+wrtstat::create_time_multi_meter( const prefix_list_t& prefixes, const std::string& time_name)
 {
   multi_meter< time_meter<D> > meter;
-  meter.reserve( _prefixes.size() );
-  for ( auto prefix : _prefixes )
+  meter.reserve( prefixes.size() );
+  for ( auto prefix : prefixes )
   {
     auto f = this->create_time_meter<D>(prefix + time_name);
     meter.push_back( std::move(f) );
@@ -125,11 +125,11 @@ size_meter wrtstat::create_size_meter(const std::string& name)
 }
 
 multi_meter< size_meter >
-  wrtstat::create_size_multi_meter( const std::string& time_name)
+  wrtstat::create_size_multi_meter( const prefix_list_t& prefixes, const std::string& time_name)
 {
   multi_meter< size_meter > factory;
-  factory.reserve( _prefixes.size() );
-  for ( auto prefix : _prefixes )
+  factory.reserve( prefixes.size() );
+  for ( auto prefix : prefixes )
   {
     auto f = this->create_size_meter(prefix + time_name);
     factory.push_back( std::move(f) );
@@ -152,11 +152,11 @@ value_meter wrtstat::create_value_meter(const std::string& name)
 }
 
 multi_meter< value_meter >
-  wrtstat::create_value_multi_meter( const std::string& time_name)
+  wrtstat::create_value_multi_meter( const prefix_list_t& prefixes, const std::string& time_name)
 {
   multi_meter< value_meter > factory;
-  factory.reserve( _prefixes.size() );
-  for ( auto prefix : _prefixes )
+  factory.reserve( prefixes.size() );
+  for ( auto prefix : prefixes )
   {
     auto f = this->create_value_meter(prefix + time_name);
     factory.push_back( std::move(f) );
@@ -208,6 +208,7 @@ composite_meter<D>
 template<typename D>
 multi_meter< composite_meter<D> >
   wrtstat::create_composite_multi_meter(
+      const prefix_list_t& prefixes,
       const std::string& time_name,
       const std::string& read_name,
       const std::string& write_name,
@@ -215,8 +216,8 @@ multi_meter< composite_meter<D> >
     )
 {
     multi_meter< composite_meter<D> > meter;
-    meter.reserve( _prefixes.size() );
-    for ( auto prefix : _prefixes )
+    meter.reserve( prefixes.size() );
+    for ( auto prefix : prefixes )
     {
       auto f = this->create_composite_meter<D>(
         make_name_(prefix, time_name),
