@@ -184,6 +184,44 @@ UNIT(basic_packer1, "")
   t << equal<expect, size_t>(total2, total3) << FAS_FL;
 }
 
+UNIT(basic_packer2, "")
+{
+  using namespace fas::testing;
+  using namespace wrtstat;
+
+  packer_options opt;
+  opt.json_limit = 512;
+  opt.push_limit = 10;
+  opt.data_limit = 10;
+  opt.json_compact = true;
+  opt.name_compact = true;
+  size_t total1 = 0;
+  size_t total2 = 0;
+//  size_t total4 = 0;
+  // &t, &total1, &total2,
+  basic_packer pt(opt, nullptr);
+
+  for (int i = 0; i < 1000; ++i)
+  {
+    ++total1;
+    auto req = std::make_unique<request::push>();
+    req->name="name"+std::to_string(i);
+    size_t count = 1 + size_t(std::rand() % 9);
+    for ( size_t c = 0; c < count; ++c)
+      req->data.push_back(std::rand());
+    pt.push(std::move(req));
+  }
+
+  t << is_false<expect>( pt.empty()) << FAS_FL;
+  while (auto req = pt.multi_pop() )
+  {
+    total2+=req->data.size();
+  }
+  t << is_true<expect>( pt.empty()) << FAS_FL;
+  t << equal<expect, size_t>(total1, 1000) << FAS_FL;
+  t << equal<expect, size_t>(total1, total2) << FAS_FL;
+}
+
 } // namespace
 
 BEGIN_SUITE(packer, "")
@@ -192,5 +230,7 @@ BEGIN_SUITE(packer, "")
   ADD_UNIT(packer_compact1)
   ADD_UNIT(push_top1)
   ADD_UNIT(basic_packer1)
+  ADD_UNIT(basic_packer2)
+
 END_SUITE(packer)
 
