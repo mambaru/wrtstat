@@ -139,6 +139,21 @@ basic_aggregator::aggregated_ptr basic_aggregator::aggregate_current()
   return nullptr;
 }
 
+void basic_aggregator::calc_perc(aggregated_data& d)
+{
+  size_t s = d.data.size();
+  if ( s!=0 )
+  {
+    size_type off = 0;
+    d.perc50 = self::nth_(50, off, d.data);
+    d.perc80 = self::nth_(80, off, d.data);
+    d.perc95 = self::nth_(95, off, d.data);
+    d.perc99 = self::nth_(99, off, d.data);
+    d.perc100 = d.data[ s - 1 ];
+  }
+}
+
+
 void basic_aggregator::enable(bool value)
 {
   _enabled = value;
@@ -223,7 +238,9 @@ void basic_aggregator::aggregate1_(aggregated_handler handler)
   }
 }
 
-basic_aggregator::aggregated_ptr basic_aggregator::aggregate2_(reduced_ptr d) const
+
+
+basic_aggregator::aggregated_ptr basic_aggregator::aggregate2_(reduced_ptr d)
 {
   if ( d==nullptr )
     return nullptr;
@@ -233,10 +250,10 @@ basic_aggregator::aggregated_ptr basic_aggregator::aggregate2_(reduced_ptr d) co
   if ( s!=0 )
   {
     size_type off = 0;
-    res->perc50 = this->nth_(50, off, res->data);
-    res->perc80 = this->nth_(80, off, res->data);
-    res->perc95 = this->nth_(95, off, res->data);
-    res->perc99 = this->nth_(99, off, res->data);
+    res->perc50 = self::nth_(50, off, res->data);
+    res->perc80 = self::nth_(80, off, res->data);
+    res->perc95 = self::nth_(95, off, res->data);
+    res->perc99 = self::nth_(99, off, res->data);
     res->perc100 = res->data[ s - 1 ];
   }
   return std::move(res);

@@ -8,6 +8,7 @@ namespace wrtstat {
 
 class basic_aggregator
 {
+  typedef basic_aggregator self;
 public:
   typedef separator::reduced_type reduced_type;
   typedef separator::reduced_ptr reduced_ptr;
@@ -37,6 +38,8 @@ public:
   aggregated_ptr force_pop();
 
   aggregated_ptr aggregate_current();
+
+  static void calc_perc(aggregated_data& d);
 
   void enable(bool value);
 
@@ -81,7 +84,7 @@ private:
 
   void aggregate1_(aggregated_handler handler);
 
-  aggregated_ptr aggregate2_(reduced_ptr d) const;
+  static aggregated_ptr aggregate2_(reduced_ptr d);
 
   void push_handler_( aggregated_ptr ag, aggregated_handler handler);
 
