@@ -13,7 +13,7 @@ add_library(wrtstat
   wrtstat.cpp
 )
 wci_targets(wrtstat)
-target_include_directories(wrtstat PUBLIC ${wrtstat_SOURCE_DIR})
+target_include_directories(wrtstat PUBLIC $<BUILD_INTERFACE:${wrtstat_SOURCE_DIR}>)
 target_link_libraries(wrtstat PUBLIC faslib wjson)
 
 install(DIRECTORY wrtstat DESTINATION include/wrtstat FILES_MATCHING PATTERN "*.hpp" )
