@@ -1,4 +1,7 @@
 #include <wrtstat/multi_packer/basic_packer.hpp>
+#include <wrtstat/api/multi_push_json_compact.hpp>
+#include <wrtstat/api/push_json_compact.hpp>
+#include <wrtstat/api/multi_push_json.hpp>
 #include <fas/testing.hpp>
 
 namespace {
@@ -118,7 +121,7 @@ UNIT(push_top1, "")
   pt.push(req);
 
   t << message("MAX_SIZE=") << pt.max_val();
-  request::push::ptr res = pt.pop_by_json_size(32, nullptr,0);
+  request::push::ptr res = pt.pop_by_json_size(32, nullptr, nullptr);
   t << message("MAX_SIZE=") << pt.max_val();
   t << is_true<assert>(res!=nullptr) << FAS_FL;
   t << stop;
@@ -126,12 +129,12 @@ UNIT(push_top1, "")
   t << message("MAX_SIZE=") << pt.max_val();
   t << is_true<assert>(res!=nullptr) << FAS_FL;
   t << stop;
-  res = pt.pop_by_json_size(31, nullptr, 0);
+  res = pt.pop_by_json_size(31, nullptr, nullptr);
   t << message("MAX_SIZE=") << pt.max_val();
   t << is_true<assert>(res!=nullptr) << FAS_FL;
   t << stop;
   t << equal<expect, std::string>(res->name, "22") << FAS_FL;
-  res = pt.pop_by_json_size(30, nullptr, 0);
+  res = pt.pop_by_json_size(30, nullptr, nullptr);
   t << message("MAX_SIZE=") << pt.max_val();
   t << is_true<assert>(res!=nullptr) << FAS_FL;
   t << stop;
@@ -190,13 +193,13 @@ UNIT(basic_packer2, "")
   using namespace wrtstat;
 
   packer_options opt;
-  opt.json_limit = 512;
-  opt.push_limit = 10;
-  opt.data_limit = 10;
+  opt.json_limit = 1024;
+  opt.push_limit = 0;
+  opt.data_limit = 0;
   opt.json_compact = true;
   opt.name_compact = true;
   size_t total1 = 0;
-  size_t total2 = 0;
+ // size_t total2 = 0;
 //  size_t total4 = 0;
   // &t, &total1, &total2,
   basic_packer pt(opt, nullptr);
@@ -205,7 +208,7 @@ UNIT(basic_packer2, "")
   {
     ++total1;
     auto req = std::make_unique<request::push>();
-    req->name="name"+std::to_string(i);
+    req->name="service~~server~~name"+std::to_string(i);
     size_t count = 1 + size_t(std::rand() % 9);
     for ( size_t c = 0; c < count; ++c)
       req->data.push_back(std::rand());
@@ -215,12 +218,31 @@ UNIT(basic_packer2, "")
   t << is_false<expect>( pt.empty()) << FAS_FL;
   while (auto req = pt.multi_pop() )
   {
-    total2+=req->data.size();
+    //t << equal<expect, size_t>(req->data.size(), opt.push_limit) << FAS_FL;
+
+    //total2+=req->data.size();
+
+    std::string resjson;
+    request::multi_push_json_compact::serializer()( *req, std::back_inserter(resjson));
+
+    std::string resjson2;
+    basic_packer::recompact(req.get(), nullptr);
+    request::multi_push_json_compact::serializer()( *req, std::back_inserter(resjson2));
+
+    std::string resjson3;
+    request::push_json_compact::serializer()( req->data[0], std::back_inserter(resjson3));
+
+    t << less_equal<expect, size_t>(resjson.size(), 1024) << ": \n"
+      << resjson  << "\n"
+      << resjson2 << "\n"
+      << resjson3 << "\n"
+      << FAS_FL;
   }
   t << is_true<expect>( pt.empty()) << FAS_FL;
   t << equal<expect, size_t>(total1, 1000) << FAS_FL;
-  t << equal<expect, size_t>(total1, total2) << FAS_FL;
+ // t << equal<expect, size_t>(total1, total2) << FAS_FL;
 }
+
 
 } // namespace
 

@@ -20,9 +20,13 @@ namespace wrtstat{
 
 class basic_packer
 {
+  typedef std::vector<std::string> legend_list_t;
+  typedef std::pair<request::push::ptr, legend_list_t> push_legend_t;
+  typedef std::pair<size_t, push_legend_t> top_pair_t;
+  typedef std::vector<top_pair_t> top_list_t;
+
 public:
   typedef size_t name_id_t;
-  typedef std::vector<std::string> legend_list_t;
 
   typedef std::function<void(request::multi_push::ptr)> multi_push_handler;
   basic_packer(const packer_options& opt, const multi_push_handler& handler);
@@ -33,7 +37,7 @@ public:
   bool push( request::push::ptr req);
   bool multi_push( const request::multi_push& req);
 
-  request::push::ptr pop_by_json_size(size_t maxsize, size_t* cursize, size_t maxdata);
+  request::push::ptr pop_by_json_size(size_t maxsize, size_t* cursize, /*size_t maxdata,*/ legend_list_t* legend);
   request::multi_push::ptr multi_pop();
 
   size_t pushout();
@@ -58,8 +62,6 @@ private:
   packer_options _opt;
   multi_push_handler _handler;
 
-  typedef std::pair<size_t, request::push::ptr> top_pair_t;
-  typedef std::vector<top_pair_t> top_list_t;
   top_list_t _top;
   //std::multimap<size_t, request::push::ptr> _top;
 };

@@ -38,7 +38,7 @@ size_t basic_packer::pushout()
     auto mp = std::make_unique<request::multi_push>();
     for ( auto& p : _top )
     {
-      mp->data.push_back( std::move(*p.second) );
+      mp->data.push_back( std::move(*p.second.first) );
     }
     this->compact( mp.get() );
     _handler( std::move(mp) );
@@ -65,7 +65,7 @@ bool basic_packer::push( const request::push& req)
 bool basic_packer::push( request::push::ptr req)
 {
   size_t json_size = this->calc_json_size(*req);
-  if ( _opt.name_compact )
+  /*if ( _opt.name_compact )
   {
     size_t pos = 0, count = 0;
     while ( (pos = req->name.find(_opt.name_sep, pos)) != std::string::npos )
@@ -76,9 +76,18 @@ bool basic_packer::push( request::push::ptr req)
     // service~~foo1~~foo2~~foo3 => 0~1~2~3
     json_size -= req->name.size();
     json_size += 3*count;
+  }*/
+  legend_list_t legend;
+  if ( _opt.name_compact )
+  {
+    std::string name = req->name;
+    basic_packer::compact_(&name, &legend, _opt.name_sep);
+    json_size -= req->name.size();
+    json_size += name.size();
   }
-  auto itr = std::lower_bound(_top.begin(), _top.end(), top_pair_t(json_size, nullptr) );
-  _top.insert( itr, std::make_pair(json_size, std::move(req)));
+
+  auto itr = std::lower_bound(_top.begin(), _top.end(), top_pair_t(json_size, push_legend_t()) );
+  _top.insert( itr, std::make_pair(json_size, push_legend_t(std::move(req), std::move(legend) ) ) );
   return true;
 }
 
@@ -190,13 +199,12 @@ size_t basic_packer::min_val() const
   return _top.begin()->first;
 }
 
-request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursize, size_t maxdata)
+request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursize, /*size_t maxdata,*/ legend_list_t* legend)
 {
   if ( _top.empty() )
     return nullptr;
 
-//  auto itr = _top.lower_bound(maxsize);
-  auto itr = std::lower_bound(_top.begin(), _top.end(), top_pair_t(maxsize, nullptr) );
+  auto itr = std::lower_bound(_top.begin(), _top.end(), top_pair_t(maxsize, push_legend_t() ) );
   if ( itr == _top.end() )
   {
     // любая подходит, берем максимальную
@@ -211,12 +219,16 @@ request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursiz
     --itr;
   }
 
-  if ( maxdata!=0 && (itr->second->data.size() > maxdata) )
-    return nullptr;
+  /* if ( maxdata!=0 && (itr->second.first->data.size() > maxdata) )
+    return nullptr;*/
 
-  request::push::ptr p = std::move(itr->second);
+  request::push::ptr p = std::move(itr->second.first);
   if ( cursize!=nullptr)
     *cursize = itr->first;
+
+  if ( legend!=nullptr )
+    *legend = std::move(itr->second.second);
+
   _top.erase(itr);
 
   return p;
@@ -237,17 +249,29 @@ request::multi_push::ptr basic_packer::multi_pop()
   if (empty_size > json_limit )
     return nullptr;
 
+  std::set<std::string> legend_set;
   json_limit -= empty_size;
   while (json_limit > 0)
   {
+    legend_list_t legend;
     size_t cur_json = 0;
-    if ( auto p = this->pop_by_json_size(json_limit, &cur_json, data_limit) )
+    if ( auto p = this->pop_by_json_size(json_limit, &cur_json, &legend) )
     {
+      for ( auto& name: legend)
+      {
+        if ( legend_set.insert(name).second )
+          cur_json += name.size() + 4; // "~",
+      }
       res->data.push_back(std::move(*p));
       if ( json_limit >= cur_json )
         json_limit -= cur_json;
       else
-        abort();
+      {
+        // Возвращаем обратно
+        this->push( std::move(p) );
+        break;
+      }
+
       if ( json_limit > 0 )
         json_limit -= static_cast<size_t>(_opt.json_limit!=0);
 
@@ -262,8 +286,8 @@ request::multi_push::ptr basic_packer::multi_pop()
       {
         if ( p->data.size() > data_limit )
         {
-          abort();
-          //break;
+          p->data.resize(data_limit);
+          break;
         }
         data_limit -= p->data.size();
         if ( data_limit==0 )
@@ -273,6 +297,9 @@ request::multi_push::ptr basic_packer::multi_pop()
     else
       break;
   }
+
+  if ( res->data.empty() )
+    return nullptr;
 
   res->sep = _opt.name_sep;
 
@@ -326,6 +353,7 @@ bool basic_packer::recompact(request::multi_push* req, std::string* err)
     }
     p.name = ss.str();
   }
+  req->legend.clear();
   return true;
 }
 
