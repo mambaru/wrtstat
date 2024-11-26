@@ -193,7 +193,8 @@ size_t basic_packer::size(size_t* data_size) const
   {
     for ( auto& p : _top )
     {
-      *data_size += p.second.first->data.size();
+      if ( p.second.first!=nullptr)
+        *data_size += p.second.first->data.size();
     }
   }
 
