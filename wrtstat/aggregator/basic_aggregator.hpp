@@ -45,6 +45,8 @@ public:
 
   size_t size() const;
 
+  size_t size(size_t* data_size) const;
+
   void clear( time_type ts_now );
 
   template<typename D>

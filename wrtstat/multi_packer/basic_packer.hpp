@@ -43,7 +43,9 @@ public:
   size_t pushout();
 
   bool empty() const;
-  bool size() const;
+  size_t size() const;
+  size_t size(size_t* data_size) const;
+
   size_t max_val() const;
   size_t min_val() const;
 

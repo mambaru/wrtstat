@@ -89,6 +89,19 @@ void multi_aggregator::force_pushout(const push_handler& handler)
   }
 }
 
+size_t multi_aggregator::size(size_t* data_size) const
+{
+  size_t count = 0;
+  size_t size = _mutex_list.size();
+  for (size_t i = 0; i < size; ++i)
+  {
+    const auto& mtx = _mutex_list[i];
+    std::lock_guard<mutex_type> lk( *mtx );
+    count += _aggregator_list[i]->size(data_size);
+  }
+  return count;
+}
+
 // ===============================================================
 
 size_t multi_aggregator::get_pos_( const std::string& name) const

@@ -9,6 +9,7 @@
 #include <iostream>
 using namespace wrtstat;
 
+namespace {
 /*
 aggregator_map rt;
 aggregator_map rt2;
@@ -22,7 +23,6 @@ aggregator_map_t rt2;
 
 //typedef aggregator_map_t::aggregated_ptr aggregated_ptr;
 reduced_data rd;
-std::mutex mutex;
 
 std::vector<std::string> names;
 
@@ -53,6 +53,8 @@ void test()
       std::cout << "span " << span << "mks rate " << xcount*1000l * 1000000l / ( span + 1) << "rps" << std::endl;
     }
   }
+}
+
 }
 
 int main()

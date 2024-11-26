@@ -92,6 +92,9 @@ UNIT(packer_compact1, "")
   t << equal<expect, std::string>("name~1", req.legend[1]) << FAS_FL;
   t << equal<expect, std::string>("name~2", req.legend[2]) << FAS_FL;
   t << equal<expect, std::string>("name~3", req.legend[3]) << FAS_FL;
+  basic_packer::recompact(&req, nullptr);
+  t << equal<expect, std::string>("~~name~1~~name~2~~name~3~~", req.data[0].name) << FAS_FL;
+  t << equal<assert, size_t>(0, req.legend.size()) << FAS_FL;
 
   req.legend.clear();
   req.data[0].name="~~~~~~~";
@@ -101,6 +104,11 @@ UNIT(packer_compact1, "")
   t << stop;
   t << equal<expect, std::string>("", req.legend[0]) << FAS_FL;
   t << equal<expect, std::string>("~", req.legend[1]) << FAS_FL;
+
+  basic_packer::recompact(&req, nullptr);
+  t << equal<expect, std::string>("~~~~~~~", req.data[0].name) << FAS_FL;
+  t << equal<assert, size_t>(0, req.legend.size()) << FAS_FL;
+
 }
 
 UNIT(push_top1, "")

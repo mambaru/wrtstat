@@ -182,10 +182,24 @@ bool basic_packer::empty() const
   return _top.empty();
 }
 
-bool basic_packer::size() const
+size_t basic_packer::size() const
 {
   return _top.size();
 }
+
+size_t basic_packer::size(size_t* data_size) const
+{
+  if ( data_size != nullptr )
+  {
+    for ( auto& p : _top )
+    {
+      *data_size += p.second.first->data.size();
+    }
+  }
+
+  return this->size();
+}
+
 
 size_t basic_packer::max_val() const
 {

@@ -164,6 +164,18 @@ size_t basic_aggregator::size() const
   return _ag_list.size();
 }
 
+size_t basic_aggregator::size(size_t* data_size) const
+{
+  if ( data_size!=nullptr )
+  {
+    for (const auto& i : _ag_list)
+      *data_size += i->data.size();
+    _sep.size(data_size);
+  }
+  return this->size();
+}
+
+
 void basic_aggregator::clear( time_type ts_now )
 {
   _sep.clear(ts_now);

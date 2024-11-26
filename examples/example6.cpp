@@ -6,9 +6,10 @@
 #include <iostream>
 
 using namespace wrtstat;
+
+namespace {
 reduced_data rd;
 ::wrtstat::wrtstat rt1;
-std::mutex mutex;
 
 std::vector<std::string> names;
 
@@ -30,6 +31,7 @@ void test()
       std::cout << "span " << span << "mks rate " << 1000 * 1000000 / ( span + 1) << "rps" << std::endl;
     }
   }
+}
 }
 
 int main()

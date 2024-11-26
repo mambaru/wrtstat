@@ -213,6 +213,17 @@ size_t separator::size() const
   return _sep_list.size();
 }
 
+size_t separator::size(size_t* data_size) const
+{
+  if ( data_size != nullptr )
+  {
+    for (const auto& i : _sep_list )
+      *data_size += i->data.size();
+    *data_size += _reducer.size();
+  }
+  return this->size();
+}
+
 void separator::clear( time_type ts_now )
 {
   ts_now = this->get_ts(ts_now);
