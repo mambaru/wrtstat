@@ -33,6 +33,8 @@ public:
   
   size_t size() const;
 
+  size_t capacity() const;
+
   bool filled() const;
   
   void clear();

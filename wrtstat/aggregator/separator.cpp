@@ -213,13 +213,19 @@ size_t separator::size() const
   return _sep_list.size();
 }
 
-size_t separator::size(size_t* data_size) const
+size_t separator::size(size_t* data_size, size_t* capacity) const
 {
   if ( data_size != nullptr )
   {
     for (const auto& i : _sep_list )
       *data_size += i->data.size();
     *data_size += _reducer.size();
+  }
+  if ( capacity != nullptr )
+  {
+    for (const auto& i : _sep_list )
+      *capacity += i->data.capacity();
+    *capacity += _reducer.capacity();
   }
   return this->size();
 }

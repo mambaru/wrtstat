@@ -187,7 +187,7 @@ size_t basic_packer::size() const
   return _top.size();
 }
 
-size_t basic_packer::size(size_t* data_size) const
+size_t basic_packer::size(size_t* data_size, size_t* capacity) const
 {
   if ( data_size != nullptr )
   {
@@ -195,6 +195,15 @@ size_t basic_packer::size(size_t* data_size) const
     {
       if ( p.second.first!=nullptr)
         *data_size += p.second.first->data.size();
+    }
+  }
+
+  if ( capacity != nullptr )
+  {
+    for ( auto& p : _top )
+    {
+      if ( p.second.first!=nullptr)
+        *capacity += p.second.first->data.capacity();
     }
   }
 

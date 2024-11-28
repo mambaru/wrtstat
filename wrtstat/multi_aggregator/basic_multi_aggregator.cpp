@@ -68,11 +68,11 @@ void basic_multi_aggregator::pushout(const push_handler& handler)
   }
 }
 
-size_t basic_multi_aggregator::size(size_t* data_size) const
+size_t basic_multi_aggregator::size(size_t* data_size, size_t* capacity) const
 {
   for ( auto& item : _aggregator_map )
   {
-    item.second->size(data_size);
+    item.second->size(data_size, capacity);
   }
   return _aggregator_map.size();
 }

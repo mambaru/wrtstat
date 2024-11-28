@@ -80,6 +80,18 @@ size_t reducer::size() const
   return result;
 }
 
+size_t reducer::capacity() const
+{
+  size_t result = 0;
+  for ( auto& p : _data )
+  {
+    if ( p!=nullptr )
+      result += p->capacity();
+  }
+  return result;
+}
+
+
 bool reducer::filled() const
 {
   if ( _opt.reducer_levels == 0 || _opt.reducer_limit==0)

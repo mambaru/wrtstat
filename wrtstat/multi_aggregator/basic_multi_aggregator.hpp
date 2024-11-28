@@ -37,7 +37,7 @@ public:
 
   void force_pushout(const push_handler& handler);
 
-  size_t size(size_t* data_size) const;
+  size_t size(size_t* data_size, size_t* capacity) const;
 
 private:
   aggregator_map_t _aggregator_map;

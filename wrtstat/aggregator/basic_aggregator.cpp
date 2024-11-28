@@ -164,14 +164,19 @@ size_t basic_aggregator::size() const
   return _ag_list.size();
 }
 
-size_t basic_aggregator::size(size_t* data_size) const
+size_t basic_aggregator::size(size_t* data_size, size_t* capacity) const
 {
   if ( data_size!=nullptr )
   {
     for (const auto& i : _ag_list)
       *data_size += i->data.size();
-    _sep.size(data_size);
   }
+  if ( capacity!=nullptr )
+  {
+    for (const auto& i : _ag_list)
+      *capacity += i->data.size();
+  }
+  _sep.size(data_size, capacity);
   return this->size();
 }
 
