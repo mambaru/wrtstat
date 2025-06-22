@@ -65,18 +65,6 @@ bool basic_packer::push( const request::push& req)
 bool basic_packer::push( request::push::ptr req)
 {
   size_t json_size = this->calc_json_size(*req);
-  /*if ( _opt.name_compact )
-  {
-    size_t pos = 0, count = 0;
-    while ( (pos = req->name.find(_opt.name_sep, pos)) != std::string::npos )
-    {
-      ++count; ++pos;
-    }
-    // предполагаем, что в среднем каждое имя в списке заменится XX~ примерно, с запасом для >10
-    // service~~foo1~~foo2~~foo3 => 0~1~2~3
-    json_size -= req->name.size();
-    json_size += 3*count;
-  }*/
   legend_list_t legend;
   if ( _opt.name_compact )
   {
@@ -87,6 +75,7 @@ bool basic_packer::push( request::push::ptr req)
   }
 
   auto itr = std::lower_bound(_top.begin(), _top.end(), top_pair_t(json_size, push_legend_t()) );
+
   _top.insert( itr, std::make_pair(json_size, push_legend_t(std::move(req), std::move(legend) ) ) );
   return true;
 }
@@ -117,6 +106,7 @@ void basic_packer::compact_(std::string* name, legend_list_t* legend, const std:
   size_t cur_pos = 0;
   size_t next_pos = name->find(sep);
   std::string item_name = name->substr(cur_pos, next_pos);
+
   while ( next_pos != std::string::npos)
   {
     short_name << basic_packer::findorcre_(item_name, legend) << "~";
@@ -133,6 +123,7 @@ basic_packer::name_id_t basic_packer::findorcre_(const std::string& name, legend
   auto itr = std::find(legend->begin(), legend->end(), name);
   if ( itr != legend->end() )
     return static_cast<basic_packer::name_id_t>( std::distance( legend->begin(), itr) );
+
   legend->push_back(name);
   return legend->size() - 1;
 }
@@ -243,10 +234,8 @@ request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursiz
     --itr;
   }
 
-  /* if ( maxdata!=0 && (itr->second.first->data.size() > maxdata) )
-    return nullptr;*/
-
   request::push::ptr p = std::move(itr->second.first);
+
   if ( cursize!=nullptr)
     *cursize = itr->first;
 
@@ -254,6 +243,7 @@ request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursiz
     *legend = std::move(itr->second.second);
 
   _top.erase(itr);
+
 
   return p;
 }
@@ -286,9 +276,11 @@ request::multi_push::ptr basic_packer::multi_pop()
         if ( legend_set.insert(name).second )
           cur_json += name.size() + 4; // "~",
       }
-      res->data.push_back(std::move(*p));
       if ( json_limit >= cur_json )
+      {
+        res->data.push_back(std::move(*p));
         json_limit -= cur_json;
+      }
       else
       {
         // Возвращаем обратно
