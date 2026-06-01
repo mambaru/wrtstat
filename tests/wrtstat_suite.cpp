@@ -99,8 +99,8 @@ UNIT(wrtstat3, "")
     //m.reset();
   }
   auto finish = std::chrono::steady_clock::now();
-  time_t span_mks = std::chrono::duration_cast<std::chrono::microseconds>(finish -start).count();
-  t << message("COUNT=") << COUNT << " tests=" << test << " time=" << span_mks << "mks rate=" << (COUNT*1000000L)/span_mks;
+  if ( time_t span_mks = std::chrono::duration_cast<std::chrono::microseconds>(finish -start).count() )
+    t << message("COUNT=") << COUNT << " tests=" << test << " time=" << span_mks << "mks rate=" << (COUNT*1000000L)/span_mks;
   //t << equal<assert>(test, 10) << FAS_FL;
 }
 
@@ -145,8 +145,8 @@ UNIT(wrtstat4, "")
   }
 
   auto finish = std::chrono::steady_clock::now();
-  time_t span_mks = std::chrono::duration_cast<std::chrono::microseconds>(finish -start).count();
-  t << message("COUNT=") << COUNT << " tests=" << test << " time=" << span_mks << "mks rate=" << (COUNT*1000000L)/span_mks;
+  if ( time_t span_mks = std::chrono::duration_cast<std::chrono::microseconds>(finish -start).count() )
+    t << message("COUNT=") << COUNT << " tests=" << test << " time=" << span_mks << "mks rate=" << (COUNT*1000000L)/span_mks;
   t << equal<assert>( stat.aggregators_count(), 7ul) << FAS_FL;
 
   wrtstat::aggregator_registry::options_type opt2;

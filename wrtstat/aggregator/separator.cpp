@@ -99,23 +99,29 @@ bool separator::push( const reduced_data& v, aggregated_handler handler )
 
 separator::reduced_ptr separator::pop()
 {
-  if ( _sep_list.empty() )
-    return nullptr;
-  auto res = std::move(_sep_list.front());
-  _sep_list.pop_front();
+  separator::reduced_ptr res = nullptr;
+
+  if ( !_sep_list.empty() )
+  {
+    res = std::move(_sep_list.front());
+    _sep_list.pop_front();
+  }
   return res;
 }
 
 separator::reduced_ptr separator::force_pop()
 {
-  if (auto r = this->pop() )
-    return r;
-  if ( auto r = _reducer.detach() )
+  separator::reduced_ptr r = this->pop();
+
+  if ( r == nullptr )
   {
-    r->ts = _next_time  - _step_ts;
-    return r;
+    r = _reducer.detach();
+    if ( r != nullptr )
+    {
+      r->ts = _next_time  - _step_ts;
+    }
   }
-  return nullptr;
+  return r;
 }
 
 separator::reduced_ptr separator::get_current()

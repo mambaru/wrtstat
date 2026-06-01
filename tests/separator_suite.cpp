@@ -1,5 +1,6 @@
 #include <fas/testing.hpp>
 #include <wrtstat/aggregator/separator.hpp>
+#include <thread>
 
 namespace {
   
@@ -97,8 +98,10 @@ UNIT(separator2, "")
       t << is_true<expect>( sep.add(now, i, 1) ) << "i=" << i  << FAS_FL;
       t << equal<expect>( sep.current_time(), (now/opt.aggregation_step_ts)*opt.aggregation_step_ts ) << "i=" << i << FAS_FL;
       t << equal<expect>( sep.next_time(), (now/opt.aggregation_step_ts + 1)*opt.aggregation_step_ts ) << "i=" << i << FAS_FL;
+      std::this_thread::sleep_for(std::chrono::nanoseconds(1000));
     }
   }
+
   t << flush;
   sep.separate(0, nullptr, true);
   t << equal<expect>( sep.size(), 1000ul ) << FAS_FL;

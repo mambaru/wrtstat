@@ -216,8 +216,10 @@ size_t basic_packer::min_val() const
 
 request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursize, /*size_t maxdata,*/ legend_list_t* legend)
 {
+  request::push::ptr p = nullptr;
+
   if ( _top.empty() )
-    return nullptr;
+    return p; // nullptr (-Wnrvo)
 
   auto itr = std::lower_bound(_top.begin(), _top.end(), top_pair_t(maxsize, push_legend_t() ) );
   if ( itr == _top.end() )
@@ -230,11 +232,11 @@ request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursiz
     // itr указывает на ближайшее большее к maxval
     // берем ближайшее меньшее к maxval, если есть
     if ( itr == _top.begin() )
-      return nullptr;
+      return p; // nullptr (-Wnrvo)
     --itr;
   }
 
-  request::push::ptr p = std::move(itr->second.first);
+  p = std::move(itr->second.first);
 
   if ( cursize!=nullptr)
     *cursize = itr->first;
@@ -244,7 +246,6 @@ request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursiz
 
   _top.erase(itr);
 
-
   return p;
 }
 
@@ -252,16 +253,23 @@ request::push::ptr basic_packer::pop_by_json_size(size_t maxsize, size_t* cursiz
  */
 request::multi_push::ptr basic_packer::multi_pop()
 {
-  if ( _top.empty() )
-    return nullptr;
+  request::multi_push::ptr res = nullptr;
 
-  auto res = std::make_unique<request::multi_push>();
+  if ( _top.empty() )
+    return res; // nullptr (-Wnrvo)
+
+  res = std::make_unique<request::multi_push>();
+
   size_t empty_size = this->calc_json_size(*res);
   size_t json_limit = _opt.json_limit;
   size_t data_limit = _opt.data_limit;
   size_t push_limit = _opt.push_limit;
+
   if (empty_size > json_limit )
-    return nullptr;
+  {
+    res = nullptr;
+    return res; // nullptr (-Wnrvo)
+  }
 
   std::set<std::string> legend_set;
   json_limit -= empty_size;
@@ -315,12 +323,16 @@ request::multi_push::ptr basic_packer::multi_pop()
   }
 
   if ( res->data.empty() )
-    return nullptr;
+  {
+    res = nullptr;
+    return res; // nullptr (-Wnrvo)
+  }
 
   res->sep = _opt.name_sep;
 
   if ( _opt.name_compact )
     basic_packer::compact(res.get());
+
   return res;
 }
 

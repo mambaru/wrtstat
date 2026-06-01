@@ -112,10 +112,15 @@ bool basic_aggregator::separate(time_type ts_now, aggregated_handler handler, bo
 
 basic_aggregator::aggregated_ptr basic_aggregator::pop()
 {
+  basic_aggregator::aggregated_ptr res = nullptr;
+
   if ( _ag_list.empty() )
-    return nullptr;
-  auto res = std::move(_ag_list.front() );
+    return res;
+
+  res = std::move(_ag_list.front() );
+
   _ag_list.pop_front();
+
   return res;
 }
 

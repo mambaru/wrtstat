@@ -173,10 +173,11 @@ reducer::reduced_ptr reducer::get_reduced()
 
 reducer::reduced_ptr reducer::detach()
 {
+  reducer::reduced_ptr res = nullptr;
   if ( _empty )
-    return nullptr;
+    return res;
 
-  auto res = reduced_ptr(new reduced_type);
+  res = reduced_ptr(new reduced_type);
   this->reduce();
   if ( !_data.empty() )
     _data.front()->swap(res->data);

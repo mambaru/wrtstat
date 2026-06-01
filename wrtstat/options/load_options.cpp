@@ -55,7 +55,7 @@ wrtstat_options load_options(const std::string& path_or_json, std::string* err)
   wrtstat_options opt;
   if ( load_options(path_or_json, &opt, err) )
     return opt;
-  return wrtstat_options();
+  return opt;
 }
 
 std::string serialize_options(const wrtstat_options& opt)
