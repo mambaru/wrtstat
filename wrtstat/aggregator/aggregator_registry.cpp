@@ -251,6 +251,12 @@ void aggregator_registry::enable(bool value)
   }
 }
 
+bool aggregator_registry::enabled() const
+{
+  read_lock<mutex_type> lk(_mutex);
+  return _enabled;
+}
+
 bool aggregator_registry::del(const std::string& name)
 {
   std::lock_guard<mutex_type> lk(_mutex);

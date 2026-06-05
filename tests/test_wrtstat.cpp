@@ -8,4 +8,5 @@ BEGIN_TEST
   RUN_SUITE(multi_aggregator)
   RUN_SUITE(json)
   RUN_SUITE(packer)
+  RUN_SUITE(options)
 END_TEST

@@ -45,6 +45,8 @@ public:
 
   void enable(bool value);
 
+  bool enabled() const;
+
   simple_pusher_t create_simple_pusher(aggregated_handler handler);
 
   data_pusher_t create_data_pusher(aggregated_handler handler);

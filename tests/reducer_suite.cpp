@@ -329,7 +329,7 @@ UNIT(reducer_reducer_4_8, "")
 
 UNIT(reducer_reducer_8_4, "")
 {
-  filled_reducer<8,4>(t);
+  filled_reducer_reducer<8,4>(t);
 }
 
 template< int Limit, int Levels,  int Tail, typename T>

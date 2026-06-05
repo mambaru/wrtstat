@@ -9,6 +9,7 @@ add_executable(
     wrtstat_suite.cpp
     multi_aggregator_suite.cpp
     packer_suite.cpp
+    options_suite.cpp
 )
 
 target_link_libraries(test_wrtstat PUBLIC wrtstat fas::testing)

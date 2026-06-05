@@ -68,6 +68,12 @@ wrtstat::wrtstat(const options_type& opt )
 {
   /*if ( _prefixes.empty() )
     _prefixes.push_back("");*/
+  static const bool templates_linked = [this]()
+  {
+    this->fake_implementations_();
+    return true;
+  }();
+  (void)templates_linked;
 }
 
 void wrtstat::set_initializer(initializer_fun_t&& init_f)
@@ -305,6 +311,11 @@ void wrtstat::enable(bool value)
   _registry->enable(value);
 }
 
+bool wrtstat::enabled() const
+{
+  return _registry->enabled();
+}
+
 bool wrtstat::del(const std::string& name)
 {
   return _registry->del(name);
@@ -357,9 +368,12 @@ size_t wrtstat::pushout_(bool force) const
 {
   aggregator_registry::named_aggregated_list ag_list;
   force ? _registry->force_pop_all(&ag_list) : _registry->pop_all(&ag_list);
-  for(auto &nag : ag_list)
+  if ( _handler )
   {
-    _handler(nag.first, std::move(nag.second) );
+    for(auto &nag : ag_list)
+    {
+      _handler(nag.first, std::move(nag.second) );
+    }
   }
   return ag_list.size();
 }

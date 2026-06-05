@@ -23,6 +23,7 @@ public:
   const separator& get_separator() const;
 
   bool add(time_type ts_now, value_type v, size_type count);
+  // При enable(false) возвращает true, но данные не сохраняются (см. enabled()).
   bool add(time_type ts_now, const data_type& v, size_type count);
   bool add( const reduced_data& v);
 
@@ -42,6 +43,7 @@ public:
   static void calc_perc(aggregated_data& d);
 
   void enable(bool value);
+  bool enabled() const { return _enabled; }
 
   size_t size() const;
 

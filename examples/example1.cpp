@@ -1,32 +1,26 @@
 #include <iostream>
-#include <array>
-#include <algorithm>
-//#include <wrtstat/aggregator.hpp>
-#define LEVEL1 100
-#define LEVEL2 50
+#include <wrtstat/wrtstat.hpp>
+
 int main()
 {
+  wrtstat::wrtstat::options_type opt;
+  opt.resolution = wrtstat::resolutions::none;
+  opt.aggregation_step_ts = 10;
+  wrtstat::wrtstat stat(opt);
+
+  wrtstat::id_t id = stat.create_aggregator("latency", 0);
+  auto meter = stat.create_value_meter(id);
+
+  for (int i = 0; i < 100; ++i)
+    meter.create(static_cast<wrtstat::value_type>(i), 1);
+
+  if (auto ag = stat.force_pop(id))
   {
-    std::array<int, LEVEL1> values;
-    for (int i = 0; i < LEVEL2; ++i)
-    {
-      int pos = i;
-      for (int j = 0; j < LEVEL1; ++j)
-      {
-        if (pos >= LEVEL1)
-           break;
-        values[ std::size_t(pos) ] = i+1;
-        pos += (i+1);
-      }
-    }
-    std::cout << values.size() << std::endl;
-    for ( int i : values )
-      std::cout << i << " ";
-    std::cout << std::endl;
-    
-    for (int i = 1; i < LEVEL2+1; ++i)
-      std::cout << i << " = " << std::count(values.begin(),values.end(), i) << std::endl;
-    
+    std::cout << "count=" << ag->count
+              << " min=" << ag->min
+              << " perc50=" << ag->perc50
+              << " perc100=" << ag->perc100
+              << std::endl;
   }
   return 0;
 }

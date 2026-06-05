@@ -80,6 +80,12 @@ void aggregator_mt::enable(bool value)
   return basic_aggregator::enable(value);
 }
 
+bool aggregator_mt::enabled() const
+{
+  std::lock_guard<mutex_type> lk(_mutex);
+  return basic_aggregator::enabled();
+}
+
 //
 
 aggregator_mt::simple_pusher_t aggregator_mt::create_simple_pusher(aggregated_handler handler )

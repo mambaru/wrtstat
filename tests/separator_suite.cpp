@@ -115,11 +115,37 @@ UNIT(separator2, "")
 
   t << nothing;
 }
+
+UNIT(separator_stale_ts, "")
+{
+  using namespace fas::testing;
+  using namespace wrtstat;
+
+  separator_options opt;
+  opt.reducer_levels = 1;
+  opt.reducer_limit  = 8;
+  opt.resolution = resolutions::none;
+  opt.aggregation_step_ts = 10;
+  separator sep(0, opt);
+
+  t << is_true<expect>( sep.add(0, 1, 1) ) << FAS_FL;
+  t << is_true<expect>( sep.add(5, 2, 1) ) << FAS_FL;
+  sep.separate(20, nullptr, false);
+  t << is_false<expect>( sep.add(5, 3, 1) ) << FAS_FL;
+
+  sep.separate(20, nullptr, true);
+  auto s = sep.pop();
+  t << is_true<assert>( s != nullptr ) << FAS_FL;
+  t << stop;
+  t << equal<expect, size_t>( s->count, 2ul ) << FAS_FL;
+  t << nothing;
+}
 }
 
 BEGIN_SUITE(separator, "")
   ADD_UNIT(separator0)
   ADD_UNIT(separator1)
   ADD_UNIT(separator2)
+  ADD_UNIT(separator_stale_ts)
 END_SUITE(separator)
 

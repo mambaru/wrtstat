@@ -35,7 +35,7 @@ inline reduced_info& reduced_info::operator += (const reduced_info& value)
     this->count += value.count;
     this->lossy += value.lossy;
     this->min = std::min(this->min, value.min);
-    this->max = std::min(this->max, value.max);
+    this->max = std::max(this->max, value.max);
   }
   return *this;
 }

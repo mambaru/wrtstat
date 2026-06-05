@@ -96,6 +96,8 @@ public:
 
   void enable(bool value);
 
+  bool enabled() const;
+
   bool del(const std::string& name);
 
 private:

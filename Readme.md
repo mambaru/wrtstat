@@ -6,8 +6,9 @@
 [![Build Status](https://travis-ci.com/mambaru/wrtstat.svg?branch=mambaru)](https://travis-ci.com/mambaru/wrtstat)
 [![codecov](https://codecov.io/gh/mambaru/wrtstat/branch/master/graph/badge.svg)](https://codecov.io/gh/mambaru/wrtstat)
 
-Библиотека для сбора статистики фреймворка [WFC](https://github.com/mambaru/wfcroot).
+Библиотека общего назначения на C++ для сбора и агрегации числовых метрик (временные окна, lossy-сэмплирование, перцентили).
 
+* [Документация](docs-md/README.md).
 * Документация [doxygen](https://mambaru.github.io/wrtstat/index.html).
 * Репозитарий на [github.com](https://github.com/mambaru/wrtstat).
 * Отчет [coverage](https://mambaru.github.io/wrtstat/cov-report/index.html)

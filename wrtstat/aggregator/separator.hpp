@@ -19,6 +19,8 @@ public:
 
   const reducer_type& get_reducer() const;
 
+  // Returns false when ts falls before the current aggregation window
+  // (ts < next_time - step_ts); such samples are discarded intentionally.
   bool add( time_type ts, value_type v, size_type count );
 
   bool add( time_type ts, const data_type& v, size_type count );

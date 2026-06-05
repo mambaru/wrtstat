@@ -1,34 +1,25 @@
-#include <chrono>
-#include <unordered_map>
-#include <unordered_map>
 #include <iostream>
-const int SIZE = 1000000;
+#include <wrtstat/wrtstat.hpp>
+#include <chrono>
 
 int main()
 {
-  std::unordered_map<int, int> m;
-  m.reserve(SIZE);
-  long c = 0;
-  time_t t = std::numeric_limits<time_t>::max();
-  for (int k = 0; k < 10; ++k)
-  {
-    m.clear();
-    auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < SIZE;++i)
-    {
-      m.insert(std::make_pair(i*i, i));
-      c+=i;
-      //c += m[i*i] += i;
-    }
-    auto finish = std::chrono::high_resolution_clock::now();
-    time_t span = std::chrono::duration_cast<std::chrono::milliseconds>( finish - start).count();
-    if ( span < t )
-      t = span;
-    std::cout << t << "ms" << std::endl;
-  }
-  
-  std::cout << "-------" << std::endl;  
-  std::cout << c << std::endl;
-  std::cout << t << "ms" << std::endl;
+  wrtstat::wrtstat::options_type opt;
+  opt.resolution = wrtstat::resolutions::microseconds;
+  opt.aggregation_step_ts = 1000000;
+  wrtstat::wrtstat stat(opt);
 
+  wrtstat::id_t id = stat.create_aggregator("payload_size", 0);
+  auto meter = stat.create_size_meter(id);
+  for (int i = 0; i < 50; ++i)
+    meter.create(static_cast<wrtstat::value_type>(64 + i * 10));
+
+  if (auto ag = stat.force_pop(id))
+  {
+    std::cout << "count=" << ag->count
+              << " avg=" << ag->avg
+              << " perc80=" << ag->perc80
+              << std::endl;
+  }
+  return 0;
 }

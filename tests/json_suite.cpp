@@ -78,10 +78,78 @@ UNIT(json2, "")
 
 }
 
+template<typename J, typename TestSuite, typename Value>
+void check_json_roundtrip(TestSuite& t, const Value& src)
+{
+  using namespace fas::testing;
+  std::string json;
+  typename J::serializer()( src, std::back_inserter(json) );
+
+  typename J::target dst;
+  wjson::json_error er;
+  typename J::serializer()( dst, json.begin(), json.end(), &er );
+  t << is_true<expect>( !er ) << FAS_FL;
+
+  std::string json2;
+  typename J::serializer()( dst, std::back_inserter(json2) );
+  t << equal<expect>( json, json2 ) << FAS_FL;
+}
+
+UNIT(json3, "")
+{
+  using namespace fas::testing;
+  using namespace wjson::literals;
+  using namespace wrtstat;
+
+  {
+    reduced_info src;
+    src.ts = 100;
+    src.avg = 42;
+    src.count = 7;
+    src.lossy = 2;
+    src.min = 1;
+    src.max = 99;
+    check_json_roundtrip<reduced_info_json>(t, src);
+  }
+
+  {
+    reduced_data src;
+    src.ts = 200;
+    src.avg = 10;
+    src.count = 3;
+    src.lossy = 0;
+    src.min = 5;
+    src.max = 15;
+    src.data = {5, 10, 15};
+    check_json_roundtrip<reduced_data_json>(t, src);
+  }
+
+  {
+    request::push src;
+    src.name = "metric";
+    src.ts = 300;
+    src.avg = 50;
+    src.count = 4;
+    src.lossy = 1;
+    src.min = 10;
+    src.max = 90;
+    src.perc50 = 40;
+    src.perc80 = 70;
+    src.perc95 = 85;
+    src.perc99 = 88;
+    src.perc100 = 90;
+    src.data = {10, 40, 70, 90};
+    check_json_roundtrip<request::push_json>(t, src);
+  }
+
+  t << nothing;
+}
+
 } // namespace
 
 BEGIN_SUITE(json, "")
   ADD_UNIT(json1)
   ADD_UNIT(json2)
+  ADD_UNIT(json3)
 END_SUITE(json)
 
